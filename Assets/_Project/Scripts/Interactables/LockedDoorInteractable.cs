@@ -6,7 +6,7 @@ public class LockedDoorInteractable : Interactable
     [Header("Inventory Requirement")]
     [SerializeField] Inventory inventory;
     [SerializeField] Item requiredItem;
-    [SerializeField] string requiredItemId = "red_key";
+    [SerializeField] string requiredItemId = "hinge_door_key";
 
     [Header("Animation Names")]
     [SerializeField] Animator doorAnimator;
@@ -16,6 +16,7 @@ public class LockedDoorInteractable : Interactable
     [Header("UI")]
     [SerializeField] int timeToShowUI = 1;
     [SerializeField] GameObject showDoorLockedUI;
+    [SerializeField] bool showLockedUIOnInteract;
 
     [Header("State")]
     [SerializeField] int waitTimer = 1;
@@ -61,7 +62,11 @@ public class LockedDoorInteractable : Interactable
 
         if (IsLocked)
         {
-            ShowDoorLockedMessage();
+            if (showLockedUIOnInteract)
+            {
+                ShowDoorLockedMessage();
+            }
+
             return;
         }
 
