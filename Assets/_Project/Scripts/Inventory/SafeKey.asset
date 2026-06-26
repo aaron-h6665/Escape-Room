@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df3e006d0d4044b03aa78b3ba8ce80cc, type: 3}
-  m_Name: Key
+  m_Name: SafeKey
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  id: hinge_door_key
-  description: Key
-  icon: {fileID: 21300000, guid: 5a29f46229589487f81fb4e82ee04d2f, type: 3}
-  prefab: {fileID: 1826431428976596008, guid: e752a82b651c04bc9a15f546c7c23890, type: 3}
+  id: safe_key
+  description: SafeKey
+  icon: {fileID: 21300000, guid: dff71516a076446c7a8327a80f5bbb7f, type: 3}
+  prefab: {fileID: 5122019380304739774, guid: 42db28cac7a70364a84820d664c33b11, type: 3}

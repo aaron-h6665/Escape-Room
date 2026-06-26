@@ -7,6 +7,8 @@ public class PlayerInteract : MonoBehaviour
     private float distance = 10f;
     [SerializeField]
     private LayerMask mask;
+    [SerializeField]
+    private LayerMask blockerMask;
     private PlayerUI playerUI;
     private InputManager inputManager;
 
@@ -30,7 +32,8 @@ public class PlayerInteract : MonoBehaviour
 
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, distance, mask))
+        int raycastMask = mask.value | blockerMask.value;
+        if (Physics.Raycast(ray, out hitInfo, distance, raycastMask, QueryTriggerInteraction.Collide))
         {
             Interactable interactable = hitInfo.collider.GetComponentInParent<Interactable>();
             if (interactable != null)
