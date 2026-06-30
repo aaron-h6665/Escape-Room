@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class LockedDoorInteractable : Interactable
+public class LockedDoorInteractable : Interactable, IDataPersistence
 {
     [Header("Inventory Requirement")]
     [SerializeField] Inventory inventory;
@@ -22,6 +22,13 @@ public class LockedDoorInteractable : Interactable
     [SerializeField] int waitTimer = 1;
     [SerializeField] bool pauseInteraction;
     [SerializeField] bool doorOpen;
+    [Header("Other")]
+    [SerializeField] private string id;
+    [ContextMenu("Generate guid for id")]
+    private void GenerateGuid()
+    {
+        id = System.Guid.NewGuid().ToString();
+    }
 
     Coroutine doorLockedCoroutine;
 
@@ -41,6 +48,17 @@ public class LockedDoorInteractable : Interactable
         {
             showDoorLockedUI.SetActive(false);
         }
+    }
+
+    public void LoadData(GameData data)
+    {
+        data.interacted.TryGetValue(id, out doorOpen);
+        doorOpen = doorOpen;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.interacted[id] = doorOpen;
     }
 
     public override string GetPromptMessage()
