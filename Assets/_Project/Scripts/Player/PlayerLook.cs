@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerLook : MonoBehaviour
+public class PlayerLook : MonoBehaviour, IDataPersistence
 {
     public Camera cam;
     private float xRotation = 0f;
@@ -19,5 +19,15 @@ public class PlayerLook : MonoBehaviour
         cam.transform.localRotation = Quaternion.Euler(xRotation, 0,0);
 
         transform.Rotate(Vector3.up * (mouseX * Time.deltaTime) * xSensitivity);
+    }
+
+    public void LoadData(GameData data)
+    {
+        this.transform.rotation = data.playerRotation;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.playerRotation = this.transform.rotation;
     }
 }

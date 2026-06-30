@@ -36,9 +36,9 @@ public class InputManager : MonoBehaviour
         {
             return;
         }
-
+        bool sprinting = onFoot.Sprint.ReadValue<float>() > 0;
         // tell the playermotor to move using the value from our movement action
-        motor.ProcessMove(onFoot.Movement.ReadValue<Vector2>());
+        motor.ProcessMove(onFoot.Movement.ReadValue<Vector2>(), sprinting);
     }
 
     void LateUpdate()
