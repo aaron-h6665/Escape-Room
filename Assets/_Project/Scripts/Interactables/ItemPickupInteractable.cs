@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemPickupInteractable : Interactable
+public class ItemPickupInteractable : Interactable, IDataPersistence
 {
     [SerializeField]
     Item item;
@@ -9,9 +10,80 @@ public class ItemPickupInteractable : Interactable
     [SerializeField]
     bool destroyOnPickup = true;
 
+    [Header("Save Data")]
+    [SerializeField] private string id;
+    [SerializeField] bool isPickedUp;
+
+    public Item Item => item;
+    public string SaveId => id;
+
+    [ContextMenu("Generate guid for id")]
+    private void GenerateGuid()
+    {
+        id = System.Guid.NewGuid().ToString();
+    }
+
+    bool HasSaveId => !string.IsNullOrEmpty(id);
+
     public void Initialize(Item item)
     {
         this.item = item;
+        id = string.Empty;
+        isPickedUp = false;
+        gameObject.SetActive(true);
+    }
+
+    public void LoadData(GameData data)
+    {
+        if (!HasSaveId)
+        {
+            return;
+        }
+
+        if (data.itemStates == null)
+        {
+            return;
+        }
+
+        ItemSaveData itemSaveData = data.itemStates.Find(itemState => itemState.id == id);
+        if (itemSaveData == null)
+        {
+            return;
+        }
+
+        isPickedUp = itemSaveData.isPickedUp;
+        if (!isPickedUp && itemSaveData.hasWorldTransform)
+        {
+            transform.SetPositionAndRotation(itemSaveData.position, itemSaveData.rotation);
+        }
+
+        ApplyItemVisualState();
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        if (!HasSaveId)
+        {
+            return;
+        }
+
+        if (data.itemStates == null)
+        {
+            data.itemStates = new List<ItemSaveData>();
+        }
+
+        ItemSaveData itemSaveData = data.itemStates.Find(itemState => itemState.id == id);
+        if (itemSaveData == null)
+        {
+            itemSaveData = new ItemSaveData();
+            itemSaveData.id = id;
+            data.itemStates.Add(itemSaveData);
+        }
+
+        itemSaveData.isPickedUp = isPickedUp;
+        itemSaveData.hasWorldTransform = !isPickedUp;
+        itemSaveData.position = transform.position;
+        itemSaveData.rotation = transform.rotation;
     }
 
     public override string GetPromptMessage()
@@ -27,6 +99,11 @@ public class ItemPickupInteractable : Interactable
 
     protected override void Interact(GameObject interactor)
     {
+        if (isPickedUp)
+        {
+            return;
+        }
+
         Inventory targetInventory = ResolveInventory(interactor);
         if (targetInventory == null)
         {
@@ -34,19 +111,33 @@ public class ItemPickupInteractable : Interactable
             return;
         }
 
-        if (!targetInventory.AddItem(item))
+        if (!targetInventory.AddItem(item, SaveId))
         {
             return;
         }
 
-        if (destroyOnPickup)
+        isPickedUp = true;
+
+        if (HasSaveId || !destroyOnPickup)
         {
-            Destroy(gameObject);
+            ApplyItemVisualState();
         }
         else
         {
-            gameObject.SetActive(false);
+            Destroy(gameObject);
         }
+    }
+
+    void ApplyItemVisualState()
+    {
+        gameObject.SetActive(!isPickedUp);
+    }
+
+    public void RestoreToWorld(Vector3 position, Quaternion rotation)
+    {
+        transform.SetPositionAndRotation(position, rotation);
+        isPickedUp = false;
+        ApplyItemVisualState();
     }
 
     Inventory ResolveInventory(GameObject interactor)
