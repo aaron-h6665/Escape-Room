@@ -630,9 +630,11 @@ MonoBehaviour:
   closeAnimationName: HingeDoorClose
   timeToShowUI: 1
   showDoorLockedUI: {fileID: 1974922129212866034}
+  showLockedUIOnInteract: 0
   waitTimer: 1
   pauseInteraction: 0
   doorOpen: 0
+  id: room_locked_main_door
 --- !u!65 &8027718711016342754
 BoxCollider:
   m_ObjectHideFlags: 0

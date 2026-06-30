@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class LockedDoorInteractable : Interactable, IDataPersistence
 {
@@ -52,13 +53,49 @@ public class LockedDoorInteractable : Interactable, IDataPersistence
 
     public void LoadData(GameData data)
     {
-        data.interacted.TryGetValue(id, out doorOpen);
-        doorOpen = doorOpen;
+        if (string.IsNullOrEmpty(id))
+        {
+            Debug.LogWarning("LockedDoorInteractable is missing an id. Door state will not be loaded.", this);
+            return;
+        }
+
+        if (data.doorStates == null)
+        {
+            return;
+        }
+
+        DoorSaveData doorData = data.doorStates.Find(doorState => doorState.id == id);
+        if (doorData == null)
+        {
+            return;
+        }
+
+        doorOpen = doorData.isOpen;
+        ApplyDoorVisualState();
     }
 
     public void SaveData(ref GameData data)
     {
-        data.interacted[id] = doorOpen;
+        if (string.IsNullOrEmpty(id))
+        {
+            Debug.LogWarning("LockedDoorInteractable is missing an id. Door state will not be saved.", this);
+            return;
+        }
+
+        if (data.doorStates == null)
+        {
+            data.doorStates = new List<DoorSaveData>();
+        }
+
+        DoorSaveData doorData = data.doorStates.Find(doorState => doorState.id == id);
+        if (doorData == null)
+        {
+            doorData = new DoorSaveData();
+            doorData.id = id;
+            data.doorStates.Add(doorData);
+        }
+
+        doorData.isOpen = doorOpen;
     }
 
     public override string GetPromptMessage()
@@ -103,6 +140,17 @@ public class LockedDoorInteractable : Interactable, IDataPersistence
         doorAnimator.Play(doorOpen ? closeAnimationName : openAnimationName, 0, 0.0f);
         doorOpen = !doorOpen;
         StartCoroutine(PauseDoorInteraction());
+    }
+
+    void ApplyDoorVisualState()
+    {
+        if (doorAnimator == null)
+        {
+            return;
+        }
+
+        doorAnimator.Play(doorOpen ? openAnimationName : closeAnimationName, 0, 1f);
+        doorAnimator.Update(0f);
     }
 
     IEnumerator PauseDoorInteraction()
