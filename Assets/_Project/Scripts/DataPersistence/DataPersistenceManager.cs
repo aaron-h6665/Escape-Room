@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class DataPersistenceManager : MonoBehaviour
 {
     [Header("File Storage Config")]
-    [SerializeField] private string fileName;
+    [SerializeField] private string fileName = SaveFileUtility.DefaultSaveFileName;
 
     private GameData gameData;
     private List<IDataPersistence> dataPersistenceObjects;
@@ -24,6 +24,11 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void Start()
     {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            fileName = SaveFileUtility.DefaultSaveFileName;
+        }
+
         this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName);
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
         LoadGame();
@@ -40,8 +45,9 @@ public class DataPersistenceManager : MonoBehaviour
 
         if (this.gameData == null)
         {
-            Debug.Log("data");
             NewGame();
+            Debug.Log("No save data was found. Starting a new game.");
+            return;
         }
 
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
