@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerMotor : MonoBehaviour, IDataPersistence
+public class PlayerMotor : MonoBehaviour, IDataPersistence, IReplayObject
 {
     private CharacterController controller;
     private Vector3 playerVelocity;
@@ -15,6 +15,14 @@ public class PlayerMotor : MonoBehaviour, IDataPersistence
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+    }
+
+    private void Start()
+    {
+        if (ReplayManager.instance != null)
+        {
+            ReplayManager.instance.Register(this);
+        }
     }
 
     // Update is called once per frame
@@ -47,13 +55,38 @@ public class PlayerMotor : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
-        controller.enabled = false;
-        this.transform.position = data.playerPosition;
-        controller.enabled = true;
+        ApplyPosition(data.playerPosition);
     }
 
     public void SaveData(ref GameData data)
     {
         data.playerPosition = this.transform.position;
+    }
+
+    public void SaveSnapshot(ref GameData data)
+    {
+        data.playerPosition = transform.position;
+    }
+
+    public void LoadSnapshot(GameData data)
+    {
+        ApplyPosition(data.playerPosition);
+    }
+
+    void ApplyPosition(Vector3 position)
+    {
+        playerVelocity = Vector3.zero;
+
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+
+        transform.position = position;
+
+        if (controller != null)
+        {
+            controller.enabled = true;
+        }
     }
 }

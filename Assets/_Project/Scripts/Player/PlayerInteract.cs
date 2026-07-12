@@ -23,6 +23,11 @@ public class PlayerInteract : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ReplayManager.IsPlaybackActive())
+        {
+            return;
+        }
+
         if (cam == null || playerUI == null || inputManager == null)
         {
             return;

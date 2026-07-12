@@ -10,7 +10,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     private GameData gameData;
     private List<IDataPersistence> dataPersistenceObjects;
-    private FileDataHandler dataHandler; 
+    private FileDataHandler dataHandler;
     public static DataPersistenceManager instance { get; private set; }
 
     private void Awake()
@@ -60,6 +60,12 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void SaveGame()
     {
+        if (ReplayManager.IsPlaybackActive())
+        {
+            Debug.Log("Game save skipped during replay playback.");
+            return;
+        }
+
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
         {
             dataPersistenceObj.SaveData(ref gameData);

@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class LockedSafeInteractable : Interactable
+public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObject
 {
     [Header("Inventory Requirement")]
     [SerializeField] Inventory inventory;
@@ -34,10 +35,20 @@ public class LockedSafeInteractable : Interactable
     [SerializeField] bool pauseInteraction;
     [SerializeField] bool safeOpen;
 
+    [Header("Save Data")]
+    [SerializeField] private string id;
+
+    [ContextMenu("Generate guid for id")]
+    private void GenerateGuid()
+    {
+        id = System.Guid.NewGuid().ToString();
+    }
+
     Coroutine safeLockedCoroutine;
 
     bool IsLocked => inventory == null || !inventory.HasItem(RequiredItemId);
     string RequiredItemId => requiredItem != null ? requiredItem.Id : requiredItemId;
+    string StateId => ReplayIdentity.Resolve(this, id);
 
     void Awake()
     {
@@ -54,6 +65,31 @@ public class LockedSafeInteractable : Interactable
         }
 
         SetClosedInteriorBlockers(!safeOpen);
+
+        if (ReplayManager.instance != null)
+        {
+            ReplayManager.instance.Register(this);
+        }
+    }
+
+    public void LoadData(GameData data)
+    {
+        LoadSafeState(data, StateId);
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        SaveSafeState(ref data, StateId);
+    }
+
+    public void SaveSnapshot(ref GameData data)
+    {
+        SaveSafeState(ref data, StateId);
+    }
+
+    public void LoadSnapshot(GameData data)
+    {
+        LoadSafeState(data, StateId);
     }
 
     public override string GetPromptMessage()
@@ -174,6 +210,73 @@ public class LockedSafeInteractable : Interactable
                 blocker.enabled = active;
             }
         }
+    }
+
+    void LoadSafeState(GameData data, string stateId)
+    {
+        if (string.IsNullOrEmpty(stateId) || data.safeStates == null)
+        {
+            return;
+        }
+
+        SafeSaveData safeData = data.safeStates.Find(safeState => safeState.id == stateId);
+        if (safeData == null)
+        {
+            return;
+        }
+
+        safeOpen = safeData.isOpen;
+        pauseInteraction = false;
+        ApplySafeVisualState();
+    }
+
+    void SaveSafeState(ref GameData data, string stateId)
+    {
+        if (string.IsNullOrEmpty(stateId))
+        {
+            return;
+        }
+
+        if (data.safeStates == null)
+        {
+            data.safeStates = new List<SafeSaveData>();
+        }
+
+        SafeSaveData safeData = data.safeStates.Find(safeState => safeState.id == stateId);
+        if (safeData == null)
+        {
+            safeData = new SafeSaveData();
+            safeData.id = stateId;
+            data.safeStates.Add(safeData);
+        }
+
+        safeData.isOpen = safeOpen;
+    }
+
+    void ApplySafeVisualState()
+    {
+        if (safeAnimator != null)
+        {
+            ApplyAnimationState(safeAnimator, safeOpen ? safeOpenAnimationName : safeCloseAnimationName);
+        }
+        else
+        {
+            ApplyAnimationState(valveAnimator, safeOpen ? valveOpenAnimationName : valveCloseAnimationName);
+            ApplyAnimationState(doorAnimator, safeOpen ? doorOpenAnimationName : doorCloseAnimationName);
+        }
+
+        SetClosedInteriorBlockers(!safeOpen);
+    }
+
+    void ApplyAnimationState(Animator animator, string animationName)
+    {
+        if (animator == null || string.IsNullOrEmpty(animationName))
+        {
+            return;
+        }
+
+        animator.Play(animationName, 0, 1f);
+        animator.Update(0f);
     }
 
     void ResolveInventory(GameObject interactor = null)
