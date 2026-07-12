@@ -1147,7 +1147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 333054961}
   - component: {fileID: 333054960}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: SafeInteriorBlocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
