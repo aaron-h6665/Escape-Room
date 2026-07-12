@@ -1,18 +1,36 @@
 using UnityEngine;
 using TMPro;
 
-public class PlayerUI : MonoBehaviour
+public class PlayerUI : MonoBehaviour, IReplayObject
 {
     [SerializeField]
     private TextMeshProUGUI promptText;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    string currentPromptMessage = string.Empty;
+
     void Start()
     {
-        
+        if (ReplayManager.instance != null)
+        {
+            ReplayManager.instance.Register(this);
+        }
     }
 
     public void UpdateText(string promptMessage)
     {
-        promptText.text = promptMessage;
+        currentPromptMessage = promptMessage ?? string.Empty;
+        if (promptText != null)
+        {
+            promptText.text = currentPromptMessage;
+        }
+    }
+
+    public void SaveSnapshot(ref GameData data)
+    {
+        data.playerPromptText = currentPromptMessage;
+    }
+
+    public void LoadSnapshot(GameData data)
+    {
+        UpdateText(data.playerPromptText);
     }
 }

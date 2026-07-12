@@ -22,6 +22,11 @@ public class PlayerInventoryInput : MonoBehaviour
 
     void Update()
     {
+        if (ReplayManager.IsPlaybackActive())
+        {
+            return;
+        }
+
         if (inputManager == null || inventory == null)
         {
             return;

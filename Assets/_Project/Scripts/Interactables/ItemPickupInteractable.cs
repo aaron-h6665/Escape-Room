@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemPickupInteractable : Interactable, IDataPersistence
+public class ItemPickupInteractable : Interactable, IDataPersistence, IReplayObject
 {
     [SerializeField]
     Item item;
@@ -16,6 +16,15 @@ public class ItemPickupInteractable : Interactable, IDataPersistence
 
     public Item Item => item;
     public string SaveId => id;
+    string ReplayId => ReplayIdentity.Resolve(this, id);
+
+    void Awake()
+    {
+        if (ReplayManager.instance != null)
+        {
+            ReplayManager.instance.Register(this);
+        }
+    }
 
     [ContextMenu("Generate guid for id")]
     private void GenerateGuid()
@@ -40,12 +49,37 @@ public class ItemPickupInteractable : Interactable, IDataPersistence
             return;
         }
 
-        if (data.itemStates == null)
+        LoadItemState(data, id);
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        if (!HasSaveId)
         {
             return;
         }
 
-        ItemSaveData itemSaveData = data.itemStates.Find(itemState => itemState.id == id);
+        SaveItemState(ref data, id);
+    }
+
+    public void SaveSnapshot(ref GameData data)
+    {
+        SaveItemState(ref data, ReplayId);
+    }
+
+    public void LoadSnapshot(GameData data)
+    {
+        LoadItemState(data, ReplayId);
+    }
+
+    void LoadItemState(GameData data, string stateId)
+    {
+        if (string.IsNullOrEmpty(stateId) || data.itemStates == null)
+        {
+            return;
+        }
+
+        ItemSaveData itemSaveData = data.itemStates.Find(itemState => itemState.id == stateId);
         if (itemSaveData == null)
         {
             return;
@@ -60,9 +94,9 @@ public class ItemPickupInteractable : Interactable, IDataPersistence
         ApplyItemVisualState();
     }
 
-    public void SaveData(ref GameData data)
+    void SaveItemState(ref GameData data, string stateId)
     {
-        if (!HasSaveId)
+        if (string.IsNullOrEmpty(stateId))
         {
             return;
         }
@@ -72,11 +106,11 @@ public class ItemPickupInteractable : Interactable, IDataPersistence
             data.itemStates = new List<ItemSaveData>();
         }
 
-        ItemSaveData itemSaveData = data.itemStates.Find(itemState => itemState.id == id);
+        ItemSaveData itemSaveData = data.itemStates.Find(itemState => itemState.id == stateId);
         if (itemSaveData == null)
         {
             itemSaveData = new ItemSaveData();
-            itemSaveData.id = id;
+            itemSaveData.id = stateId;
             data.itemStates.Add(itemSaveData);
         }
 

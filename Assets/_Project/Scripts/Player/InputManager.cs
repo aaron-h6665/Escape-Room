@@ -61,12 +61,12 @@ public class InputManager : MonoBehaviour
 
     bool CanMove()
     {
-        return !playerControlLocked && motor != null && motor.enabled;
+        return !ReplayManager.IsPlaybackActive() && !playerControlLocked && motor != null && motor.enabled;
     }
 
     bool CanLook()
     {
-        return !playerControlLocked && look != null && look.enabled;
+        return !ReplayManager.IsPlaybackActive() && !playerControlLocked && look != null && look.enabled;
     }
 
     void OnPausePerformed(InputAction.CallbackContext context)

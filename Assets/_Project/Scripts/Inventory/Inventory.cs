@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Collider))]
-public class Inventory : MonoBehaviour, IDataPersistence
+public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 {
     [Header("References")]
     [SerializeField]
@@ -70,6 +70,11 @@ public class Inventory : MonoBehaviour, IDataPersistence
         if (ui != null)
         {
             ui.Initialize(this);
+        }
+
+        if (ReplayManager.instance != null)
+        {
+            ReplayManager.instance.Register(this);
         }
     }
 
@@ -172,6 +177,16 @@ public class Inventory : MonoBehaviour, IDataPersistence
                 sourcePickupId = GetSourcePickupId(inventoryId)
             });
         }
+    }
+
+    public void SaveSnapshot(ref GameData data)
+    {
+        SaveData(ref data);
+    }
+
+    public void LoadSnapshot(GameData data)
+    {
+        LoadData(data);
     }
 
     string AddItemToInventory(Item item, string sourcePickupId, bool playAudio, bool autoSelect)

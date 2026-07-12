@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LockedDoorInteractable : Interactable, IDataPersistence
+public class LockedDoorInteractable : Interactable, IDataPersistence, IReplayObject
 {
     [Header("Inventory Requirement")]
     [SerializeField] Inventory inventory;
@@ -35,6 +35,7 @@ public class LockedDoorInteractable : Interactable, IDataPersistence
 
     bool IsLocked => inventory == null || !inventory.HasItem(RequiredItemId);
     string RequiredItemId => requiredItem != null ? requiredItem.Id : requiredItemId;
+    string ReplayId => ReplayIdentity.Resolve(this, id);
 
     void Awake()
     {
@@ -49,6 +50,11 @@ public class LockedDoorInteractable : Interactable, IDataPersistence
         {
             showDoorLockedUI.SetActive(false);
         }
+
+        if (ReplayManager.instance != null)
+        {
+            ReplayManager.instance.Register(this);
+        }
     }
 
     public void LoadData(GameData data)
@@ -59,19 +65,7 @@ public class LockedDoorInteractable : Interactable, IDataPersistence
             return;
         }
 
-        if (data.doorStates == null)
-        {
-            return;
-        }
-
-        DoorSaveData doorData = data.doorStates.Find(doorState => doorState.id == id);
-        if (doorData == null)
-        {
-            return;
-        }
-
-        doorOpen = doorData.isOpen;
-        ApplyDoorVisualState();
+        LoadDoorState(data, id);
     }
 
     public void SaveData(ref GameData data)
@@ -82,16 +76,54 @@ public class LockedDoorInteractable : Interactable, IDataPersistence
             return;
         }
 
+        SaveDoorState(ref data, id);
+    }
+
+    public void SaveSnapshot(ref GameData data)
+    {
+        SaveDoorState(ref data, ReplayId);
+    }
+
+    public void LoadSnapshot(GameData data)
+    {
+        LoadDoorState(data, ReplayId);
+    }
+
+    void LoadDoorState(GameData data, string stateId)
+    {
+        if (string.IsNullOrEmpty(stateId) || data.doorStates == null)
+        {
+            return;
+        }
+
+        DoorSaveData doorData = data.doorStates.Find(doorState => doorState.id == stateId);
+        if (doorData == null)
+        {
+            return;
+        }
+
+        doorOpen = doorData.isOpen;
+        pauseInteraction = false;
+        ApplyDoorVisualState();
+    }
+
+    void SaveDoorState(ref GameData data, string stateId)
+    {
+        if (string.IsNullOrEmpty(stateId))
+        {
+            return;
+        }
+
         if (data.doorStates == null)
         {
             data.doorStates = new List<DoorSaveData>();
         }
 
-        DoorSaveData doorData = data.doorStates.Find(doorState => doorState.id == id);
+        DoorSaveData doorData = data.doorStates.Find(doorState => doorState.id == stateId);
         if (doorData == null)
         {
             doorData = new DoorSaveData();
-            doorData.id = id;
+            doorData.id = stateId;
             data.doorStates.Add(doorData);
         }
 
