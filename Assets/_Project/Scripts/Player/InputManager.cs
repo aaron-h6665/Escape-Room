@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class InputManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class InputManager : MonoBehaviour
 
     public PlayerInput.OnFootActions OnFoot => onFoot;
     public bool PlayerControlLocked => playerControlLocked;
+    public event Action PausePressed;
 
     private PlayerMotor motor;
     private PlayerLook look;
@@ -26,6 +28,7 @@ public class InputManager : MonoBehaviour
                 motor.Jump();
             }
         };
+        onFoot.Pause.performed += OnPausePerformed;
         look = GetComponent<PlayerLook>();
     }
 
@@ -66,13 +69,36 @@ public class InputManager : MonoBehaviour
         return !playerControlLocked && look != null && look.enabled;
     }
 
+    void OnPausePerformed(InputAction.CallbackContext context)
+    {
+        PausePressed?.Invoke();
+    }
+
     private void OnEnable()
     {
-        onFoot.Enable();
+        if (playerInput != null)
+        {
+            onFoot.Enable();
+        }
     }
 
     private void OnDisable()
     {
+        if (playerInput != null)
+        {
+            onFoot.Disable();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (playerInput == null)
+        {
+            return;
+        }
+
+        onFoot.Pause.performed -= OnPausePerformed;
         onFoot.Disable();
+        playerInput.Dispose();
     }
 }
