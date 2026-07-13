@@ -19,6 +19,7 @@ public class NoteInteractable : Interactable, IReplayObject
     bool playerInteractWasEnabled;
     bool playerControlWasLocked;
     int openedFrame = -1;
+    Material generatedNoteMaterial;
 
     [Header("Replay Data")]
     [SerializeField] private string id;
@@ -33,6 +34,7 @@ public class NoteInteractable : Interactable, IReplayObject
 
     void Awake()
     {
+        EnsureHighlightMaterial();
         SetNoteVisible(false);
 
         if (ReplayManager.instance != null)
@@ -219,5 +221,40 @@ public class NoteInteractable : Interactable, IReplayObject
         }
 
         return Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame;
+    }
+
+    void EnsureHighlightMaterial()
+    {
+        Renderer noteRenderer = GetComponentInChildren<Renderer>(true);
+        if (noteRenderer == null || noteRenderer.sharedMaterial != null)
+        {
+            return;
+        }
+
+        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null)
+        {
+            shader = Shader.Find("Standard");
+        }
+
+        if (shader == null)
+        {
+            Debug.LogWarning("NoteInteractable could not find a shader for its focus highlight.", this);
+            return;
+        }
+
+        generatedNoteMaterial = new Material(shader)
+        {
+            name = "Runtime Note Material"
+        };
+        noteRenderer.material = generatedNoteMaterial;
+    }
+
+    void OnDestroy()
+    {
+        if (generatedNoteMaterial != null)
+        {
+            Destroy(generatedNoteMaterial);
+        }
     }
 }

@@ -19,6 +19,8 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
 
     [Header("Raycast Blocking")]
     [SerializeField] Collider[] closedInteriorBlockers;
+    [SerializeField] Transform interactionColliderTarget;
+    [SerializeField] Collider interactionCollider;
 
     [Header("State")]
     [SerializeField] float waitTimer = 1f;
@@ -44,6 +46,8 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
         }
 
         ResolveInventory();
+
+        EnsureInteractionCollider();
 
         SetClosedInteriorBlockers(!safeOpen);
 
@@ -163,6 +167,50 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
                 blocker.enabled = active;
             }
         }
+    }
+
+    void EnsureInteractionCollider()
+    {
+        if (interactionCollider != null)
+        {
+            return;
+        }
+
+        if (interactionColliderTarget == null)
+        {
+            if (doorAnimator != null)
+            {
+                interactionColliderTarget = doorAnimator.transform;
+            }
+            else if (safeAnimator != null)
+            {
+                interactionColliderTarget = safeAnimator.transform;
+            }
+        }
+
+        if (interactionColliderTarget == null)
+        {
+            Debug.LogWarning("LockedSafeInteractable needs a door transform for its interaction collider.", this);
+            return;
+        }
+
+        interactionCollider = interactionColliderTarget.GetComponent<Collider>();
+        if (interactionCollider != null)
+        {
+            return;
+        }
+
+        MeshFilter meshFilter = interactionColliderTarget.GetComponent<MeshFilter>();
+        if (meshFilter == null || meshFilter.sharedMesh == null)
+        {
+            Debug.LogWarning("The safe interaction collider target needs a MeshFilter or an assigned Collider.", interactionColliderTarget);
+            return;
+        }
+
+        BoxCollider boxCollider = interactionColliderTarget.gameObject.AddComponent<BoxCollider>();
+        boxCollider.center = meshFilter.sharedMesh.bounds.center;
+        boxCollider.size = meshFilter.sharedMesh.bounds.size;
+        interactionCollider = boxCollider;
     }
 
     void LoadSafeState(GameData data, string stateId)

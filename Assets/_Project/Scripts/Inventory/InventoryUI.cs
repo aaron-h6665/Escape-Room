@@ -27,14 +27,18 @@ public class InventoryUI : MonoBehaviour
     readonly List<ItemUI> slotUIs = new List<ItemUI>();
     Coroutine inventoryFullCoroutine;
 
+    void Awake()
+    {
+        ResolveInventoryFullText();
+        HideInventoryFullMessage();
+    }
+
     public void Initialize(Inventory inventory)
     {
         this.inventory = inventory;
 
-        if (inventoryFullText != null)
-        {
-            inventoryFullText.gameObject.SetActive(false);
-        }
+        ResolveInventoryFullText();
+        HideInventoryFullMessage();
 
         BuildSlots();
         RefreshSlots();
@@ -67,7 +71,7 @@ public class InventoryUI : MonoBehaviour
 
     public void ShowInventoryFullMessage()
     {
-        if (inventoryFullText == null)
+        if (inventoryFullText == null || inventory == null || !inventory.IsFull)
         {
             return;
         }
@@ -92,6 +96,49 @@ public class InventoryUI : MonoBehaviour
         }
 
         inventoryFullCoroutine = null;
+    }
+
+    void HideInventoryFullMessage()
+    {
+        if (inventoryFullCoroutine != null)
+        {
+            StopCoroutine(inventoryFullCoroutine);
+            inventoryFullCoroutine = null;
+        }
+
+        if (inventoryFullText != null)
+        {
+            inventoryFullText.gameObject.SetActive(false);
+        }
+    }
+
+    void ResolveInventoryFullText()
+    {
+        if (inventoryFullText != null)
+        {
+            return;
+        }
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            return;
+        }
+
+        foreach (TMP_Text candidate in canvas.GetComponentsInChildren<TMP_Text>(true))
+        {
+            string normalizedName = candidate.gameObject.name
+                .Replace(" ", string.Empty)
+                .Replace("_", string.Empty)
+                .Replace("-", string.Empty)
+                .ToLowerInvariant();
+
+            if (normalizedName.Contains("inventoryfull"))
+            {
+                inventoryFullText = candidate;
+                return;
+            }
+        }
     }
 
     void BuildSlots()
@@ -123,7 +170,7 @@ public class InventoryUI : MonoBehaviour
                 continue;
             }
 
-            itemUI.Initialize(i, inventory.SelectSlot);
+            itemUI.Initialize(i, slotIndex => { inventory.SelectSlot(slotIndex); });
             slotUIs.Add(itemUI);
         }
     }
@@ -154,10 +201,6 @@ public class InventoryUI : MonoBehaviour
 
     void OnDisable()
     {
-        if (inventoryFullCoroutine != null)
-        {
-            StopCoroutine(inventoryFullCoroutine);
-            inventoryFullCoroutine = null;
-        }
+        HideInventoryFullMessage();
     }
 }

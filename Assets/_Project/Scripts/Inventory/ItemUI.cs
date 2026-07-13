@@ -55,7 +55,7 @@ public class ItemUI : MonoBehaviour
             image.enabled = item != null && item.icon != null;
         }
 
-        SetSelected(selected && item != null);
+        SetSelected(selected);
     }
 
     public void SetSelected(bool selected)
