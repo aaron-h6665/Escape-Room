@@ -93,8 +93,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 5441cd93099c44982b7eb67396b1b9a0, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 9d06b303377bc478c9a970f67c1806b7, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -1530,13 +1530,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: -0.12552665, y: 0.8654068, z: -0.4035459, w: -0.2691928}
+  m_LocalPosition: {x: -6.441, y: 2.95, z: -7.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 50, y: 214.558, z: 0}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2705,6 +2705,73 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!1001 &649964414
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.441
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.153
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.71611
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f31d97344f36b49b5a335f0e7841c0fb, type: 2}
+    - target: {fileID: 919132149155446097, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      propertyPath: m_Name
+      value: barrel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 664961244}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 664961245}
+  m_SourcePrefab: {fileID: 100100000, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
 --- !u!1 &651885626
 GameObject:
   m_ObjectHideFlags: 0
@@ -2740,6 +2807,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoteInteractable
   promptMessage: 
+  highlightOnFocus: 1
+  highlightColor: {r: 1, g: 0.82, b: 0.18, a: 1}
+  highlightMinIntensity: 0.15
+  highlightMaxIntensity: 0.55
+  highlightPulseSpeed: 2.5
+  highlightRenderers: []
   noteCanvas: {fileID: 1769140068}
   notePanel: {fileID: 0}
   noteText: {fileID: 341490738}
@@ -3083,6 +3156,60 @@ Transform:
   - {fileID: 190196143}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &664961243 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
+  m_PrefabInstance: {fileID: 649964414}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &664961244
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664961243}
+  serializedVersion: 5
+  m_Mass: 5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!64 &664961245
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 664961243}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 5738463845122611173, guid: c1ee716e315934cdc95141afeb6f1c10, type: 3}
 --- !u!1 &759320332
 GameObject:
   m_ObjectHideFlags: 0
@@ -4416,6 +4543,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Keypad
   promptMessage: Use Keypad
+  highlightOnFocus: 1
+  highlightColor: {r: 1, g: 0.82, b: 0.18, a: 1}
+  highlightMinIntensity: 0.15
+  highlightMaxIntensity: 0.55
+  highlightPulseSpeed: 2.5
+  highlightRenderers: []
   door: {fileID: 255451449}
   id: 
 --- !u!1 &900100000
@@ -6492,6 +6625,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoteInteractable
   promptMessage: 
+  highlightOnFocus: 1
+  highlightColor: {r: 1, g: 0.82, b: 0.18, a: 1}
+  highlightMinIntensity: 0.15
+  highlightMaxIntensity: 0.55
+  highlightPulseSpeed: 2.5
+  highlightRenderers: []
   noteCanvas: {fileID: 836614252}
   notePanel: {fileID: 0}
   noteText: {fileID: 465167704}
@@ -7642,6 +7781,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickupInteractable
   promptMessage: Press E to pick up key
+  highlightOnFocus: 1
+  highlightColor: {r: 1, g: 0.82, b: 0.18, a: 1}
+  highlightMinIntensity: 0.15
+  highlightMaxIntensity: 0.55
+  highlightPulseSpeed: 2.5
+  highlightRenderers: []
   item: {fileID: 11400000, guid: fcbb7c22a4a8f4ecc8d68bd8b588fff3, type: 2}
   inventory: {fileID: 1555487818}
   destroyOnPickup: 1
@@ -7943,6 +8088,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LockedSafeInteractable
   promptMessage: 
+  highlightOnFocus: 1
+  highlightColor: {r: 1, g: 0.82, b: 0.18, a: 1}
+  highlightMinIntensity: 0.15
+  highlightMaxIntensity: 0.55
+  highlightPulseSpeed: 2.5
+  highlightRenderers: []
   inventory: {fileID: 1555487818}
   requiredItem: {fileID: 11400000, guid: fcbb7c22a4a8f4ecc8d68bd8b588fff3, type: 2}
   requiredItemId: safe_key
@@ -11485,7 +11636,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1304525465260185150}
   - {fileID: 2549338585544928475}
@@ -11509,3 +11659,5 @@ SceneRoots:
   - {fileID: 1244865592}
   - {fileID: 900100001}
   - {fileID: 300249097}
+  - {fileID: 649964414}
+  - {fileID: 410087041}
