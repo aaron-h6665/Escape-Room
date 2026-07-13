@@ -49,8 +49,15 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
     }
 
     public Item SelectedItem => HasSelectedItem ? slots[selectedSlotIndex] : null;
-    public bool IsFull => FindFirstEmptySlot() < 0;
-    public int SelectedSlotIndex => HasSelectedItem ? selectedSlotIndex : -1;
+    public bool IsFull => OccupiedSlotCount >= SlotCount;
+    public int SelectedSlotIndex
+    {
+        get
+        {
+            EnsureSlotArrays();
+            return IsValidSlot(selectedSlotIndex) ? selectedSlotIndex : -1;
+        }
+    }
 
     public int OccupiedSlotCount
     {
@@ -267,7 +274,7 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
     {
         EnsureSlotArrays();
 
-        if (!IsValidSlot(slotIndex) || slots[slotIndex] == null)
+        if (!IsValidSlot(slotIndex))
         {
             return false;
         }
@@ -284,6 +291,16 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
     public bool SelectPreviousOccupiedSlot()
     {
         return SelectOccupiedSlotFrom(HasSelectedItem ? selectedSlotIndex - 1 : SlotCount - 1, -1);
+    }
+
+    public bool SelectNextSlot()
+    {
+        return SelectRelativeSlot(1);
+    }
+
+    public bool SelectPreviousSlot()
+    {
+        return SelectRelativeSlot(-1);
     }
 
     public bool HasItem(Item item)
@@ -381,7 +398,7 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
         slots[slotIndex] = item;
         sourcePickupIds[slotIndex] = sourcePickupId ?? string.Empty;
 
-        if (autoSelect && !HasSelectedItem)
+        if (autoSelect && SelectedSlotIndex < 0)
         {
             selectedSlotIndex = slotIndex;
         }
@@ -405,8 +422,26 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 
     void SetSelectedSlot(int slotIndex)
     {
-        selectedSlotIndex = IsValidSlot(slotIndex) && slots[slotIndex] != null ? slotIndex : -1;
+        selectedSlotIndex = IsValidSlot(slotIndex) ? slotIndex : -1;
         ui?.RefreshSlots();
+    }
+
+    bool SelectRelativeSlot(int step)
+    {
+        EnsureSlotArrays();
+
+        int startIndex;
+        if (SelectedSlotIndex >= 0)
+        {
+            startIndex = selectedSlotIndex + step;
+        }
+        else
+        {
+            startIndex = step > 0 ? 0 : SlotCount - 1;
+        }
+
+        SetSelectedSlot(WrapSlotIndex(startIndex));
+        return true;
     }
 
     bool SelectOccupiedSlotFrom(int startIndex, int step)

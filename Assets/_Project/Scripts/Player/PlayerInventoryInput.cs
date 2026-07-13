@@ -69,11 +69,11 @@ public class PlayerInventoryInput : MonoBehaviour
 
         if (direction > 0)
         {
-            inventory.SelectNextOccupiedSlot();
+            inventory.SelectNextSlot();
         }
         else if (direction < 0)
         {
-            inventory.SelectPreviousOccupiedSlot();
+            inventory.SelectPreviousSlot();
         }
     }
 
