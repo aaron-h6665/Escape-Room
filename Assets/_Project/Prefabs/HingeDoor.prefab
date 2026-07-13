@@ -338,7 +338,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3006081960824073432
 RectTransform:
   m_ObjectHideFlags: 0
@@ -628,9 +628,6 @@ MonoBehaviour:
   doorAnimator: {fileID: 3178640951438141929}
   openAnimationName: HingeDoorOpen
   closeAnimationName: HingeDoorClose
-  timeToShowUI: 1
-  showDoorLockedUI: {fileID: 1974922129212866034}
-  showLockedUIOnInteract: 0
   waitTimer: 1
   pauseInteraction: 0
   doorOpen: 0

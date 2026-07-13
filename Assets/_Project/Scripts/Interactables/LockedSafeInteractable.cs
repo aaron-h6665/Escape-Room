@@ -2,13 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObject
+public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersistence, IReplayObject
 {
-    [Header("Inventory Requirement")]
-    [SerializeField] Inventory inventory;
-    [SerializeField] Item requiredItem;
-    [SerializeField] string requiredItemId = "safe_key";
-
     [Header("Combined Safe Animation")]
     [SerializeField] Animator safeAnimator;
     [SerializeField] string safeOpenAnimationName = "SafeOpen";
@@ -21,11 +16,6 @@ public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObj
     [SerializeField] Animator valveAnimator;
     [SerializeField] string valveOpenAnimationName = "SafeValveOpen";
     [SerializeField] string valveCloseAnimationName = "SafeValveClose";
-
-    [Header("UI")]
-    [SerializeField] int timeToShowUI = 1;
-    [SerializeField] GameObject showSafeLockedUI;
-    [SerializeField] bool showLockedUIOnInteract;
 
     [Header("Raycast Blocking")]
     [SerializeField] Collider[] closedInteriorBlockers;
@@ -44,10 +34,6 @@ public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObj
         id = System.Guid.NewGuid().ToString();
     }
 
-    Coroutine safeLockedCoroutine;
-
-    bool IsLocked => inventory == null || !inventory.HasItem(RequiredItemId);
-    string RequiredItemId => requiredItem != null ? requiredItem.Id : requiredItemId;
     string StateId => ReplayIdentity.Resolve(this, id);
 
     void Awake()
@@ -58,11 +44,6 @@ public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObj
         }
 
         ResolveInventory();
-
-        if (showSafeLockedUI != null)
-        {
-            showSafeLockedUI.SetActive(false);
-        }
 
         SetClosedInteriorBlockers(!safeOpen);
 
@@ -111,11 +92,6 @@ public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObj
 
         if (IsLocked)
         {
-            if (showLockedUIOnInteract)
-            {
-                ShowSafeLockedMessage();
-            }
-
             return;
         }
 
@@ -140,29 +116,6 @@ public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObj
         pauseInteraction = true;
         yield return new WaitForSeconds(waitTimer);
         pauseInteraction = false;
-    }
-
-    void ShowSafeLockedMessage()
-    {
-        if (showSafeLockedUI == null)
-        {
-            return;
-        }
-
-        if (safeLockedCoroutine != null)
-        {
-            StopCoroutine(safeLockedCoroutine);
-        }
-
-        safeLockedCoroutine = StartCoroutine(ShowSafeLocked());
-    }
-
-    IEnumerator ShowSafeLocked()
-    {
-        showSafeLockedUI.SetActive(true);
-        yield return new WaitForSeconds(timeToShowUI);
-        showSafeLockedUI.SetActive(false);
-        safeLockedCoroutine = null;
     }
 
     bool PlaySafeAnimation(bool opening)
@@ -279,26 +232,4 @@ public class LockedSafeInteractable : Interactable, IDataPersistence, IReplayObj
         animator.Update(0f);
     }
 
-    void ResolveInventory(GameObject interactor = null)
-    {
-        if (inventory != null)
-        {
-            return;
-        }
-
-        if (interactor != null)
-        {
-            inventory = interactor.GetComponentInParent<Inventory>();
-            if (inventory != null)
-            {
-                return;
-            }
-        }
-
-#if UNITY_2023_1_OR_NEWER
-        inventory = FindFirstObjectByType<Inventory>();
-#else
-        inventory = FindObjectOfType<Inventory>();
-#endif
-    }
 }

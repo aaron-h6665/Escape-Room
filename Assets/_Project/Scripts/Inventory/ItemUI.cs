@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 [RequireComponent(typeof(Button))]
 public class ItemUI : MonoBehaviour
@@ -19,26 +19,43 @@ public class ItemUI : MonoBehaviour
     [SerializeField]
     Color selectedColor = Color.yellow;
 
-    public void Initialize(string inventoryId, Item item, Action<string> selectItemAction)
+    int slotIndex;
+    Action<int> selectSlotAction;
+
+    public void Initialize(int slotIndex, Action<int> selectSlotAction)
     {
+        this.slotIndex = slotIndex;
+        this.selectSlotAction = selectSlotAction;
+
         if (background == null)
         {
             background = GetComponent<Image>();
         }
 
-        if (image != null)
+        if (button == null)
         {
-            image.sprite = item.icon;
-            image.enabled = item.icon != null;
+            button = GetComponent<Button>();
         }
 
         transform.localScale = Vector3.one;
         if (button != null)
         {
-            button.onClick.AddListener(() => selectItemAction.Invoke(inventoryId));
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(OnClicked);
         }
 
-        SetSelected(false);
+        SetSlot(null, false);
+    }
+
+    public void SetSlot(Item item, bool selected)
+    {
+        if (image != null)
+        {
+            image.sprite = item != null ? item.icon : null;
+            image.enabled = item != null && item.icon != null;
+        }
+
+        SetSelected(selected && item != null);
     }
 
     public void SetSelected(bool selected)
@@ -49,11 +66,16 @@ public class ItemUI : MonoBehaviour
         }
     }
 
+    void OnClicked()
+    {
+        selectSlotAction?.Invoke(slotIndex);
+    }
+
     void OnDestroy()
     {
         if (button != null)
         {
-            button.onClick.RemoveAllListeners();
+            button.onClick.RemoveListener(OnClicked);
         }
     }
 }

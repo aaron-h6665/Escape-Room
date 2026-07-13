@@ -5,6 +5,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Collider))]
 public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 {
+    public const int SlotCount = 5;
+
     [Header("References")]
     [SerializeField]
     InventoryUI ui;
@@ -31,17 +33,47 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 
     [Header("State")]
     [SerializeField]
-    string selectedInventoryId;
+    Item[] slots = new Item[SlotCount];
+    [SerializeField]
+    string[] sourcePickupIds = new string[SlotCount];
+    [SerializeField]
+    int selectedSlotIndex = -1;
 
-    readonly Dictionary<string, Item> inventory = new();
-    readonly Dictionary<string, string> inventorySourcePickupIds = new();
-    readonly List<string> inventoryOrder = new();
+    public bool HasSelectedItem
+    {
+        get
+        {
+            EnsureSlotArrays();
+            return IsValidSlot(selectedSlotIndex) && slots[selectedSlotIndex] != null;
+        }
+    }
 
-    public bool HasSelectedItem => !string.IsNullOrEmpty(selectedInventoryId) && inventory.ContainsKey(selectedInventoryId);
-    public Item SelectedItem => HasSelectedItem ? inventory[selectedInventoryId] : null;
+    public Item SelectedItem => HasSelectedItem ? slots[selectedSlotIndex] : null;
+    public bool IsFull => FindFirstEmptySlot() < 0;
+    public int SelectedSlotIndex => HasSelectedItem ? selectedSlotIndex : -1;
+
+    public int OccupiedSlotCount
+    {
+        get
+        {
+            EnsureSlotArrays();
+            int count = 0;
+            for (int i = 0; i < SlotCount; i++)
+            {
+                if (slots[i] != null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+    }
 
     void Awake()
     {
+        EnsureSlotArrays();
+
         if (ui == null)
         {
 #if UNITY_2023_1_OR_NEWER
@@ -67,10 +99,7 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
             dropOrigin = camera != null ? camera.transform : transform;
         }
 
-        if (ui != null)
-        {
-            ui.Initialize(this);
-        }
+        ui?.Initialize(this);
 
         if (ReplayManager.instance != null)
         {
@@ -85,19 +114,35 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 
     public bool AddItem(Item item, string sourcePickupId)
     {
+        EnsureSlotArrays();
+
         if (item == null)
         {
             Debug.LogWarning("Tried to add a null item to the inventory.", this);
             return false;
         }
 
-        AddItemToInventory(item, sourcePickupId, true, true);
+        int slotIndex = FindFirstEmptySlot();
+        if (slotIndex < 0)
+        {
+            ui?.ShowInventoryFullMessage();
+            return false;
+        }
+
+        AddItemToSlot(slotIndex, item, sourcePickupId, true, true);
         return true;
     }
 
     public void LoadData(GameData data)
     {
+        EnsureSlotArrays();
         ClearInventory();
+
+        if (data == null)
+        {
+            return;
+        }
+
         Dictionary<string, Item> itemsById = BuildItemLookup();
 
         if (data.inventory == null || data.inventory.items == null)
@@ -112,12 +157,31 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
         }
 
         List<InventoryItemSaveData> savedItems = new List<InventoryItemSaveData>(data.inventory.items);
-        savedItems.Sort((a, b) => a.slotIndex.CompareTo(b.slotIndex));
+        savedItems.Sort((a, b) =>
+        {
+            if (a == null)
+            {
+                return b == null ? 0 : 1;
+            }
+
+            if (b == null)
+            {
+                return -1;
+            }
+
+            return a.slotIndex.CompareTo(b.slotIndex);
+        });
+        HashSet<int> usedSlots = new HashSet<int>();
         HashSet<string> usedSourcePickupIds = new HashSet<string>();
 
         foreach (InventoryItemSaveData savedItem in savedItems)
         {
             if (savedItem == null || string.IsNullOrWhiteSpace(savedItem.itemId))
+            {
+                continue;
+            }
+
+            if (!IsValidSlot(savedItem.slotIndex) || !usedSlots.Add(savedItem.slotIndex))
             {
                 continue;
             }
@@ -134,21 +198,24 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
                 usedSourcePickupIds.Add(sourcePickupId);
             }
 
-            AddItemToInventory(item, sourcePickupId, false, false);
+            AddItemToSlot(savedItem.slotIndex, item, sourcePickupId, false, false);
         }
 
-        if (data.inventory.selectedIndex >= 0 && data.inventory.selectedIndex < inventoryOrder.Count)
+        if (!SelectSlot(data.inventory.selectedIndex))
         {
-            SelectItem(inventoryOrder[data.inventory.selectedIndex]);
-        }
-        else
-        {
-            SelectFirstAvailableItem();
+            SelectFirstAvailableSlot();
         }
     }
 
     public void SaveData(ref GameData data)
     {
+        EnsureSlotArrays();
+
+        if (data == null)
+        {
+            data = new GameData();
+        }
+
         if (data.inventory == null)
         {
             data.inventory = new InventorySaveData();
@@ -160,12 +227,12 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
         }
 
         data.inventory.items.Clear();
-        data.inventory.selectedIndex = inventoryOrder.IndexOf(selectedInventoryId);
+        data.inventory.selectedIndex = SelectedSlotIndex;
 
-        for (int i = 0; i < inventoryOrder.Count; i++)
+        for (int i = 0; i < SlotCount; i++)
         {
-            string inventoryId = inventoryOrder[i];
-            if (!inventory.TryGetValue(inventoryId, out Item item) || item == null)
+            Item item = slots[i];
+            if (item == null)
             {
                 continue;
             }
@@ -174,7 +241,7 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
             {
                 slotIndex = i,
                 itemId = item.Id,
-                sourcePickupId = GetSourcePickupId(inventoryId)
+                sourcePickupId = sourcePickupIds[i] ?? string.Empty
             });
         }
     }
@@ -189,39 +256,34 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
         LoadData(data);
     }
 
-    string AddItemToInventory(Item item, string sourcePickupId, bool playAudio, bool autoSelect)
+    public bool TryGetItemAt(int slotIndex, out Item item)
     {
-        string inventoryId = Guid.NewGuid().ToString();
-        inventory.Add(inventoryId, item);
-        inventorySourcePickupIds.Add(inventoryId, sourcePickupId);
-        inventoryOrder.Add(inventoryId);
-        ui?.AddUIItem(inventoryId, item);
-
-        if (autoSelect && string.IsNullOrEmpty(selectedInventoryId))
-        {
-            SelectItem(inventoryId);
-        }
-
-        if (playAudio)
-        {
-            PlayOneShot(pickUpItemAudio);
-        }
-
-        return inventoryId;
+        EnsureSlotArrays();
+        item = IsValidSlot(slotIndex) ? slots[slotIndex] : null;
+        return item != null;
     }
 
-    void ClearInventory()
+    public bool SelectSlot(int slotIndex)
     {
-        foreach (string inventoryId in inventoryOrder)
+        EnsureSlotArrays();
+
+        if (!IsValidSlot(slotIndex) || slots[slotIndex] == null)
         {
-            ui?.RemoveUIItem(inventoryId);
+            return false;
         }
 
-        inventory.Clear();
-        inventorySourcePickupIds.Clear();
-        inventoryOrder.Clear();
-        selectedInventoryId = null;
-        ui?.SetSelectedItem(null);
+        SetSelectedSlot(slotIndex);
+        return true;
+    }
+
+    public bool SelectNextOccupiedSlot()
+    {
+        return SelectOccupiedSlotFrom(HasSelectedItem ? selectedSlotIndex + 1 : 0, 1);
+    }
+
+    public bool SelectPreviousOccupiedSlot()
+    {
+        return SelectOccupiedSlotFrom(HasSelectedItem ? selectedSlotIndex - 1 : SlotCount - 1, -1);
     }
 
     public bool HasItem(Item item)
@@ -236,9 +298,10 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
             return false;
         }
 
-        foreach (Item item in inventory.Values)
+        EnsureSlotArrays();
+        for (int i = 0; i < SlotCount; i++)
         {
-            if (item != null && item.Id == itemId)
+            if (slots[i] != null && slots[i].Id == itemId)
             {
                 return true;
             }
@@ -257,40 +320,27 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
         return SelectedItem != null && !string.IsNullOrWhiteSpace(itemId) && SelectedItem.Id == itemId;
     }
 
-    public void SelectItem(string inventoryId)
-    {
-        if (string.IsNullOrEmpty(inventoryId) || !inventory.ContainsKey(inventoryId))
-        {
-            selectedInventoryId = null;
-            ui?.SetSelectedItem(null);
-            return;
-        }
-
-        selectedInventoryId = inventoryId;
-        ui?.SetSelectedItem(selectedInventoryId);
-    }
-
     public bool DropSelectedItem()
     {
-        if (!HasSelectedItem)
-        {
-            SelectFirstAvailableItem();
-        }
-
-        return HasSelectedItem && DropItem(selectedInventoryId);
+        return HasSelectedItem && DropItemAt(selectedSlotIndex);
     }
 
-    public bool DropItem(string inventoryId)
+    public bool DropItemAt(int slotIndex)
     {
-        if (string.IsNullOrEmpty(inventoryId) || !inventory.TryGetValue(inventoryId, out Item item) || item == null)
+        EnsureSlotArrays();
+
+        if (!IsValidSlot(slotIndex) || slotIndex != selectedSlotIndex || slots[slotIndex] == null)
         {
             return false;
         }
 
-        Vector3 dropPosition = dropOrigin.position + dropOrigin.forward * dropDistance;
+        Item item = slots[slotIndex];
+        string sourcePickupId = sourcePickupIds[slotIndex];
+        Vector3 dropPosition = (dropOrigin != null ? dropOrigin : transform).position
+            + (dropOrigin != null ? dropOrigin : transform).forward * dropDistance;
         Quaternion dropRotation = Quaternion.identity;
 
-        if (!TryRestorePersistentPickup(GetSourcePickupId(inventoryId), dropPosition, dropRotation))
+        if (!TryRestorePersistentPickup(sourcePickupId, dropPosition, dropRotation))
         {
             GameObject pickupPrefab = ResolvePickupPrefab(item);
             if (pickupPrefab == null)
@@ -300,7 +350,6 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
             }
 
             GameObject droppedObject = Instantiate(pickupPrefab, dropPosition, dropRotation);
-
             ItemPickupInteractable pickup = droppedObject.GetComponentInChildren<ItemPickupInteractable>();
             if (pickup != null)
             {
@@ -308,19 +357,161 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
             }
         }
 
-        inventory.Remove(inventoryId);
-        inventorySourcePickupIds.Remove(inventoryId);
-        inventoryOrder.Remove(inventoryId);
-        ui?.RemoveUIItem(inventoryId);
+        slots[slotIndex] = null;
+        sourcePickupIds[slotIndex] = string.Empty;
 
-        if (selectedInventoryId == inventoryId)
+        int nextSelectedSlot = FindOccupiedSlotFrom(slotIndex + 1, 1);
+        if (nextSelectedSlot < 0)
         {
-            selectedInventoryId = null;
-            SelectFirstAvailableItem();
+            nextSelectedSlot = FindOccupiedSlotFrom(slotIndex - 1, -1);
         }
 
+        SetSelectedSlot(nextSelectedSlot);
         PlayOneShot(dropItemAudio);
         return true;
+    }
+
+    void AddItemToSlot(int slotIndex, Item item, string sourcePickupId, bool playAudio, bool autoSelect)
+    {
+        if (!IsValidSlot(slotIndex) || item == null)
+        {
+            return;
+        }
+
+        slots[slotIndex] = item;
+        sourcePickupIds[slotIndex] = sourcePickupId ?? string.Empty;
+
+        if (autoSelect && !HasSelectedItem)
+        {
+            selectedSlotIndex = slotIndex;
+        }
+
+        ui?.RefreshSlots();
+
+        if (playAudio)
+        {
+            PlayOneShot(pickUpItemAudio);
+        }
+    }
+
+    void ClearInventory()
+    {
+        EnsureSlotArrays();
+        Array.Clear(slots, 0, slots.Length);
+        Array.Clear(sourcePickupIds, 0, sourcePickupIds.Length);
+        selectedSlotIndex = -1;
+        ui?.RefreshSlots();
+    }
+
+    void SetSelectedSlot(int slotIndex)
+    {
+        selectedSlotIndex = IsValidSlot(slotIndex) && slots[slotIndex] != null ? slotIndex : -1;
+        ui?.RefreshSlots();
+    }
+
+    bool SelectOccupiedSlotFrom(int startIndex, int step)
+    {
+        int slotIndex = FindOccupiedSlotFrom(startIndex, step);
+        if (slotIndex < 0)
+        {
+            return false;
+        }
+
+        SetSelectedSlot(slotIndex);
+        return true;
+    }
+
+    int FindOccupiedSlotFrom(int startIndex, int step)
+    {
+        EnsureSlotArrays();
+
+        for (int offset = 0; offset < SlotCount; offset++)
+        {
+            int slotIndex = WrapSlotIndex(startIndex + offset * step);
+            if (slots[slotIndex] != null)
+            {
+                return slotIndex;
+            }
+        }
+
+        return -1;
+    }
+
+    void SelectFirstAvailableSlot()
+    {
+        int slotIndex = FindFirstOccupiedSlot();
+        if (slotIndex >= 0 && slots[slotIndex] != null)
+        {
+            SetSelectedSlot(slotIndex);
+            return;
+        }
+
+        SetSelectedSlot(-1);
+    }
+
+    int FindFirstOccupiedSlot()
+    {
+        EnsureSlotArrays();
+        for (int i = 0; i < SlotCount; i++)
+        {
+            if (slots[i] != null)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    int FindFirstEmptySlot()
+    {
+        EnsureSlotArrays();
+        for (int i = 0; i < SlotCount; i++)
+        {
+            if (slots[i] == null)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    int WrapSlotIndex(int index)
+    {
+        int wrapped = index % SlotCount;
+        return wrapped < 0 ? wrapped + SlotCount : wrapped;
+    }
+
+    bool IsValidSlot(int slotIndex)
+    {
+        return slotIndex >= 0 && slotIndex < SlotCount;
+    }
+
+    void EnsureSlotArrays()
+    {
+        if (slots == null)
+        {
+            slots = new Item[SlotCount];
+        }
+        else if (slots.Length != SlotCount)
+        {
+            Array.Resize(ref slots, SlotCount);
+        }
+
+        if (sourcePickupIds == null)
+        {
+            sourcePickupIds = new string[SlotCount];
+        }
+        else if (sourcePickupIds.Length != SlotCount)
+        {
+            Array.Resize(ref sourcePickupIds, SlotCount);
+        }
+
+        if (!IsValidSlot(selectedSlotIndex))
+        {
+            selectedSlotIndex = -1;
+        }
     }
 
     GameObject ResolvePickupPrefab(Item item)
@@ -459,6 +650,7 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
     {
         if (data.itemStates == null)
         {
+            SelectFirstAvailableSlot();
             return false;
         }
 
@@ -474,12 +666,18 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 
             if (itemsByPickupId.TryGetValue(itemState.id, out Item item))
             {
-                AddItemToInventory(item, itemState.id, false, false);
+                int slotIndex = FindFirstEmptySlot();
+                if (slotIndex < 0)
+                {
+                    break;
+                }
+
+                AddItemToSlot(slotIndex, item, itemState.id, false, false);
                 restoredAnyItem = true;
             }
         }
 
-        SelectFirstAvailableItem();
+        SelectFirstAvailableSlot();
         return restoredAnyItem;
     }
 
@@ -493,22 +691,6 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
         itemsById.Add(item.Id, item);
     }
 
-    string GetSourcePickupId(string inventoryId)
-    {
-        return inventorySourcePickupIds.TryGetValue(inventoryId, out string sourcePickupId) ? sourcePickupId : string.Empty;
-    }
-
-    void SelectFirstAvailableItem()
-    {
-        foreach (string inventoryId in inventoryOrder)
-        {
-            SelectItem(inventoryId);
-            return;
-        }
-
-        SelectItem(null);
-    }
-
     void PlayOneShot(AudioClip clip)
     {
         if (clip != null && audioSource != null)
@@ -516,5 +698,4 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
             audioSource.PlayOneShot(clip);
         }
     }
-
 }

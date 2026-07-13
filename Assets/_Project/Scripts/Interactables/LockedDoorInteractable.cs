@@ -2,22 +2,12 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LockedDoorInteractable : Interactable, IDataPersistence, IReplayObject
+public class LockedDoorInteractable : InventoryLockedInteractable, IDataPersistence, IReplayObject
 {
-    [Header("Inventory Requirement")]
-    [SerializeField] Inventory inventory;
-    [SerializeField] Item requiredItem;
-    [SerializeField] string requiredItemId = "hinge_door_key";
-
     [Header("Animation Names")]
     [SerializeField] Animator doorAnimator;
     [SerializeField] string openAnimationName = "HingeDoorOpen";
     [SerializeField] string closeAnimationName = "HingeDoorClose";
-
-    [Header("UI")]
-    [SerializeField] int timeToShowUI = 1;
-    [SerializeField] GameObject showDoorLockedUI;
-    [SerializeField] bool showLockedUIOnInteract;
 
     [Header("State")]
     [SerializeField] int waitTimer = 1;
@@ -31,10 +21,6 @@ public class LockedDoorInteractable : Interactable, IDataPersistence, IReplayObj
         id = System.Guid.NewGuid().ToString();
     }
 
-    Coroutine doorLockedCoroutine;
-
-    bool IsLocked => inventory == null || !inventory.HasItem(RequiredItemId);
-    string RequiredItemId => requiredItem != null ? requiredItem.Id : requiredItemId;
     string ReplayId => ReplayIdentity.Resolve(this, id);
 
     void Awake()
@@ -45,11 +31,6 @@ public class LockedDoorInteractable : Interactable, IDataPersistence, IReplayObj
         }
 
         ResolveInventory();
-
-        if (showDoorLockedUI != null)
-        {
-            showDoorLockedUI.SetActive(false);
-        }
 
         if (ReplayManager.instance != null)
         {
@@ -149,11 +130,6 @@ public class LockedDoorInteractable : Interactable, IDataPersistence, IReplayObj
 
         if (IsLocked)
         {
-            if (showLockedUIOnInteract)
-            {
-                ShowDoorLockedMessage();
-            }
-
             return;
         }
 
@@ -192,49 +168,4 @@ public class LockedDoorInteractable : Interactable, IDataPersistence, IReplayObj
         pauseInteraction = false;
     }
 
-    void ShowDoorLockedMessage()
-    {
-        if (showDoorLockedUI == null)
-        {
-            return;
-        }
-
-        if (doorLockedCoroutine != null)
-        {
-            StopCoroutine(doorLockedCoroutine);
-        }
-
-        doorLockedCoroutine = StartCoroutine(ShowDoorLocked());
-    }
-
-    IEnumerator ShowDoorLocked()
-    {
-        showDoorLockedUI.SetActive(true);
-        yield return new WaitForSeconds(timeToShowUI);
-        showDoorLockedUI.SetActive(false);
-        doorLockedCoroutine = null;
-    }
-
-    void ResolveInventory(GameObject interactor = null)
-    {
-        if (inventory != null)
-        {
-            return;
-        }
-
-        if (interactor != null)
-        {
-            inventory = interactor.GetComponentInParent<Inventory>();
-            if (inventory != null)
-            {
-                return;
-            }
-        }
-
-#if UNITY_2023_1_OR_NEWER
-        inventory = FindFirstObjectByType<Inventory>();
-#else
-        inventory = FindObjectOfType<Inventory>();
-#endif
-    }
 }

@@ -20,6 +20,28 @@ public class PlayerInventoryInput : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        if (inputManager == null)
+        {
+            return;
+        }
+
+        inputManager.InventoryNavigationPressed += OnInventoryNavigationPressed;
+        inputManager.InventorySlotPressed += OnInventorySlotPressed;
+    }
+
+    void OnDisable()
+    {
+        if (inputManager == null)
+        {
+            return;
+        }
+
+        inputManager.InventoryNavigationPressed -= OnInventoryNavigationPressed;
+        inputManager.InventorySlotPressed -= OnInventorySlotPressed;
+    }
+
     void Update()
     {
         if (ReplayManager.IsPlaybackActive())
@@ -32,9 +54,36 @@ public class PlayerInventoryInput : MonoBehaviour
             return;
         }
 
-        if (inputManager.OnFoot.Drop.triggered)
+        if (!inputManager.PlayerControlLocked && inputManager.OnFoot.Drop.triggered)
         {
             inventory.DropSelectedItem();
         }
+    }
+
+    void OnInventoryNavigationPressed(int direction)
+    {
+        if (inventory == null || inputManager == null || inputManager.PlayerControlLocked || ReplayManager.IsPlaybackActive())
+        {
+            return;
+        }
+
+        if (direction > 0)
+        {
+            inventory.SelectNextOccupiedSlot();
+        }
+        else if (direction < 0)
+        {
+            inventory.SelectPreviousOccupiedSlot();
+        }
+    }
+
+    void OnInventorySlotPressed(int slotIndex)
+    {
+        if (inventory == null || inputManager == null || inputManager.PlayerControlLocked || ReplayManager.IsPlaybackActive())
+        {
+            return;
+        }
+
+        inventory.SelectSlot(slotIndex);
     }
 }
