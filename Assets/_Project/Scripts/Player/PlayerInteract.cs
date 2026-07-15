@@ -33,6 +33,7 @@ public class PlayerInteract : MonoBehaviour
         if (ReplayManager.IsPlaybackActive())
         {
             SetFocusedInteractable(null);
+            playerUI?.UpdateText(string.Empty);
             return;
         }
 

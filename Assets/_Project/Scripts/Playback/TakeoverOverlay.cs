@@ -51,10 +51,10 @@ public class TakeoverOverlay : MonoBehaviour
         GameObject buttonObject = new GameObject("Take Over Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         buttonObject.transform.SetParent(canvasObject.transform, false);
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
-        buttonRect.anchorMin = new Vector2(0.5f, 0f);
-        buttonRect.anchorMax = new Vector2(0.5f, 0f);
-        buttonRect.pivot = new Vector2(0.5f, 0f);
-        buttonRect.anchoredPosition = new Vector2(0f, 70f);
+        buttonRect.anchorMin = new Vector2(0.5f, 1f);
+        buttonRect.anchorMax = new Vector2(0.5f, 1f);
+        buttonRect.pivot = new Vector2(0.5f, 1f);
+        buttonRect.anchoredPosition = new Vector2(0f, -50f);
         buttonRect.sizeDelta = new Vector2(420f, 120f);
 
         Image image = buttonObject.GetComponent<Image>();

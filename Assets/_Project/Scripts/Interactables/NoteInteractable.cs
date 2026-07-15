@@ -13,6 +13,8 @@ public class NoteInteractable : Interactable, IReplayObject
     [SerializeField] MonoBehaviour player;
     [SerializeField] InputManager inputManager;
     [SerializeField] PlayerInteract playerInteract;
+    [SerializeField] InventoryUI inventoryUI;
+    [SerializeField] PlayerUI playerUI;
 
     bool noteOpen;
     bool playerWasEnabled;
@@ -20,6 +22,9 @@ public class NoteInteractable : Interactable, IReplayObject
     bool playerControlWasLocked;
     int openedFrame = -1;
     Material generatedNoteMaterial;
+    bool hudHidden;
+    bool inventoryWasVisible;
+    bool promptWasVisible;
 
     [Header("Replay Data")]
     [SerializeField] private string id;
@@ -154,6 +159,8 @@ public class NoteInteractable : Interactable, IReplayObject
 
     void SetNoteVisible(bool visible)
     {
+        SetGameplayHudVisible(!visible);
+
         if (noteCanvas != null)
         {
             noteCanvas.SetActive(visible);
@@ -167,6 +174,49 @@ public class NoteInteractable : Interactable, IReplayObject
         if (noteText != null)
         {
             noteText.SetActive(visible);
+        }
+    }
+
+    void SetGameplayHudVisible(bool visible)
+    {
+        ResolveHudReferences();
+
+        if (!visible && !hudHidden)
+        {
+            inventoryWasVisible = inventoryUI == null || inventoryUI.IsVisible;
+            promptWasVisible = playerUI == null || playerUI.PromptVisible;
+            inventoryUI?.SetVisible(false);
+            playerUI?.SetPromptVisible(false);
+            hudHidden = true;
+            return;
+        }
+
+        if (visible && hudHidden)
+        {
+            inventoryUI?.SetVisible(inventoryWasVisible);
+            playerUI?.SetPromptVisible(promptWasVisible);
+            hudHidden = false;
+        }
+    }
+
+    void ResolveHudReferences()
+    {
+        if (inventoryUI == null)
+        {
+#if UNITY_2023_1_OR_NEWER
+            inventoryUI = FindAnyObjectByType<InventoryUI>();
+#else
+            inventoryUI = FindObjectOfType<InventoryUI>();
+#endif
+        }
+
+        if (playerUI == null)
+        {
+#if UNITY_2023_1_OR_NEWER
+            playerUI = FindAnyObjectByType<PlayerUI>();
+#else
+            playerUI = FindObjectOfType<PlayerUI>();
+#endif
         }
     }
 
@@ -222,6 +272,13 @@ public class NoteInteractable : Interactable, IReplayObject
         {
             playerInteract = interactor.GetComponent<PlayerInteract>();
         }
+
+        if (playerUI == null)
+        {
+            playerUI = interactor.GetComponent<PlayerUI>();
+        }
+
+        ResolveHudReferences();
     }
 
     bool CloseInputPressed()
