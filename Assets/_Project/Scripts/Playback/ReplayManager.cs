@@ -6,7 +6,7 @@ using System.Linq;
 public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager instance;
-    const string DefaultReplayFileName = "replay.json";
+    public const string DefaultReplayFileName = "replay.json";
 
     public enum State
     {
@@ -14,6 +14,16 @@ public class ReplayManager : MonoBehaviour
         Record,
         Playback
     }
+
+    public enum LaunchMode
+    {
+        None,
+        Record,
+        Playback
+    }
+
+    public static LaunchMode QueuedLaunchMode { get; private set; }
+    public static LaunchMode CurrentLaunchMode { get; private set; }
 
     [Header("Replay Storage")]
     public ReplayContainer replayContainer;
@@ -52,6 +62,7 @@ public class ReplayManager : MonoBehaviour
     private void Start()
     {
         RefreshReplayObjects();
+        StartQueuedLaunchMode();
     }
 
     private void OnApplicationQuit()
@@ -64,6 +75,7 @@ public class ReplayManager : MonoBehaviour
 
     public void StartRecording()
     {
+        CurrentLaunchMode = LaunchMode.Record;
         EnsureReplayContainer();
         replayContainer.Init();
         RefreshReplayObjects();
@@ -77,6 +89,7 @@ public class ReplayManager : MonoBehaviour
 
     public void StartPlayback()
     {
+        CurrentLaunchMode = LaunchMode.Playback;
         EnsureReplayContainer();
         if (replayContainer.Count == 0 && loadReplayFileOnPlayback)
         {
@@ -107,6 +120,14 @@ public class ReplayManager : MonoBehaviour
         if (previousState == State.Record && saveReplayOnStop)
         {
             SaveReplay();
+        }
+    }
+
+    public void StopRecording()
+    {
+        if (currentState == State.Record)
+        {
+            Stop();
         }
     }
 
@@ -292,9 +313,41 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
+    void StartQueuedLaunchMode()
+    {
+        if (QueuedLaunchMode == LaunchMode.None)
+        {
+            return;
+        }
+
+        LaunchMode launchMode = QueuedLaunchMode;
+        QueuedLaunchMode = LaunchMode.None;
+
+        if (launchMode == LaunchMode.Record)
+        {
+            StartRecording();
+            return;
+        }
+
+        if (launchMode == LaunchMode.Playback)
+        {
+            StartPlayback();
+        }
+    }
+
     string ResolveReplayFileName()
     {
         return string.IsNullOrWhiteSpace(replayFileName) ? DefaultReplayFileName : replayFileName;
+    }
+
+    public static void QueueRecordingOnNextScene()
+    {
+        QueuedLaunchMode = LaunchMode.Record;
+    }
+
+    public static void QueuePlaybackOnNextScene()
+    {
+        QueuedLaunchMode = LaunchMode.Playback;
     }
 
     public static bool IsPlaybackActive()
@@ -305,5 +358,15 @@ public class ReplayManager : MonoBehaviour
     public static bool IsRecordingActive()
     {
         return instance != null && instance.CurrentState == State.Record;
+    }
+
+    public static bool IsPlaybackLaunch()
+    {
+        return QueuedLaunchMode == LaunchMode.Playback || CurrentLaunchMode == LaunchMode.Playback;
+    }
+
+    public static bool IsRecordingLaunch()
+    {
+        return QueuedLaunchMode == LaunchMode.Record || CurrentLaunchMode == LaunchMode.Record;
     }
 }

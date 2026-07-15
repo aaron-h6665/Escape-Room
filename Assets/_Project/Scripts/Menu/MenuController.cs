@@ -28,18 +28,14 @@ public class MenuController : MonoBehaviour
     public void NewGameDialogYes()
     {
         SaveFileUtility.Delete(SaveFileName);
+        ReplayManager.QueueRecordingOnNextScene();
         SceneManager.LoadScene(NewGameLevel);
     }
 
     public void LoadGameDialogYes()
     {
-        if (SaveFileUtility.Exists(SaveFileName))
-        {
-            SceneManager.LoadScene(NewGameLevel);
-            return;
-        }
-
-        Debug.LogWarning("No saved game was found at " + SaveFileUtility.GetPath(SaveFileName));
+        ReplayManager.QueuePlaybackOnNextScene();
+        SceneManager.LoadScene(NewGameLevel);
     }
 
     public void ExitButton()
