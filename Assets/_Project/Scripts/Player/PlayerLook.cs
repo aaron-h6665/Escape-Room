@@ -7,6 +7,7 @@ public class PlayerLook : MonoBehaviour, IDataPersistence, IReplayObject
 
     public float xSensitivity = 30f;
     public float ySensitivity = 30f;
+    public float CameraPitch => xRotation;
 
     void Start()
     {
@@ -47,6 +48,16 @@ public class PlayerLook : MonoBehaviour, IDataPersistence, IReplayObject
     public void LoadSnapshot(GameData data)
     {
         ApplyLookData(data);
+    }
+
+    public void ApplyReplayLook(Quaternion playerRotation, float cameraPitch)
+    {
+        transform.rotation = ReplayIdentity.IsZero(playerRotation) ? Quaternion.identity : playerRotation;
+        xRotation = cameraPitch;
+        if (cam != null)
+        {
+            cam.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        }
     }
 
     void SaveLookData(ref GameData data)

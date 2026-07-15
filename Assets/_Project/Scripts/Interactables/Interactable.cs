@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class Interactable : MonoBehaviour
+public abstract class Interactable : MonoBehaviour, IReplayEventTarget
 {
     [SerializeField]
     protected string promptMessage;
@@ -19,6 +19,16 @@ public abstract class Interactable : MonoBehaviour
     bool highlightInitialized;
     bool focused;
 
+    protected virtual string ReplayIdentityValue => ReplayIdentity.Resolve(this, string.Empty);
+    protected virtual string ReplayCategoryValue => GetType().Name.Replace("Interactable", string.Empty);
+    protected virtual string ReplayItemIdValue => string.Empty;
+    protected virtual string ReplayInteractionKind => ReplayCategoryValue.ToLowerInvariant() + "_interacted";
+    protected virtual string ReplayStateChangeKind => ReplayCategoryValue.ToLowerInvariant() + "_changed";
+    public virtual ReplayObjectState ReplayState => ReplayObjectState.Idle;
+    public string ReplayTargetId => ReplayIdentityValue;
+    public virtual string ReplayTargetName => gameObject.name;
+    public string ReplayTargetCategory => ReplayCategoryValue;
+
     struct HighlightMaterialState
     {
         public Material material;
@@ -33,7 +43,19 @@ public abstract class Interactable : MonoBehaviour
 
     public void BaseInteract(GameObject interactor)
     {
+        ReplayObjectState stateBefore = ReplayState;
+        ReplayEventBus.Publish(this, ReplayInteractionKind, ReplayObjectState.Attempted, false, false, ReplayItemIdValue);
         Interact(interactor);
+        ReplayObjectState stateAfter = ReplayState;
+        if (stateAfter != stateBefore)
+        {
+            ReplayEventBus.Publish(this, ReplayStateChangeKind, stateAfter, true, true, ReplayItemIdValue, transform.position, transform.rotation);
+        }
+    }
+
+    public virtual bool ApplyReplayEvent(ReplayEventData replayEvent)
+    {
+        return false;
     }
     
     protected virtual void Interact(GameObject interactor)

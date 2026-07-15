@@ -17,6 +17,11 @@ public class Keypad : Interactable, IDataPersistence, IReplayObject
     }
 
     string StateId => ReplayIdentity.Resolve(this, id);
+    protected override string ReplayIdentityValue => StateId;
+    protected override string ReplayCategoryValue => "Room";
+    protected override string ReplayInteractionKind => "room_control_interacted";
+    protected override string ReplayStateChangeKind => doorOpen ? "room_opened" : "room_closed";
+    public override ReplayObjectState ReplayState => doorOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
 
     void Awake()
     {

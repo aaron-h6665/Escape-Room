@@ -73,6 +73,11 @@ public class PlayerMotor : MonoBehaviour, IDataPersistence, IReplayObject
         ApplyPosition(data.playerPosition);
     }
 
+    public void ApplyReplayPosition(Vector3 position)
+    {
+        ApplyPosition(position);
+    }
+
     void ApplyPosition(Vector3 position)
     {
         playerVelocity = Vector3.zero;

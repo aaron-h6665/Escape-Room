@@ -8,10 +8,14 @@ public class InputManager : MonoBehaviour
     [System.NonSerialized]
     private PlayerInput.OnFootActions onFoot;
     private bool playerControlLocked;
+    private InputAction inventoryToggleAction;
+    private InputAction inventoryToggleAlternateAction;
+    private InputAction takeoverAlternateAction;
 
     public PlayerInput.OnFootActions OnFoot => onFoot;
     public bool PlayerControlLocked => playerControlLocked;
     public event Action PausePressed;
+    public event Action TakeoverPressed;
     public event Action<int> InventoryNavigationPressed;
     public event Action<int> InventorySlotPressed;
 
@@ -31,9 +35,31 @@ public class InputManager : MonoBehaviour
             }
         };
         onFoot.Pause.performed += OnPausePerformed;
-        onFoot.InventoryToggle.performed += OnInventoryTogglePerformed;
-        onFoot.InventoryToggleAlternate.performed += OnInventoryToggleAlternatePerformed;
+        CreateSupplementalActions();
         look = GetComponent<PlayerLook>();
+    }
+
+    void CreateSupplementalActions()
+    {
+        inventoryToggleAction = new InputAction("InventoryToggle", InputActionType.Value, expectedControlType: "Axis");
+        inventoryToggleAction.AddCompositeBinding("1DAxis")
+            .With("Negative", "<Gamepad>/leftShoulder")
+            .With("Positive", "<Gamepad>/rightShoulder");
+        inventoryToggleAction.AddBinding("<Mouse>/scroll/y");
+        inventoryToggleAction.performed += OnInventoryTogglePerformed;
+
+        inventoryToggleAlternateAction = new InputAction("InventoryToggleAlternate", InputActionType.PassThrough, expectedControlType: "Button");
+        for (int slot = 1; slot <= 5; slot++)
+        {
+            inventoryToggleAlternateAction.AddBinding($"<Keyboard>/{slot}");
+            inventoryToggleAlternateAction.AddBinding($"<Keyboard>/numpad{slot}");
+        }
+        inventoryToggleAlternateAction.performed += OnInventoryToggleAlternatePerformed;
+
+        takeoverAlternateAction = new InputAction("TakeoverAlternate", InputActionType.Button, expectedControlType: "Button");
+        takeoverAlternateAction.AddBinding("<Keyboard>/t");
+        takeoverAlternateAction.AddBinding("<Gamepad>/rightTrigger").WithInteraction("press");
+        takeoverAlternateAction.performed += OnTakeoverAlternatePerformed;
     }
 
     // Update is called once per frame
@@ -76,6 +102,14 @@ public class InputManager : MonoBehaviour
     void OnPausePerformed(InputAction.CallbackContext context)
     {
         PausePressed?.Invoke();
+    }
+
+    void OnTakeoverAlternatePerformed(InputAction.CallbackContext context)
+    {
+        if (ReplayManager.IsPlaybackActive() && !playerControlLocked)
+        {
+            TakeoverPressed?.Invoke();
+        }
     }
 
     void OnInventoryTogglePerformed(InputAction.CallbackContext context)
@@ -150,6 +184,9 @@ public class InputManager : MonoBehaviour
         if (playerInput != null)
         {
             onFoot.Enable();
+            inventoryToggleAction?.Enable();
+            inventoryToggleAlternateAction?.Enable();
+            takeoverAlternateAction?.Enable();
         }
     }
 
@@ -158,6 +195,9 @@ public class InputManager : MonoBehaviour
         if (playerInput != null)
         {
             onFoot.Disable();
+            inventoryToggleAction?.Disable();
+            inventoryToggleAlternateAction?.Disable();
+            takeoverAlternateAction?.Disable();
         }
     }
 
@@ -169,8 +209,21 @@ public class InputManager : MonoBehaviour
         }
 
         onFoot.Pause.performed -= OnPausePerformed;
-        onFoot.InventoryToggle.performed -= OnInventoryTogglePerformed;
-        onFoot.InventoryToggleAlternate.performed -= OnInventoryToggleAlternatePerformed;
+        if (inventoryToggleAction != null)
+        {
+            inventoryToggleAction.performed -= OnInventoryTogglePerformed;
+            inventoryToggleAction.Dispose();
+        }
+        if (inventoryToggleAlternateAction != null)
+        {
+            inventoryToggleAlternateAction.performed -= OnInventoryToggleAlternatePerformed;
+            inventoryToggleAlternateAction.Dispose();
+        }
+        if (takeoverAlternateAction != null)
+        {
+            takeoverAlternateAction.performed -= OnTakeoverAlternatePerformed;
+            takeoverAlternateAction.Dispose();
+        }
         onFoot.Disable();
         playerInput.Dispose();
     }

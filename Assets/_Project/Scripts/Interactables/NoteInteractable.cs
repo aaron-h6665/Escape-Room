@@ -31,6 +31,11 @@ public class NoteInteractable : Interactable, IReplayObject
     }
 
     string StateId => ReplayIdentity.Resolve(this, id);
+    protected override string ReplayIdentityValue => StateId;
+    protected override string ReplayCategoryValue => "Note";
+    protected override string ReplayInteractionKind => "note_interacted";
+    protected override string ReplayStateChangeKind => noteOpen ? "note_opened" : "note_closed";
+    public override ReplayObjectState ReplayState => noteOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
 
     void Awake()
     {
@@ -122,6 +127,7 @@ public class NoteInteractable : Interactable, IReplayObject
 
     void CloseNote()
     {
+        bool wasOpen = noteOpen;
         noteOpen = false;
         SetNoteVisible(false);
 
@@ -138,6 +144,11 @@ public class NoteInteractable : Interactable, IReplayObject
         if (playerInteract != null)
         {
             playerInteract.enabled = playerInteractWasEnabled;
+        }
+
+        if (wasOpen)
+        {
+            ReplayEventBus.Publish(this, "note_closed", ReplayObjectState.Closed, true, true);
         }
     }
 

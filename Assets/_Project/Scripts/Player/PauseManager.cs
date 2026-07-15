@@ -9,6 +9,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private InputManager inputManager;
 
     private bool isPaused;
+    public bool IsPaused => isPaused;
     private bool previousPlayerControlLocked;
     private bool previousCursorVisible;
     private float previousTimeScale = 1f;

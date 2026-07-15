@@ -16,6 +16,11 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
     }
 
     string StateId => ReplayIdentity.Resolve(this, id);
+    protected override string ReplayIdentityValue => StateId;
+    protected override string ReplayCategoryValue => "Door";
+    protected override string ReplayInteractionKind => "door_interacted";
+    protected override string ReplayStateChangeKind => "door_opened";
+    public override ReplayObjectState ReplayState => isOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
 
     void Awake()
     {
