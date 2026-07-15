@@ -6,6 +6,7 @@ public class PlayerUI : MonoBehaviour, IReplayObject
     [SerializeField]
     private TextMeshProUGUI promptText;
     string currentPromptMessage = string.Empty;
+    public bool PromptVisible => promptText == null || promptText.gameObject.activeSelf;
 
     void Start()
     {
@@ -31,6 +32,19 @@ public class PlayerUI : MonoBehaviour, IReplayObject
 
     public void LoadSnapshot(GameData data)
     {
-        UpdateText(data.playerPromptText);
+        UpdateText(ReplayManager.IsPlaybackActive() ? string.Empty : data.playerPromptText);
+    }
+
+    public void SetPromptVisible(bool visible)
+    {
+        if (!visible)
+        {
+            UpdateText(string.Empty);
+        }
+
+        if (promptText != null)
+        {
+            promptText.gameObject.SetActive(visible);
+        }
     }
 }

@@ -26,6 +26,12 @@ public class InventoryUI : MonoBehaviour
 
     readonly List<ItemUI> slotUIs = new List<ItemUI>();
     Coroutine inventoryFullCoroutine;
+    public bool IsVisible => gameObject.activeSelf;
+
+    public void SetVisible(bool visible)
+    {
+        gameObject.SetActive(visible);
+    }
 
     void Awake()
     {
