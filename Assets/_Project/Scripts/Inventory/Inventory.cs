@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Collider))]
-public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
+public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget
 {
     public const int SlotCount = 5;
 
@@ -50,6 +50,10 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 
     public Item SelectedItem => HasSelectedItem ? slots[selectedSlotIndex] : null;
     public bool IsFull => OccupiedSlotCount >= SlotCount;
+    public string ReplayTargetId => ReplayIdentity.Resolve(this, string.Empty);
+    public string ReplayTargetName => "Player Inventory";
+    public string ReplayTargetCategory => "Inventory";
+    public ReplayObjectState ReplayState => ReplayObjectState.Idle;
     public int SelectedSlotIndex
     {
         get
@@ -385,7 +389,13 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject
 
         SetSelectedSlot(nextSelectedSlot);
         PlayOneShot(dropItemAudio);
+        ReplayEventBus.Publish(this, "item_dropped", ReplayObjectState.Dropped, true, true, item.Id, dropPosition, dropRotation, sourcePickupId);
         return true;
+    }
+
+    public bool ApplyReplayEvent(ReplayEventData replayEvent)
+    {
+        return false;
     }
 
     void AddItemToSlot(int slotIndex, Item item, string sourcePickupId, bool playAudio, bool autoSelect)

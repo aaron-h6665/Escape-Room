@@ -86,6 +86,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "TakeoverAlternate",
+                    "type": "Button",
+                    "id": "4dd1e54c-5715-4e0e-9e7e-88fb1c095f65",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -258,17 +267,6 @@
                     "name": "",
                     "id": "338fcd14-a55c-4c7e-bdf4-3ccd1cafbb98",
                     "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Interact",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0f6e65d0-441d-49d3-85fc-5d09770fe7d7",
-                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -493,6 +491,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "InventoryToggleAlternate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "TakeoverKeyboard",
+                    "id": "36d76ffb-ec65-4d2b-9673-40a1fa257b47",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TakeoverAlternate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "TakeoverController",
+                    "id": "7441551e-50cd-43f2-a046-9697c5d485e4",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TakeoverAlternate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

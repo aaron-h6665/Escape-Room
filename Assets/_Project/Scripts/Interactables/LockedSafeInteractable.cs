@@ -37,6 +37,11 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
     }
 
     string StateId => ReplayIdentity.Resolve(this, id);
+    protected override string ReplayIdentityValue => StateId;
+    protected override string ReplayCategoryValue => "Safe";
+    protected override string ReplayInteractionKind => "safe_interacted";
+    protected override string ReplayStateChangeKind => safeOpen ? "safe_opened" : "safe_closed";
+    public override ReplayObjectState ReplayState => safeOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
 
     void Awake()
     {

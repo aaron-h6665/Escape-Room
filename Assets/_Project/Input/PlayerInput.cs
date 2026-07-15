@@ -172,6 +172,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TakeoverAlternate"",
+                    ""type"": ""Button"",
+                    ""id"": ""4dd1e54c-5715-4e0e-9e7e-88fb1c095f65"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -344,17 +353,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""338fcd14-a55c-4c7e-bdf4-3ccd1cafbb98"",
                     ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Interact"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""0f6e65d0-441d-49d3-85fc-5d09770fe7d7"",
-                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -579,6 +577,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""InventoryToggleAlternate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""TakeoverKeyboard"",
+                    ""id"": ""36d76ffb-ec65-4d2b-9673-40a1fa257b47"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TakeoverAlternate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""TakeoverController"",
+                    ""id"": ""7441551e-50cd-43f2-a046-9697c5d485e4"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": ""press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TakeoverAlternate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1114,6 +1134,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_OnFoot_Pause = m_OnFoot.FindAction("Pause", throwIfNotFound: true);
         m_OnFoot_InventoryToggle = m_OnFoot.FindAction("InventoryToggle", throwIfNotFound: true);
         m_OnFoot_InventoryToggleAlternate = m_OnFoot.FindAction("InventoryToggleAlternate", throwIfNotFound: true);
+        m_OnFoot_TakeoverAlternate = m_OnFoot.FindAction("TakeoverAlternate", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1216,6 +1237,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_OnFoot_Pause;
     private readonly InputAction m_OnFoot_InventoryToggle;
     private readonly InputAction m_OnFoot_InventoryToggleAlternate;
+    private readonly InputAction m_OnFoot_TakeoverAlternate;
     /// <summary>
     /// Provides access to input actions defined in input action map "OnFoot".
     /// </summary>
@@ -1263,6 +1285,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "OnFoot/InventoryToggleAlternate".
         /// </summary>
         public InputAction @InventoryToggleAlternate => m_Wrapper.m_OnFoot_InventoryToggleAlternate;
+        /// <summary>
+        /// Provides access to the underlying input action "OnFoot/TakeoverAlternate".
+        /// </summary>
+        public InputAction @TakeoverAlternate => m_Wrapper.m_OnFoot_TakeoverAlternate;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1316,6 +1342,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @InventoryToggleAlternate.started += instance.OnInventoryToggleAlternate;
             @InventoryToggleAlternate.performed += instance.OnInventoryToggleAlternate;
             @InventoryToggleAlternate.canceled += instance.OnInventoryToggleAlternate;
+            @TakeoverAlternate.started += instance.OnTakeoverAlternate;
+            @TakeoverAlternate.performed += instance.OnTakeoverAlternate;
+            @TakeoverAlternate.canceled += instance.OnTakeoverAlternate;
         }
 
         /// <summary>
@@ -1354,6 +1383,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @InventoryToggleAlternate.started -= instance.OnInventoryToggleAlternate;
             @InventoryToggleAlternate.performed -= instance.OnInventoryToggleAlternate;
             @InventoryToggleAlternate.canceled -= instance.OnInventoryToggleAlternate;
+            @TakeoverAlternate.started -= instance.OnTakeoverAlternate;
+            @TakeoverAlternate.performed -= instance.OnTakeoverAlternate;
+            @TakeoverAlternate.canceled -= instance.OnTakeoverAlternate;
         }
 
         /// <summary>
@@ -1652,6 +1684,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInventoryToggleAlternate(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "TakeoverAlternate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTakeoverAlternate(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -6,6 +6,7 @@ public class TimeSpentManager : MonoBehaviour, IDataPersistence, IReplayObject
     [SerializeField] private TMP_Text timeSpentText;
     private float elapsedTime = 0f;
     private bool isRunning = true;
+    public float ElapsedTime => elapsedTime;
 
     void Start()
     {
@@ -34,6 +35,12 @@ public class TimeSpentManager : MonoBehaviour, IDataPersistence, IReplayObject
     public void LoadSnapshot(GameData data)
     {
         elapsedTime = data.elapsedTime;
+        UpdateTimeText();
+    }
+
+    public void ApplyReplayElapsedTime(float value)
+    {
+        elapsedTime = value;
         UpdateTimeText();
     }
 

@@ -17,6 +17,13 @@ public class ItemPickupInteractable : Interactable, IDataPersistence, IReplayObj
     public Item Item => item;
     public string SaveId => id;
     string ReplayId => ReplayIdentity.Resolve(this, id);
+    protected override string ReplayIdentityValue => ReplayId;
+    protected override string ReplayCategoryValue => "Item";
+    protected override string ReplayItemIdValue => item != null ? item.Id : string.Empty;
+    protected override string ReplayInteractionKind => "item_pickup_attempted";
+    protected override string ReplayStateChangeKind => "item_picked_up";
+    public override string ReplayTargetName => item != null ? item.name : gameObject.name;
+    public override ReplayObjectState ReplayState => isPickedUp ? ReplayObjectState.PickedUp : ReplayObjectState.Idle;
 
     void Awake()
     {

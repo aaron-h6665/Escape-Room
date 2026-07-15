@@ -22,6 +22,11 @@ public class LockedDoorInteractable : InventoryLockedInteractable, IDataPersiste
     }
 
     string ReplayId => ReplayIdentity.Resolve(this, id);
+    protected override string ReplayIdentityValue => ReplayId;
+    protected override string ReplayCategoryValue => "Door";
+    protected override string ReplayInteractionKind => "door_interacted";
+    protected override string ReplayStateChangeKind => doorOpen ? "door_opened" : "door_closed";
+    public override ReplayObjectState ReplayState => doorOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
 
     void Awake()
     {
