@@ -31,6 +31,21 @@ public class DataPersistenceManager : MonoBehaviour
 
         this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName);
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
+
+        if (ReplayManager.IsPlaybackLaunch())
+        {
+            NewGame();
+            Debug.Log("Replay playback launch detected. Skipping data.game load.");
+            return;
+        }
+
+        if (ReplayManager.IsRecordingLaunch())
+        {
+            NewGame();
+            Debug.Log("Replay recording launch detected. Starting from new GameData.");
+            return;
+        }
+
         LoadGame();
     }
 
@@ -60,9 +75,9 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void SaveGame()
     {
-        if (ReplayManager.IsPlaybackActive())
+        if (ReplayManager.IsPlaybackLaunch() || ReplayManager.IsRecordingLaunch())
         {
-            Debug.Log("Game save skipped during replay playback.");
+            Debug.Log("Game save skipped during replay test mode.");
             return;
         }
 
