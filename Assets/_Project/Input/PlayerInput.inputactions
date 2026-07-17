@@ -71,27 +71,18 @@
                 },
                 {
                     "name": "InventoryToggle",
-                    "type": "Value",
-                    "id": "1c1f7e7e-1f3b-4e4a-8f5e-6d2c7f3c0a11",
-                    "expectedControlType": "Axis",
+                    "type": "Button",
+                    "id": "1a53a7e4-fd59-4fbf-aa1a-a2f90d4d4f8b",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
                     "name": "InventoryToggleAlternate",
-                    "type": "PassThrough",
-                    "id": "2d2f8e8f-2f4c-4f5b-9f6e-7e3d8f4d1b22",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "TakeoverAlternate",
                     "type": "Button",
-                    "id": "4dd1e54c-5715-4e0e-9e7e-88fb1c095f65",
-                    "expectedControlType": "Button",
+                    "id": "265485ab-5c9f-425a-b5e7-bfc421c48051",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -341,42 +332,31 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "1D Axis",
-                    "id": "3e3f9f90-3f5d-406c-a07f-8f4e9f5e2c33",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggle",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "4f40a0a1-406e-417d-b180-905fa06f3d44",
+                    "name": "",
+                    "id": "939cce15-1087-4370-b53f-69a548b154e8",
                     "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "InventoryToggle",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 },
                 {
-                    "name": "positive",
-                    "id": "5051b1b2-517f-428e-c291-a160b1704e55",
+                    "name": "",
+                    "id": "ac71a0bc-ffd6-4514-8a99-cf8926554f99",
                     "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "InventoryToggle",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 },
                 {
-                    "name": "Mouse Wheel",
-                    "id": "6162c2c3-6280-439f-d3a2-b271c2815f66",
-                    "path": "<Mouse>/scroll/y",
+                    "name": "",
+                    "id": "c1b9c5eb-2303-4cf7-b3ee-209198fa82b5",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -385,9 +365,9 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "Slot1Keyboard",
-                    "id": "7273d3d4-7391-44a0-e4b3-c382d3926077",
-                    "path": "<Keyboard>/1",
+                    "name": "",
+                    "id": "4e28c302-0453-4d5f-9310-0aa18de09f90",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -396,123 +376,13 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "Slot1Numpad",
-                    "id": "8384e4e5-84a2-45b1-f5c4-d493e4a37188",
-                    "path": "<Keyboard>/numpad1",
+                    "name": "",
+                    "id": "4383b25e-5b78-4b1b-9290-104e1f9a9219",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot2Keyboard",
-                    "id": "9495f5f6-95b3-46c2-a6d5-e5a4f5b48299",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot2Numpad",
-                    "id": "a5a60607-a6c4-47d3-b7e6-f6b5a6c593aa",
-                    "path": "<Keyboard>/numpad2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot3Keyboard",
-                    "id": "b6b71718-b7d5-48e4-c8f7-a7c6b7d6a4bb",
-                    "path": "<Keyboard>/3",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot3Numpad",
-                    "id": "c7c82829-c8e6-49f5-d908-b8d7c8e7b5cc",
-                    "path": "<Keyboard>/numpad3",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot4Keyboard",
-                    "id": "d8d9393a-d9f7-4a06-ea19-c9e8d9f8c6dd",
-                    "path": "<Keyboard>/4",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot4Numpad",
-                    "id": "e9ea4a4b-ea08-4b17-fb2a-daf9ea09d7ee",
-                    "path": "<Keyboard>/numpad4",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot5Keyboard",
-                    "id": "fafb5b5c-fb19-4c28-ac3b-eb0afb1ae8ff",
-                    "path": "<Keyboard>/5",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Slot5Numpad",
-                    "id": "0b0c6c6d-0c2a-4d39-bd4c-fc1b0c2bf900",
-                    "path": "<Keyboard>/numpad5",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InventoryToggleAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "TakeoverKeyboard",
-                    "id": "36d76ffb-ec65-4d2b-9673-40a1fa257b47",
-                    "path": "<Keyboard>/t",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "TakeoverAlternate",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "TakeoverController",
-                    "id": "7441551e-50cd-43f2-a046-9697c5d485e4",
-                    "path": "<Gamepad>/rightTrigger",
-                    "interactions": "press",
-                    "processors": "",
-                    "groups": "",
-                    "action": "TakeoverAlternate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

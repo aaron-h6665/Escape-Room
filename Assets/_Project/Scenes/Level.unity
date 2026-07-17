@@ -6219,9 +6219,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f108865773a74507ad2a36e9b13e7bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
-  speed: 2.5
-  gravity: -9.8
-  jumpHeight: 3
+  speed: 3.5
+  sprintMultiplier: 1.7
+  acceleration: 18
+  airControl: 0.35
+  gravity: -9.81
+  jumpHeight: 0.45
+  groundedVerticalSpeed: -2
+  terminalVelocity: -53
   inputManager: {fileID: 1555487810}
   respawnPoint: {fileID: 1935188593}
 --- !u!114 &1555487810
@@ -8316,15 +8321,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 776976705495150195, guid: 7d9ec1a6582fa4a269cd5801fe3c0759, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.62877
+      value: 0.8382
       objectReference: {fileID: 0}
     - target: {fileID: 776976705495150195, guid: 7d9ec1a6582fa4a269cd5801fe3c0759, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.62877
+      value: 0.8382
       objectReference: {fileID: 0}
     - target: {fileID: 776976705495150195, guid: 7d9ec1a6582fa4a269cd5801fe3c0759, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.62877
+      value: 0.8382
       objectReference: {fileID: 0}
     - target: {fileID: 776976705495150195, guid: 7d9ec1a6582fa4a269cd5801fe3c0759, type: 3}
       propertyPath: m_LocalPosition.x
