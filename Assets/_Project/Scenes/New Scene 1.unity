@@ -215,9 +215,13 @@ MonoBehaviour:
   acceleration: 18
   airControl: 0.35
   gravity: -9.81
-  jumpHeight: 0.45
+  jumpHeight: 1.2
   groundedVerticalSpeed: -2
   terminalVelocity: -53
+  crouchHeight: 1.2
+  crouchEyeHeight: 1.1
+  crouchSpeedMultiplier: 0.5
+  crouchTransitionSpeed: 3
   inputManager: {fileID: 0}
   respawnPoint: {fileID: 0}
 --- !u!114 &69962282

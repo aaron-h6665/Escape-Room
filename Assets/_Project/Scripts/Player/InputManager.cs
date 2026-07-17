@@ -11,6 +11,7 @@ public class InputManager : MonoBehaviour
     private InputAction inventoryToggleAction;
     private InputAction inventoryToggleAlternateAction;
     private InputAction takeoverAlternateAction;
+    private InputAction crouchAction;
 
     public PlayerInput.OnFootActions OnFoot => onFoot;
     public bool PlayerControlLocked => playerControlLocked;
@@ -60,6 +61,11 @@ public class InputManager : MonoBehaviour
         takeoverAlternateAction.AddBinding("<Keyboard>/t");
         takeoverAlternateAction.AddBinding("<Gamepad>/rightTrigger").WithInteraction("press");
         takeoverAlternateAction.performed += OnTakeoverAlternatePerformed;
+
+        crouchAction = new InputAction("Crouch", InputActionType.Button, expectedControlType: "Button");
+        crouchAction.AddBinding("<Keyboard>/c").WithInteraction("press");
+        crouchAction.AddBinding("<Gamepad>/rightStickPress").WithInteraction("press");
+        crouchAction.performed += OnCrouchPerformed;
     }
 
     // Update is called once per frame
@@ -109,6 +115,14 @@ public class InputManager : MonoBehaviour
         if (ReplayManager.IsPlaybackActive() && !playerControlLocked)
         {
             TakeoverPressed?.Invoke();
+        }
+    }
+
+    void OnCrouchPerformed(InputAction.CallbackContext context)
+    {
+        if (CanMove())
+        {
+            motor.ToggleCrouch();
         }
     }
 
@@ -187,6 +201,7 @@ public class InputManager : MonoBehaviour
             inventoryToggleAction?.Enable();
             inventoryToggleAlternateAction?.Enable();
             takeoverAlternateAction?.Enable();
+            crouchAction?.Enable();
         }
     }
 
@@ -198,6 +213,7 @@ public class InputManager : MonoBehaviour
             inventoryToggleAction?.Disable();
             inventoryToggleAlternateAction?.Disable();
             takeoverAlternateAction?.Disable();
+            crouchAction?.Disable();
         }
     }
 
@@ -223,6 +239,11 @@ public class InputManager : MonoBehaviour
         {
             takeoverAlternateAction.performed -= OnTakeoverAlternatePerformed;
             takeoverAlternateAction.Dispose();
+        }
+        if (crouchAction != null)
+        {
+            crouchAction.performed -= OnCrouchPerformed;
+            crouchAction.Dispose();
         }
         onFoot.Disable();
         playerInput.Dispose();
