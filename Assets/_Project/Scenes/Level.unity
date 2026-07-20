@@ -2759,7 +2759,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value: 
+      value:
       objectReference: {fileID: 2100000, guid: f31d97344f36b49b5a335f0e7841c0fb, type: 2}
     - target: {fileID: 919132149155446097, guid: e0b66cfada98f431ba3e6dcea55c37cf, type: 3}
       propertyPath: m_Name
@@ -2820,9 +2820,12 @@ MonoBehaviour:
   noteCanvas: {fileID: 1769140068}
   notePanel: {fileID: 0}
   noteText: {fileID: 341490738}
+  clueImage: {fileID: 0}
   player: {fileID: 1555487809}
   inputManager: {fileID: 0}
   playerInteract: {fileID: 0}
+  inventoryUI: {fileID: 0}
+  playerUI: {fileID: 0}
   id: 
 --- !u!64 &651885628
 MeshCollider:
@@ -5950,6 +5953,71 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1001 &1363646059
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 925796298183117029, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: id
+      value: 849b4f09-be4f-4603-b3dd-8a8584897be5
+      objectReference: {fileID: 0}
+    - target: {fileID: 925796298183117029, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: sourceNote
+      value:
+      objectReference: {fileID: 651885627}
+    - target: {fileID: 7241655979866550256, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_Name
+      value: Caesar Cipher Decoder
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.57777
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.6342098
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -9.900001
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7679342749564890651, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
 --- !u!1 &1410949028 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 527466080384583689, guid: fcb55e9bf414a4a0494791a62e8cbd70, type: 3}
@@ -6689,9 +6757,12 @@ MonoBehaviour:
   noteCanvas: {fileID: 836614252}
   notePanel: {fileID: 0}
   noteText: {fileID: 465167704}
+  clueImage: {fileID: 0}
   player: {fileID: 1555487809}
   inputManager: {fileID: 0}
   playerInteract: {fileID: 0}
+  inventoryUI: {fileID: 0}
+  playerUI: {fileID: 0}
   id: 
 --- !u!64 &1698331754
 MeshCollider:
@@ -11716,3 +11787,4 @@ SceneRoots:
   - {fileID: 913403805}
   - {fileID: 649964414}
   - {fileID: 410087041}
+  - {fileID: 1363646059}

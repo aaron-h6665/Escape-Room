@@ -1,0 +1,21 @@
+{
+  "name": "CaesarCipher.Tests.Editor",
+  "rootNamespace": "",
+  "references": [
+    "CaesarCipher.Math"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

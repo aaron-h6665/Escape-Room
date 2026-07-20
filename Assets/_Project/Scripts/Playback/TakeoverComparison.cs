@@ -130,10 +130,13 @@ public static class TakeoverComparison
 
     static int CountObjectives(IEnumerable<ReplayEventData> events)
     {
-        return events.Count(replayEvent => replayEvent.state == ReplayObjectState.Open
-            && (string.Equals(replayEvent.objectCategory, "Door", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(replayEvent.objectCategory, "Safe", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(replayEvent.objectCategory, "Room", StringComparison.OrdinalIgnoreCase)));
+        return events.Count(replayEvent =>
+            (replayEvent.state == ReplayObjectState.Open
+                && (string.Equals(replayEvent.objectCategory, "Door", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(replayEvent.objectCategory, "Safe", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(replayEvent.objectCategory, "Room", StringComparison.OrdinalIgnoreCase)))
+            || (replayEvent.state == ReplayObjectState.Completed
+                && string.Equals(replayEvent.objectCategory, "Puzzle", StringComparison.OrdinalIgnoreCase)));
     }
 
     static string Humanize(string eventKind, ReplayObjectState state, int occurrence)

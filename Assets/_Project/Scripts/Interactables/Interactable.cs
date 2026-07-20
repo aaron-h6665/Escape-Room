@@ -24,6 +24,7 @@ public abstract class Interactable : MonoBehaviour, IReplayEventTarget
     protected virtual string ReplayItemIdValue => string.Empty;
     protected virtual string ReplayInteractionKind => ReplayCategoryValue.ToLowerInvariant() + "_interacted";
     protected virtual string ReplayStateChangeKind => ReplayCategoryValue.ToLowerInvariant() + "_changed";
+    protected virtual bool RecordReplayInteraction => true;
     public virtual ReplayObjectState ReplayState => ReplayObjectState.Idle;
     public string ReplayTargetId => ReplayIdentityValue;
     public virtual string ReplayTargetName => gameObject.name;
@@ -44,7 +45,10 @@ public abstract class Interactable : MonoBehaviour, IReplayEventTarget
     public void BaseInteract(GameObject interactor)
     {
         ReplayObjectState stateBefore = ReplayState;
-        ReplayEventBus.Publish(this, ReplayInteractionKind, ReplayObjectState.Attempted, false, false, ReplayItemIdValue);
+        if (RecordReplayInteraction)
+        {
+            ReplayEventBus.Publish(this, ReplayInteractionKind, ReplayObjectState.Attempted, false, false, ReplayItemIdValue);
+        }
         Interact(interactor);
         ReplayObjectState stateAfter = ReplayState;
         if (stateAfter != stateBefore)
@@ -63,7 +67,7 @@ public abstract class Interactable : MonoBehaviour, IReplayEventTarget
 
     }
 
-    public void SetFocused(bool isFocused)
+    public virtual void SetFocused(bool isFocused)
     {
         if (focused == isFocused)
         {
@@ -88,7 +92,7 @@ public abstract class Interactable : MonoBehaviour, IReplayEventTarget
         }
     }
 
-    public void UpdateFocusHighlight()
+    public virtual void UpdateFocusHighlight()
     {
         if (!focused || !highlightOnFocus)
         {
