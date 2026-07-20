@@ -27,6 +27,17 @@ public static class CaesarCipherMath
         return Symbols[NormalizeIndex(index)];
     }
 
+    public static int TopSymbolIndex(int topSymbolAtZero, float rotationIndex, float rotationDirection = 1f)
+    {
+        int direction = Mathf.Approximately(rotationDirection, 0f) ? 1 : (int)Mathf.Sign(rotationDirection);
+        return NormalizeIndex(topSymbolAtZero + Mathf.RoundToInt(rotationIndex) * direction);
+    }
+
+    public static char TopSymbol(int topSymbolAtZero, float rotationIndex, float rotationDirection = 1f)
+    {
+        return IndexToSymbol(TopSymbolIndex(topSymbolAtZero, rotationIndex, rotationDirection));
+    }
+
     public static Quaternion RotationForIndex(Quaternion baseline, Vector3 parentLocalAxis, float index, float direction = 1f)
     {
         Vector3 axis = parentLocalAxis.sqrMagnitude > 0.0001f ? parentLocalAxis.normalized : Vector3.forward;

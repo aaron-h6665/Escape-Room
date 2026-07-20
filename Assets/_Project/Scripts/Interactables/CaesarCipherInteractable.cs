@@ -25,6 +25,12 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
     [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int outerIndex;
     [SerializeField] RingSelection selectedRing = RingSelection.Outer;
 
+    [Header("Top Letter Calibration")]
+    [Tooltip("Symbol physically at screen-top on the inner ring when its rotation index is zero. The imported model starts on O.")]
+    [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int innerTopSymbolAtZero = 14;
+    [Tooltip("Symbol physically at screen-top on the outer ring when its rotation index is zero. The imported model starts on N.")]
+    [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int outerTopSymbolAtZero = 13;
+
     [Header("Colliders")]
     [SerializeField] Collider worldInteractionCollider;
     [SerializeField] Collider innerRingCollider;
@@ -100,6 +106,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
     public int InnerIndex => innerIndex;
     public int OuterIndex => outerIndex;
     public RingSelection SelectedRing => selectedRing;
+    public char InnerTopSymbol => TopSymbol(RingSelection.Inner, innerIndex);
+    public char OuterTopSymbol => TopSymbol(RingSelection.Outer, outerIndex);
 
     [ContextMenu("Generate guid for id")]
     void GenerateGuid()
@@ -483,6 +491,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         float pointerDelta = Mathf.DeltaAngle(dragStartPointerAngle, PointerAngle(screenPosition));
         float previewIndex = dragStartIndex + pointerDelta / (CaesarCipherMath.DegreesPerNotch * direction);
         ApplyRingRotation(draggedRing, previewIndex, false);
+        UpdateHudText(draggedRing, previewIndex);
     }
 
     void EndPointerDrag(Vector2 screenPosition)
@@ -1050,17 +1059,27 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         }
     }
 
-    void UpdateHudText()
+    void UpdateHudText(RingSelection? previewRing = null, float previewIndex = 0f)
     {
         if (selectedRingText != null)
         {
             string selection = selectedRing == RingSelection.Inner ? "INNER" : "OUTER";
-            selectedRingText.text = $"{selection} RING   Outer: {CaesarCipherMath.IndexToSymbol(outerIndex)}   Inner: {CaesarCipherMath.IndexToSymbol(innerIndex)}";
+            float displayedInnerIndex = previewRing == RingSelection.Inner ? previewIndex : innerIndex;
+            float displayedOuterIndex = previewRing == RingSelection.Outer ? previewIndex : outerIndex;
+            char innerTop = TopSymbol(RingSelection.Inner, displayedInnerIndex);
+            char outerTop = TopSymbol(RingSelection.Outer, displayedOuterIndex);
+            selectedRingText.text = $"{selection} RING SELECTED   Outer top: {outerTop}   Inner top: {innerTop}";
         }
         if (controlsText != null)
         {
             controlsText.text = "Drag a ring • Tab/Shoulder selects • A/D or ←/→ rotates • E/Esc/B closes";
         }
+    }
+
+    char TopSymbol(RingSelection ring, float index)
+    {
+        int baselineTopSymbol = ring == RingSelection.Inner ? innerTopSymbolAtZero : outerTopSymbolAtZero;
+        return CaesarCipherMath.TopSymbol(baselineTopSymbol, index, RotationDirection(ring));
     }
 
     void RefreshPinnedClue()

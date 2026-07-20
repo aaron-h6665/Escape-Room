@@ -51,7 +51,7 @@ public class PlayerInteract : MonoBehaviour
         if (interactable != null)
         {
             playerUI.UpdateText(interactable.GetPromptMessage());
-            if (inputManager.OnFoot.Interact.triggered)
+            if (inputManager.OnFoot.Interact.WasPressedThisFrame())
             {
                 interactable.BaseInteract(gameObject);
                 if (!isActiveAndEnabled)
