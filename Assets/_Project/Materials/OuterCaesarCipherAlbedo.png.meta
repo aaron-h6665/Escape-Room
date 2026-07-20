@@ -1,0 +1,819 @@
+fileFormatVersion: 2
+guid: 16d23abec77734f86a79f5fc0b2a98bf
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7018406139164488125
+    second: OuterCaesarCipherAlbedo_0
+  - first:
+      213: 532370682301176362
+    second: OuterCaesarCipherAlbedo_1
+  - first:
+      213: 610196912798737862
+    second: OuterCaesarCipherAlbedo_2
+  - first:
+      213: -4882597244778621936
+    second: OuterCaesarCipherAlbedo_3
+  - first:
+      213: -4751961937915984887
+    second: OuterCaesarCipherAlbedo_4
+  - first:
+      213: 3605250153958987786
+    second: OuterCaesarCipherAlbedo_5
+  - first:
+      213: -612341868009874361
+    second: OuterCaesarCipherAlbedo_6
+  - first:
+      213: -4026793061467065489
+    second: OuterCaesarCipherAlbedo_7
+  - first:
+      213: 2612159040569781391
+    second: OuterCaesarCipherAlbedo_8
+  - first:
+      213: 6694510408235364394
+    second: OuterCaesarCipherAlbedo_9
+  - first:
+      213: -369312877456575977
+    second: OuterCaesarCipherAlbedo_10
+  - first:
+      213: 5385856163073230369
+    second: OuterCaesarCipherAlbedo_11
+  - first:
+      213: -1893838053138736423
+    second: OuterCaesarCipherAlbedo_12
+  - first:
+      213: 3589088062726097048
+    second: OuterCaesarCipherAlbedo_13
+  - first:
+      213: 169722617930663974
+    second: OuterCaesarCipherAlbedo_14
+  - first:
+      213: 8765599943962310825
+    second: OuterCaesarCipherAlbedo_15
+  - first:
+      213: 5853553848989546603
+    second: OuterCaesarCipherAlbedo_16
+  - first:
+      213: 2466779691246039085
+    second: OuterCaesarCipherAlbedo_17
+  - first:
+      213: 8510247538723422390
+    second: OuterCaesarCipherAlbedo_18
+  - first:
+      213: 862558553572462745
+    second: OuterCaesarCipherAlbedo_19
+  - first:
+      213: 1643156128857504094
+    second: OuterCaesarCipherAlbedo_20
+  - first:
+      213: 2287524880898582201
+    second: OuterCaesarCipherAlbedo_21
+  - first:
+      213: -9106158879913487039
+    second: OuterCaesarCipherAlbedo_22
+  - first:
+      213: 6215504653712004690
+    second: OuterCaesarCipherAlbedo_23
+  - first:
+      213: 4923414991206554925
+    second: OuterCaesarCipherAlbedo_24
+  - first:
+      213: 383303525642857118
+    second: OuterCaesarCipherAlbedo_25
+  - first:
+      213: 7879117161205713268
+    second: OuterCaesarCipherAlbedo_26
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_0
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 909
+        width: 94
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db1f15ec233666160800000000000000
+      internalID: 7018406139164488125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_1
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 905
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2ad46f905c536700800000000000000
+      internalID: 532370682301176362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_2
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 904
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c5a866fbdad77800800000000000000
+      internalID: 610196912798737862
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_3
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 909
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0145babcca78d3cb0800000000000000
+      internalID: -4882597244778621936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_4
+      rect:
+        serializedVersion: 2
+        x: 545
+        y: 910
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90447506bc3ad0eb0800000000000000
+      internalID: -4751961937915984887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_5
+      rect:
+        serializedVersion: 2
+        x: 665
+        y: 919
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a08d521e9eb680230800000000000000
+      internalID: 3605250153958987786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_6
+      rect:
+        serializedVersion: 2
+        x: 797
+        y: 921
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74c1c2cb0568087f0800000000000000
+      internalID: -612341868009874361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_7
+      rect:
+        serializedVersion: 2
+        x: 923
+        y: 922
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f637f33ab05fd18c0800000000000000
+      internalID: -4026793061467065489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_8
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 814
+        width: 94
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8cacfdbec0404420800000000000000
+      internalID: 2612159040569781391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_9
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 803
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a20360c4fbda7ec50800000000000000
+      internalID: 6694510408235364394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_10
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 789
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 712393805efefdaf0800000000000000
+      internalID: -369312877456575977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_11
+      rect:
+        serializedVersion: 2
+        x: 407
+        y: 794
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 126045315a76eba40800000000000000
+      internalID: 5385856163073230369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_12
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 793
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9da5c8c135cb7b5e0800000000000000
+      internalID: -1893838053138736423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_13
+      rect:
+        serializedVersion: 2
+        x: 655
+        y: 789
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8984266c3900fc130800000000000000
+      internalID: 3589088062726097048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_14
+      rect:
+        serializedVersion: 2
+        x: 791
+        y: 789
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6284b1062d9fa5200800000000000000
+      internalID: 169722617930663974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_15
+      rect:
+        serializedVersion: 2
+        x: 908
+        y: 791
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a8be07f4baa5a970800000000000000
+      internalID: 8765599943962310825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_16
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 680
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6874a256300c3150800000000000000
+      internalID: 5853553848989546603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_17
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 684
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d203ed34f03cb3220800000000000000
+      internalID: 2466779691246039085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_18
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 689
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b080481c097a1670800000000000000
+      internalID: 8510247538723422390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_19
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 682
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99059a73f6c68fb00800000000000000
+      internalID: 862558553572462745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_20
+      rect:
+        serializedVersion: 2
+        x: 541
+        y: 681
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e59be0b1bc9adc610800000000000000
+      internalID: 1643156128857504094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_21
+      rect:
+        serializedVersion: 2
+        x: 657
+        y: 678
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b6e3d462cbeebf10800000000000000
+      internalID: 2287524880898582201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_22
+      rect:
+        serializedVersion: 2
+        x: 786
+        y: 677
+        width: 93
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 145dc76cebc60a180800000000000000
+      internalID: -9106158879913487039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_23
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 674
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2569a482d88e14650800000000000000
+      internalID: 6215504653712004690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_24
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 560
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2d13b069db735440800000000000000
+      internalID: 4923414991206554925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_25
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 564
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9ae8179684c15500800000000000000
+      internalID: 383303525642857118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OuterCaesarCipherAlbedo_26
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 568
+        width: 94
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 479c951105f385d60800000000000000
+      internalID: 7879117161205713268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      OuterCaesarCipherAlbedo_0: 7018406139164488125
+      OuterCaesarCipherAlbedo_1: 532370682301176362
+      OuterCaesarCipherAlbedo_10: -369312877456575977
+      OuterCaesarCipherAlbedo_11: 5385856163073230369
+      OuterCaesarCipherAlbedo_12: -1893838053138736423
+      OuterCaesarCipherAlbedo_13: 3589088062726097048
+      OuterCaesarCipherAlbedo_14: 169722617930663974
+      OuterCaesarCipherAlbedo_15: 8765599943962310825
+      OuterCaesarCipherAlbedo_16: 5853553848989546603
+      OuterCaesarCipherAlbedo_17: 2466779691246039085
+      OuterCaesarCipherAlbedo_18: 8510247538723422390
+      OuterCaesarCipherAlbedo_19: 862558553572462745
+      OuterCaesarCipherAlbedo_2: 610196912798737862
+      OuterCaesarCipherAlbedo_20: 1643156128857504094
+      OuterCaesarCipherAlbedo_21: 2287524880898582201
+      OuterCaesarCipherAlbedo_22: -9106158879913487039
+      OuterCaesarCipherAlbedo_23: 6215504653712004690
+      OuterCaesarCipherAlbedo_24: 4923414991206554925
+      OuterCaesarCipherAlbedo_25: 383303525642857118
+      OuterCaesarCipherAlbedo_26: 7879117161205713268
+      OuterCaesarCipherAlbedo_3: -4882597244778621936
+      OuterCaesarCipherAlbedo_4: -4751961937915984887
+      OuterCaesarCipherAlbedo_5: 3605250153958987786
+      OuterCaesarCipherAlbedo_6: -612341868009874361
+      OuterCaesarCipherAlbedo_7: -4026793061467065489
+      OuterCaesarCipherAlbedo_8: 2612159040569781391
+      OuterCaesarCipherAlbedo_9: 6694510408235364394
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
