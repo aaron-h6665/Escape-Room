@@ -439,6 +439,8 @@ MonoBehaviour:
   innerIndex: 0
   outerIndex: 0
   selectedRing: 1
+  innerTopSymbolAtZero: 14
+  outerTopSymbolAtZero: 13
   worldInteractionCollider: {fileID: 2347321928382504918}
   innerRingCollider: {fileID: 5745290953323294322}
   outerRingCollider: {fileID: 1619129385825340981}

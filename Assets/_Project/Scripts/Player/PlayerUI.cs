@@ -8,6 +8,14 @@ public class PlayerUI : MonoBehaviour, IReplayObject
     string currentPromptMessage = string.Empty;
     public bool PromptVisible => promptText == null || promptText.gameObject.activeSelf;
 
+    void Awake()
+    {
+        if (promptText == null)
+        {
+            promptText = CreateRuntimePrompt();
+        }
+    }
+
     void Start()
     {
         if (ReplayManager.instance != null)
@@ -46,5 +54,35 @@ public class PlayerUI : MonoBehaviour, IReplayObject
         {
             promptText.gameObject.SetActive(visible);
         }
+    }
+
+    TextMeshProUGUI CreateRuntimePrompt()
+    {
+        GameObject canvasObject = new GameObject(
+            "Runtime Interaction Prompt Canvas",
+            typeof(Canvas));
+        canvasObject.transform.SetParent(transform, false);
+        Canvas canvas = canvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 1000;
+
+        GameObject textObject = new GameObject(
+            "Interaction Prompt",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+        textObject.transform.SetParent(canvasObject.transform, false);
+        RectTransform rectTransform = textObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.15f, 0.04f);
+        rectTransform.anchorMax = new Vector2(0.85f, 0.12f);
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI runtimePrompt = textObject.GetComponent<TextMeshProUGUI>();
+        runtimePrompt.text = string.Empty;
+        runtimePrompt.alignment = TextAlignmentOptions.Center;
+        runtimePrompt.fontSize = 28f;
+        runtimePrompt.color = Color.white;
+        runtimePrompt.raycastTarget = false;
+        return runtimePrompt;
     }
 }

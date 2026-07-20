@@ -74,6 +74,8 @@ public sealed class CaesarCipherRuntimeSmokeTests
         Assert.That(GetProperty<int>(cipher, "OuterIndex"), Is.EqualTo(26));
         Assert.That(GetProperty<int>(cipher, "InnerIndex"), Is.EqualTo(26));
         Assert.That(GetProperty(cipher, "SelectedRing").ToString(), Is.EqualTo("Inner"));
+        Assert.That(GetProperty<char>(cipher, "OuterTopSymbol"), Is.EqualTo('M'));
+        Assert.That(GetProperty<char>(cipher, "InnerTopSymbol"), Is.EqualTo('N'));
     }
 
     [UnityTest]

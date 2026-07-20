@@ -1116,6 +1116,11 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 5738463845122611173, guid: c1ee716e315934cdc95141afeb6f1c10, type: 3}
+--- !u!65 &887751996 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 9074923942981414184, guid: 17649a59fde8e4a6b85112c74da818c5, type: 3}
+  m_PrefabInstance: {fileID: 4076420610439224905}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &967331918
 GameObject:
   m_ObjectHideFlags: 0
@@ -1464,6 +1469,18 @@ PrefabInstance:
       propertyPath: id
       value: 3db7edaf-183a-4cdc-90ba-0e5596e10dea
       objectReference: {fileID: 0}
+    - target: {fileID: 925796298183117029, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: playerUI
+      value: 
+      objectReference: {fileID: 2125390084}
+    - target: {fileID: 925796298183117029, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: inputManager
+      value: 
+      objectReference: {fileID: 2125390079}
+    - target: {fileID: 925796298183117029, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
+      propertyPath: playerInteract
+      value: 
+      objectReference: {fileID: 2125390085}
     - target: {fileID: 7241655979866550256, guid: 13b907a62d77c4420a7ba6b9c98d9254, type: 3}
       propertyPath: m_Name
       value: Caesar Cipher Puzzle
@@ -2113,6 +2130,133 @@ Transform:
   m_Children: []
   m_Father: {fileID: 389721164}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1976631767
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1976631770}
+  - component: {fileID: 1976631769}
+  - component: {fileID: 1976631768}
+  m_Layer: 0
+  m_Name: Directional Light (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1976631768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976631767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
+--- !u!108 &1976631769
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976631767}
+  m_Enabled: 1
+  serializedVersion: 13
+  m_Type: 1
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.802082
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 2
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShapeRadius: 0.025
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!4 &1976631770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976631767}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalPosition: {x: 0.463, y: 1.21, z: 2.36}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &2125390076 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 226085851388692023, guid: 7d9ec1a6582fa4a269cd5801fe3c0759, type: 3}
@@ -2255,6 +2399,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7354142876691083533, guid: 17649a59fde8e4a6b85112c74da818c5, type: 3}
+      propertyPath: startInteractionCollider
+      value: 
+      objectReference: {fileID: 887751996}
+    - target: {fileID: 9074923942981414184, guid: 17649a59fde8e4a6b85112c74da818c5, type: 3}
+      propertyPath: m_Size.x
+      value: 2.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9074923942981414184, guid: 17649a59fde8e4a6b85112c74da818c5, type: 3}
+      propertyPath: m_Size.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9074923942981414184, guid: 17649a59fde8e4a6b85112c74da818c5, type: 3}
+      propertyPath: m_Size.z
+      value: 2.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9074923942981414184, guid: 17649a59fde8e4a6b85112c74da818c5, type: 3}
+      propertyPath: m_Center.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2334,3 +2498,4 @@ SceneRoots:
   - {fileID: 1249293473}
   - {fileID: 4076420610439224905}
   - {fileID: 357966626}
+  - {fileID: 1976631770}

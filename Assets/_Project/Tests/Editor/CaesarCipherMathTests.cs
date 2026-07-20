@@ -35,6 +35,15 @@ public sealed class CaesarCipherMathTests
     }
 
     [Test]
+    public void TopSymbol_UsesPhysicalBaselineAndRotationDirection()
+    {
+        Assert.That(CaesarCipherMath.TopSymbol(13, 0f), Is.EqualTo('N'));
+        Assert.That(CaesarCipherMath.TopSymbol(13, 1f), Is.EqualTo('O'));
+        Assert.That(CaesarCipherMath.TopSymbol(13, -1f), Is.EqualTo('M'));
+        Assert.That(CaesarCipherMath.TopSymbol(13, 1f, -1f), Is.EqualTo('M'));
+    }
+
+    [Test]
     public void RotationForIndex_IsCalculatedFromBaselineInsteadOfAccumulating()
     {
         Quaternion baseline = Quaternion.Euler(7f, 13f, 19f);
