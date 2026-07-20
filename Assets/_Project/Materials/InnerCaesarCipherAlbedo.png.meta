@@ -1,0 +1,819 @@
+fileFormatVersion: 2
+guid: 79ca761ec9f084b969abd739d4a7055f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4512801541381301521
+    second: InnerCaesarCipherAlbedo_0
+  - first:
+      213: -3710127499078508352
+    second: InnerCaesarCipherAlbedo_1
+  - first:
+      213: 3407570019767744550
+    second: InnerCaesarCipherAlbedo_2
+  - first:
+      213: -7767943192280080580
+    second: InnerCaesarCipherAlbedo_3
+  - first:
+      213: -5364254601819543942
+    second: InnerCaesarCipherAlbedo_4
+  - first:
+      213: 4565793087471326238
+    second: InnerCaesarCipherAlbedo_5
+  - first:
+      213: -6964302170979772692
+    second: InnerCaesarCipherAlbedo_6
+  - first:
+      213: 2732444503954617536
+    second: InnerCaesarCipherAlbedo_7
+  - first:
+      213: 944217864351894462
+    second: InnerCaesarCipherAlbedo_8
+  - first:
+      213: 5823942060637037776
+    second: InnerCaesarCipherAlbedo_9
+  - first:
+      213: -22400882900870011
+    second: InnerCaesarCipherAlbedo_10
+  - first:
+      213: 6013046374872184709
+    second: InnerCaesarCipherAlbedo_11
+  - first:
+      213: 8051697316068664187
+    second: InnerCaesarCipherAlbedo_12
+  - first:
+      213: 3827975148779047358
+    second: InnerCaesarCipherAlbedo_13
+  - first:
+      213: 4694303801387704500
+    second: InnerCaesarCipherAlbedo_14
+  - first:
+      213: -4791254567537120675
+    second: InnerCaesarCipherAlbedo_15
+  - first:
+      213: 8066942993948765562
+    second: InnerCaesarCipherAlbedo_16
+  - first:
+      213: 8625036817383907599
+    second: InnerCaesarCipherAlbedo_17
+  - first:
+      213: 4105019648658626993
+    second: InnerCaesarCipherAlbedo_18
+  - first:
+      213: 5511355985974667487
+    second: InnerCaesarCipherAlbedo_19
+  - first:
+      213: 3144823642700752928
+    second: InnerCaesarCipherAlbedo_20
+  - first:
+      213: -2209629659617132838
+    second: InnerCaesarCipherAlbedo_21
+  - first:
+      213: 3348292985482091412
+    second: InnerCaesarCipherAlbedo_22
+  - first:
+      213: 8989791379170028825
+    second: InnerCaesarCipherAlbedo_23
+  - first:
+      213: -3403147642609120452
+    second: InnerCaesarCipherAlbedo_24
+  - first:
+      213: 8774135017115528930
+    second: InnerCaesarCipherAlbedo_25
+  - first:
+      213: -1675387759688600587
+    second: InnerCaesarCipherAlbedo_26
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_0
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 1580
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1152edf8711b0ae30800000000000000
+      internalID: 4512801541381301521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_1
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 1581
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c0640a52baf28cc0800000000000000
+      internalID: -3710127499078508352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_2
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 1578
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 628f68ff0ee1a4f20800000000000000
+      internalID: 3407570019767744550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_3
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 1582
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3f5bbca2d8b23490800000000000000
+      internalID: -7767943192280080580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_4
+      rect:
+        serializedVersion: 2
+        x: 1099
+        y: 1585
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a76aac55cd65e85b0800000000000000
+      internalID: -5364254601819543942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_5
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 1302
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1499a85f94fc5f30800000000000000
+      internalID: 4565793087471326238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_6
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 1302
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce6d44ee214d95f90800000000000000
+      internalID: -6964302170979772692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_7
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 1300
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c4feaa9cc79be520800000000000000
+      internalID: 2732444503954617536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_8
+      rect:
+        serializedVersion: 2
+        x: 847
+        y: 1299
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebbc54b15298a1d00800000000000000
+      internalID: 944217864351894462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_9
+      rect:
+        serializedVersion: 2
+        x: 1129
+        y: 1293
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d42ab4927cc2d050800000000000000
+      internalID: 5823942060637037776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_10
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 1013
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58cd904048a60bff0800000000000000
+      internalID: -22400882900870011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_11
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 1012
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 587f438c1d1a27350800000000000000
+      internalID: 6013046374872184709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_12
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 1016
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b732d3b9c006dbf60800000000000000
+      internalID: 8051697316068664187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_13
+      rect:
+        serializedVersion: 2
+        x: 838
+        y: 1017
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb98ff7cd13bf1530800000000000000
+      internalID: 3827975148779047358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_14
+      rect:
+        serializedVersion: 2
+        x: 1121
+        y: 1015
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b0ea759f64852140800000000000000
+      internalID: 4694303801387704500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_15
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 723
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5a6b712b5b028db0800000000000000
+      internalID: -4791254567537120675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_16
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 729
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7d64a999e983ff60800000000000000
+      internalID: 8066942993948765562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_17
+      rect:
+        serializedVersion: 2
+        x: 584
+        y: 732
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0165dab94942b770800000000000000
+      internalID: 8625036817383907599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_18
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 728
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b9db420f95f7f830800000000000000
+      internalID: 4105019648658626993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_19
+      rect:
+        serializedVersion: 2
+        x: 1128
+        y: 735
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd82ebe91154c7c40800000000000000
+      internalID: 5511355985974667487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_20
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 426
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 028ad68e078a4ab20800000000000000
+      internalID: 3144823642700752928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_21
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 436
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ade7a5d1881d551e0800000000000000
+      internalID: -2209629659617132838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_22
+      rect:
+        serializedVersion: 2
+        x: 593
+        y: 427
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49b9793fab6877e20800000000000000
+      internalID: 3348292985482091412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_23
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 426
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91d6c4021a722cc70800000000000000
+      internalID: 8989791379170028825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_24
+      rect:
+        serializedVersion: 2
+        x: 1167
+        y: 424
+        width: 252
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3b431cef3795c0d0800000000000000
+      internalID: -3403147642609120452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_25
+      rect:
+        serializedVersion: 2
+        x: 1473
+        y: 424
+        width: 253
+        height: 245
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2eeac7a8f4df3c970800000000000000
+      internalID: 8774135017115528930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: InnerCaesarCipherAlbedo_26
+      rect:
+        serializedVersion: 2
+        x: 1758
+        y: 421
+        width: 252
+        height: 244
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f339ba85b3dfb8e0800000000000000
+      internalID: -1675387759688600587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      InnerCaesarCipherAlbedo_0: 4512801541381301521
+      InnerCaesarCipherAlbedo_1: -3710127499078508352
+      InnerCaesarCipherAlbedo_10: -22400882900870011
+      InnerCaesarCipherAlbedo_11: 6013046374872184709
+      InnerCaesarCipherAlbedo_12: 8051697316068664187
+      InnerCaesarCipherAlbedo_13: 3827975148779047358
+      InnerCaesarCipherAlbedo_14: 4694303801387704500
+      InnerCaesarCipherAlbedo_15: -4791254567537120675
+      InnerCaesarCipherAlbedo_16: 8066942993948765562
+      InnerCaesarCipherAlbedo_17: 8625036817383907599
+      InnerCaesarCipherAlbedo_18: 4105019648658626993
+      InnerCaesarCipherAlbedo_19: 5511355985974667487
+      InnerCaesarCipherAlbedo_2: 3407570019767744550
+      InnerCaesarCipherAlbedo_20: 3144823642700752928
+      InnerCaesarCipherAlbedo_21: -2209629659617132838
+      InnerCaesarCipherAlbedo_22: 3348292985482091412
+      InnerCaesarCipherAlbedo_23: 8989791379170028825
+      InnerCaesarCipherAlbedo_24: -3403147642609120452
+      InnerCaesarCipherAlbedo_25: 8774135017115528930
+      InnerCaesarCipherAlbedo_26: -1675387759688600587
+      InnerCaesarCipherAlbedo_3: -7767943192280080580
+      InnerCaesarCipherAlbedo_4: -5364254601819543942
+      InnerCaesarCipherAlbedo_5: 4565793087471326238
+      InnerCaesarCipherAlbedo_6: -6964302170979772692
+      InnerCaesarCipherAlbedo_7: 2732444503954617536
+      InnerCaesarCipherAlbedo_8: 944217864351894462
+      InnerCaesarCipherAlbedo_9: 5823942060637037776
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
