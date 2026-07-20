@@ -54,6 +54,11 @@ public class PlayerInteract : MonoBehaviour
             if (inputManager.OnFoot.Interact.triggered)
             {
                 interactable.BaseInteract(gameObject);
+                if (!isActiveAndEnabled)
+                {
+                    SetFocusedInteractable(null);
+                    return;
+                }
             }
         }
 

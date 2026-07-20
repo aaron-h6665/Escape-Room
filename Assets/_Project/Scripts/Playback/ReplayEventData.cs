@@ -100,7 +100,7 @@ public static class ReplayEventBus
         }
     }
 
-    public static void Publish(IReplayEventTarget target, string eventKind, ReplayObjectState state, bool succeeded, bool stateChanged, string itemId = "", Vector3? position = null, Quaternion? rotation = null, string textValue = "", string customPayload = "")
+    public static void Publish(IReplayEventTarget target, string eventKind, ReplayObjectState state, bool succeeded, bool stateChanged, string itemId = "", Vector3? position = null, Quaternion? rotation = null, string textValue = "", string customPayload = "", float numberValue = 0f)
     {
         ReplayManager manager = ReplayManager.instance;
         if (manager == null || target == null || !ReplayManager.IsRecordingActive())
@@ -120,6 +120,7 @@ public static class ReplayEventBus
             itemId = itemId ?? string.Empty,
             position = position ?? Vector3.zero,
             rotation = rotation ?? Quaternion.identity,
+            numberValue = numberValue,
             textValue = textValue ?? string.Empty,
             customPayload = customPayload ?? string.Empty
         });

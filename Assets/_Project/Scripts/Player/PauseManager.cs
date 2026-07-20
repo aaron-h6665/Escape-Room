@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Action = System.Action;
 
 public class PauseManager : MonoBehaviour
 {
     public static PauseManager Instance { get; private set; }
+    public static event Action PauseStarting;
 
     [SerializeField] private string pauseSceneName = "PauseScene";
     [SerializeField] private InputManager inputManager;
@@ -76,6 +78,7 @@ public class PauseManager : MonoBehaviour
             return;
         }
 
+        PauseStarting?.Invoke();
         ResolveInputManager();
 
         previousTimeScale = Time.timeScale;

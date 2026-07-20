@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine.UI;
 
-public class NoteInteractable : Interactable, IReplayObject
+public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
 {
     [Header("Note UI")]
     [SerializeField] GameObject noteCanvas;
     [SerializeField] GameObject notePanel;
     [SerializeField] GameObject noteText;
+    [SerializeField] Image clueImage;
 
     [Header("Player Lock")]
     [SerializeField] MonoBehaviour player;
@@ -17,9 +20,12 @@ public class NoteInteractable : Interactable, IReplayObject
     [SerializeField] PlayerUI playerUI;
 
     bool noteOpen;
+    [SerializeField] bool hasBeenRead;
     bool playerWasEnabled;
     bool playerInteractWasEnabled;
     bool playerControlWasLocked;
+    bool inputSessionActive;
+    bool wasPlaybackActive;
     int openedFrame = -1;
     Material generatedNoteMaterial;
     bool hudHidden;
@@ -41,11 +47,29 @@ public class NoteInteractable : Interactable, IReplayObject
     protected override string ReplayInteractionKind => "note_interacted";
     protected override string ReplayStateChangeKind => noteOpen ? "note_opened" : "note_closed";
     public override ReplayObjectState ReplayState => noteOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
+    public bool HasBeenRead => hasBeenRead;
+    public string ClueText
+    {
+        get
+        {
+            TMP_Text text = noteText != null ? noteText.GetComponentInChildren<TMP_Text>(true) : null;
+            return text != null ? text.text : string.Empty;
+        }
+    }
+    public Sprite ClueSprite
+    {
+        get
+        {
+            Image image = ResolveClueImage();
+            return image != null ? image.sprite : null;
+        }
+    }
 
     void Awake()
     {
         EnsureHighlightMaterial();
         SetNoteVisible(false);
+        wasPlaybackActive = ReplayManager.IsPlaybackActive();
 
         if (ReplayManager.instance != null)
         {
@@ -55,7 +79,26 @@ public class NoteInteractable : Interactable, IReplayObject
 
     void Update()
     {
-        if (ReplayManager.IsPlaybackActive())
+        bool playbackActive = ReplayManager.IsPlaybackActive();
+        if (!wasPlaybackActive && playbackActive && inputSessionActive)
+        {
+            ReleaseInputSession();
+        }
+        if (wasPlaybackActive && !playbackActive && noteOpen)
+        {
+            bool takeoverActive = ReplayManager.instance != null && ReplayManager.instance.CurrentState == ReplayManager.State.Takeover;
+            if (takeoverActive)
+            {
+                AcquireInputSession(null);
+            }
+            else
+            {
+                CloseNote(false);
+            }
+        }
+        wasPlaybackActive = playbackActive;
+
+        if (playbackActive)
         {
             return;
         }
@@ -73,17 +116,50 @@ public class NoteInteractable : Interactable, IReplayObject
 
     public void SaveSnapshot(ref GameData data)
     {
-        SaveNoteState(ref data, StateId);
+        SaveNoteState(ref data, StateId, true);
     }
 
     public void LoadSnapshot(GameData data)
     {
-        LoadNoteState(data, StateId);
+        LoadNoteState(data, StateId, true);
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        SaveNoteState(ref data, StateId, false);
+    }
+
+    public void LoadData(GameData data)
+    {
+        LoadNoteState(data, StateId, false);
     }
 
     public override string GetPromptMessage()
     {
         return noteOpen ? "Press E to Close Note." : "Press E to Read Note.";
+    }
+
+    public override bool ApplyReplayEvent(ReplayEventData replayEvent)
+    {
+        if (replayEvent == null)
+        {
+            return false;
+        }
+
+        switch (replayEvent.eventKind)
+        {
+            case "note_opened":
+                hasBeenRead = true;
+                noteOpen = true;
+                openedFrame = Time.frameCount;
+                SetNoteVisible(true);
+                return true;
+            case "note_closed":
+                CloseNote(false);
+                return true;
+            default:
+                return false;
+        }
     }
 
     protected override void Interact(GameObject interactor)
@@ -100,17 +176,20 @@ public class NoteInteractable : Interactable, IReplayObject
 
     void OpenNote(GameObject interactor)
     {
-        ResolvePlayerReferences(interactor);
-
-        if (player == null)
-        {
-            player = interactor.GetComponent<PlayerMotor>();
-        }
-
         noteOpen = true;
+        hasBeenRead = true;
         openedFrame = Time.frameCount;
         SetNoteVisible(true);
+        AcquireInputSession(interactor);
+    }
 
+    void AcquireInputSession(GameObject interactor)
+    {
+        if (inputSessionActive)
+        {
+            return;
+        }
+        ResolvePlayerReferences(interactor);
         if (inputManager != null)
         {
             playerControlWasLocked = inputManager.PlayerControlLocked;
@@ -128,30 +207,39 @@ public class NoteInteractable : Interactable, IReplayObject
             playerInteractWasEnabled = playerInteract.enabled;
             playerInteract.enabled = false;
         }
+        inputSessionActive = true;
     }
 
-    void CloseNote()
+    void ReleaseInputSession()
     {
-        bool wasOpen = noteOpen;
-        noteOpen = false;
-        SetNoteVisible(false);
+        if (!inputSessionActive)
+        {
+            return;
+        }
 
         if (player != null)
         {
             player.enabled = playerWasEnabled;
         }
-
         if (inputManager != null)
         {
             inputManager.SetPlayerControlLocked(playerControlWasLocked);
         }
-
         if (playerInteract != null)
         {
             playerInteract.enabled = playerInteractWasEnabled;
         }
+        inputSessionActive = false;
+    }
 
-        if (wasOpen)
+    void CloseNote(bool recordEvent = true)
+    {
+        bool wasOpen = noteOpen;
+        noteOpen = false;
+        SetNoteVisible(false);
+        ReleaseInputSession();
+
+        if (wasOpen && recordEvent)
         {
             ReplayEventBus.Publish(this, "note_closed", ReplayObjectState.Closed, true, true);
         }
@@ -220,25 +308,41 @@ public class NoteInteractable : Interactable, IReplayObject
         }
     }
 
-    void LoadNoteState(GameData data, string stateId)
+    void LoadNoteState(GameData data, string stateId, bool restoreOpenState)
     {
-        if (string.IsNullOrEmpty(stateId) || data.noteStates == null)
+        if (data == null || string.IsNullOrEmpty(stateId) || data.noteStates == null)
         {
+            if (!restoreOpenState)
+            {
+                CloseNote(false);
+            }
             return;
         }
 
         NoteSaveData noteData = data.noteStates.Find(noteState => noteState.id == stateId);
         if (noteData == null)
         {
+            if (!restoreOpenState)
+            {
+                CloseNote(false);
+            }
             return;
         }
 
-        noteOpen = noteData.isOpen;
-        openedFrame = noteOpen ? Time.frameCount : -1;
-        SetNoteVisible(noteOpen);
+        hasBeenRead = noteData.hasBeenRead;
+        bool shouldOpen = restoreOpenState && noteData.isOpen;
+        if (!shouldOpen && noteOpen)
+        {
+            CloseNote(false);
+            return;
+        }
+
+        noteOpen = shouldOpen;
+        openedFrame = shouldOpen ? Time.frameCount : -1;
+        SetNoteVisible(shouldOpen);
     }
 
-    void SaveNoteState(ref GameData data, string stateId)
+    void SaveNoteState(ref GameData data, string stateId, bool includeOpenState)
     {
         if (string.IsNullOrEmpty(stateId))
         {
@@ -258,25 +362,60 @@ public class NoteInteractable : Interactable, IReplayObject
             data.noteStates.Add(noteData);
         }
 
-        noteData.isOpen = noteOpen;
+        noteData.isOpen = includeOpenState && noteOpen;
+        noteData.hasBeenRead = hasBeenRead;
+    }
+
+    Image ResolveClueImage()
+    {
+        if (clueImage != null)
+        {
+            return clueImage;
+        }
+
+        if (noteCanvas == null)
+        {
+            return null;
+        }
+
+        foreach (Image candidate in noteCanvas.GetComponentsInChildren<Image>(true))
+        {
+            if (candidate.sprite != null && candidate.gameObject.name.ToLowerInvariant().Contains("note"))
+            {
+                clueImage = candidate;
+                return clueImage;
+            }
+        }
+
+        return null;
     }
 
     void ResolvePlayerReferences(GameObject interactor)
     {
-        if (inputManager == null)
+        if (inputManager == null && interactor != null)
         {
             inputManager = interactor.GetComponent<InputManager>();
         }
 
-        if (playerInteract == null)
+        if (playerInteract == null && interactor != null)
         {
             playerInteract = interactor.GetComponent<PlayerInteract>();
         }
 
-        if (playerUI == null)
+        if (playerUI == null && interactor != null)
         {
             playerUI = interactor.GetComponent<PlayerUI>();
         }
+
+        if (player == null && interactor != null)
+        {
+            player = interactor.GetComponent<PlayerMotor>();
+        }
+
+        if (inputManager == null) inputManager = FindAnyObjectByType<InputManager>();
+        if (playerInteract == null) playerInteract = FindAnyObjectByType<PlayerInteract>();
+        if (playerUI == null) playerUI = FindAnyObjectByType<PlayerUI>();
+        if (player == null) player = FindAnyObjectByType<PlayerMotor>();
 
         ResolveHudReferences();
     }
@@ -324,5 +463,14 @@ public class NoteInteractable : Interactable, IReplayObject
         {
             Destroy(generatedNoteMaterial);
         }
+    }
+
+    protected override void OnDisable()
+    {
+        if (noteOpen || inputSessionActive || hudHidden)
+        {
+            CloseNote(false);
+        }
+        base.OnDisable();
     }
 }
