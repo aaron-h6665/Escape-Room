@@ -39,16 +39,16 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
 
     [Header("Timing")]
     [SerializeField, Min(0f)] float startDelay = 0.6f;
-    [SerializeField, Min(0.01f)] float buttonCueDuration = 0.42f;
+    [SerializeField, Min(0.01f)] float buttonCueDuration = 0.55f;
     [SerializeField, Min(0f)] float sequenceGap = 0.16f;
     [SerializeField, Min(0f)] float nextRoundDelay = 0.7f;
-    [SerializeField, Min(0.01f)] float resultPulseDuration = 0.18f;
+    [SerializeField, Min(0.01f)] float resultPulseDuration = 0.32f;
 
     [Header("Result Feedback")]
     [SerializeField] Color roundSuccessColor = Color.white;
     [SerializeField] Color failureColor = new Color(1f, 0.02f, 0.02f, 1f);
     [SerializeField] Color solvedColor = new Color(0.02f, 1f, 0.12f, 1f);
-    [SerializeField, Min(0f)] float resultBrightness = 3f;
+    [SerializeField, Min(0f)] float resultBrightness = 6f;
 
     [Header("Result Audio")]
     [SerializeField] AudioSource resultAudioSource;

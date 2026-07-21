@@ -205,8 +205,9 @@ MonoBehaviour:
   buttonIndex: 1
   buttonRenderer: {fileID: 5848203645604699144}
   pressedLocalOffset: {x: 0, y: -0.01, z: 0}
-  cueBrightness: 2.5
-  focusBrightness: 0.22
+  cueBrightness: 6
+  focusBrightness: 0.35
+  cueScaleMultiplier: 1.06
   audioSource: {fileID: 7411506906270739489}
   toneClip: {fileID: 0}
   fallbackFrequency: 329.63
@@ -358,8 +359,9 @@ MonoBehaviour:
   buttonIndex: 3
   buttonRenderer: {fileID: 4228662666112169330}
   pressedLocalOffset: {x: 0, y: -0.01, z: 0}
-  cueBrightness: 2.5
-  focusBrightness: 0.22
+  cueBrightness: 6
+  focusBrightness: 0.35
+  cueScaleMultiplier: 1.06
   audioSource: {fileID: 5719915480419681388}
   toneClip: {fileID: 0}
   fallbackFrequency: 523.25
@@ -503,14 +505,14 @@ MonoBehaviour:
   startInteractionCollider: {fileID: 9074923942981414184}
   fixedPattern: 0200000000000000030000000100000002000000
   startDelay: 0.6
-  buttonCueDuration: 0.42
+  buttonCueDuration: 0.55
   sequenceGap: 0.16
   nextRoundDelay: 0.7
-  resultPulseDuration: 0.18
+  resultPulseDuration: 0.32
   roundSuccessColor: {r: 1, g: 1, b: 1, a: 1}
   failureColor: {r: 1, g: 0.02, b: 0.02, a: 1}
   solvedColor: {r: 0.02, g: 1, b: 0.12, a: 1}
-  resultBrightness: 3
+  resultBrightness: 6
   resultAudioSource: {fileID: 3474674134612676444}
   roundSuccessLowClip: {fileID: 0}
   roundSuccessHighClip: {fileID: 0}
@@ -731,8 +733,9 @@ MonoBehaviour:
   buttonIndex: 0
   buttonRenderer: {fileID: 6877040477380443176}
   pressedLocalOffset: {x: 0, y: -0.01, z: 0}
-  cueBrightness: 2.5
-  focusBrightness: 0.22
+  cueBrightness: 6
+  focusBrightness: 0.35
+  cueScaleMultiplier: 1.06
   audioSource: {fileID: 9087132500830298365}
   toneClip: {fileID: 0}
   fallbackFrequency: 261.63
@@ -884,8 +887,9 @@ MonoBehaviour:
   buttonIndex: 2
   buttonRenderer: {fileID: 2850782932600960095}
   pressedLocalOffset: {x: 0, y: -0.01, z: 0}
-  cueBrightness: 2.5
-  focusBrightness: 0.22
+  cueBrightness: 6
+  focusBrightness: 0.35
+  cueScaleMultiplier: 1.06
   audioSource: {fileID: 8069587609786773265}
   toneClip: {fileID: 0}
   fallbackFrequency: 392
