@@ -1,5 +1,24 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
+
+public readonly struct InteractionResult
+{
+    public InteractionResult(
+        GameObject interactor,
+        ReplayObjectState stateBefore,
+        ReplayObjectState stateAfter)
+    {
+        Interactor = interactor;
+        StateBefore = stateBefore;
+        StateAfter = stateAfter;
+    }
+
+    public GameObject Interactor { get; }
+    public ReplayObjectState StateBefore { get; }
+    public ReplayObjectState StateAfter { get; }
+    public bool StateChanged => StateBefore != StateAfter;
+}
 
 public abstract class Interactable : MonoBehaviour, IReplayEventTarget
 {
@@ -29,6 +48,7 @@ public abstract class Interactable : MonoBehaviour, IReplayEventTarget
     public string ReplayTargetId => ReplayIdentityValue;
     public virtual string ReplayTargetName => gameObject.name;
     public string ReplayTargetCategory => ReplayCategoryValue;
+    public event Action<InteractionResult> InteractionCompleted;
 
     struct HighlightMaterialState
     {
@@ -55,6 +75,8 @@ public abstract class Interactable : MonoBehaviour, IReplayEventTarget
         {
             ReplayEventBus.Publish(this, ReplayStateChangeKind, stateAfter, true, true, ReplayItemIdValue, transform.position, transform.rotation);
         }
+
+        InteractionCompleted?.Invoke(new InteractionResult(interactor, stateBefore, stateAfter));
     }
 
     public virtual bool ApplyReplayEvent(ReplayEventData replayEvent)
