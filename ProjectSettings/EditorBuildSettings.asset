@@ -12,6 +12,12 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Level.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
+    path: Assets/_Project/Scenes/New Scene 2.unity
+    guid: 9021dece705f74c53b70d37065d23668
+  - enabled: 1
+    path: Assets/_Project/Scenes/New Scene 1.unity
+    guid: 68dc9c79cd43240bb9b3652c6632dc7e
+  - enabled: 1
     path: Assets/_Project/Scenes/PauseScene.unity
     guid: 06da22b57cfd14d9191f8f42cc488ff3
   m_configObjects:

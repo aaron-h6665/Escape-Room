@@ -24,6 +24,8 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
     void Awake()
     {
+        ResolveDoorAnimator();
+
         if (ReplayManager.instance != null)
         {
             ReplayManager.instance.Register(this);
@@ -32,11 +34,20 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
     protected override void Interact(GameObject interactor)
     {
-        if (myDoor != null)
+        if (isOpen)
         {
-            myDoor.Play(doorOpen, 0, 0.0f);
-            isOpen = true;
+            return;
         }
+
+        ResolveDoorAnimator();
+        if (myDoor == null)
+        {
+            Debug.LogWarning("HingeDoor could not find an Animator containing the door-open animation.", this);
+            return;
+        }
+
+        myDoor.Play(doorOpen, 0, 0.0f);
+        isOpen = true;
     }
 
     public void LoadData(GameData data)
@@ -101,6 +112,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
     void ApplyDoorVisualState()
     {
+        ResolveDoorAnimator();
         if (!isOpen || myDoor == null)
         {
             return;
@@ -108,5 +120,40 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
         myDoor.Play(doorOpen, 0, 1f);
         myDoor.Update(0f);
+    }
+
+    void ResolveDoorAnimator()
+    {
+        if (myDoor != null)
+        {
+            return;
+        }
+
+        Animator fallback = null;
+        foreach (Animator candidate in GetComponentsInChildren<Animator>(true))
+        {
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            fallback ??= candidate;
+            RuntimeAnimatorController controller = candidate.runtimeAnimatorController;
+            if (controller == null)
+            {
+                continue;
+            }
+
+            foreach (AnimationClip clip in controller.animationClips)
+            {
+                if (clip != null && clip.name == doorOpen)
+                {
+                    myDoor = candidate;
+                    return;
+                }
+            }
+        }
+
+        myDoor = fallback;
     }
 }
