@@ -25,8 +25,9 @@ public class SimonSaysButton : Interactable
     [SerializeField, Min(0)] int buttonIndex;
     [SerializeField] Renderer buttonRenderer;
     [SerializeField] Vector3 pressedLocalOffset = new Vector3(0f, -0.01f, 0f);
-    [SerializeField, Min(0f)] float cueBrightness = 2.5f;
-    [SerializeField, Min(0f)] float focusBrightness = 0.22f;
+    [SerializeField, Min(0f)] float cueBrightness = 6f;
+    [SerializeField, Min(0f)] float focusBrightness = 0.35f;
+    [SerializeField, Range(1f, 1.25f)] float cueScaleMultiplier = 1.06f;
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
@@ -35,8 +36,10 @@ public class SimonSaysButton : Interactable
 
     MaterialPropertyBlock propertyBlock;
     Vector3 restingLocalPosition;
+    Vector3 restingLocalScale;
     AudioClip generatedToneClip;
     Texture emissionMask;
+    Material[] runtimeMaterials;
     bool visualsInitialized;
     bool buttonFocused;
     bool feedbackActive;
@@ -104,6 +107,17 @@ public class SimonSaysButton : Interactable
         if (generatedToneClip != null)
         {
             Destroy(generatedToneClip);
+        }
+
+        if (runtimeMaterials != null)
+        {
+            foreach (Material runtimeMaterial in runtimeMaterials)
+            {
+                if (runtimeMaterial != null)
+                {
+                    Destroy(runtimeMaterial);
+                }
+            }
         }
     }
 
@@ -187,6 +201,7 @@ public class SimonSaysButton : Interactable
         EnsureVisualsInitialized();
         feedbackActive = false;
         transform.localPosition = restingLocalPosition;
+        transform.localScale = restingLocalScale;
         if (buttonFocused)
         {
             ApplyMaskedEmission(
@@ -240,6 +255,9 @@ public class SimonSaysButton : Interactable
         transform.localPosition = pressed
             ? restingLocalPosition + pressedLocalOffset
             : restingLocalPosition;
+        transform.localScale = pressed
+            ? restingLocalScale * cueScaleMultiplier
+            : restingLocalScale;
 
         if (buttonRenderer == null)
         {
@@ -278,7 +296,41 @@ public class SimonSaysButton : Interactable
 
         propertyBlock = new MaterialPropertyBlock();
         restingLocalPosition = transform.localPosition;
+        restingLocalScale = transform.localScale;
         emissionMask = GetOrCreateEmissionMask(buttonRenderer);
+        CreateRuntimeMaterials();
+    }
+
+    void CreateRuntimeMaterials()
+    {
+        if (buttonRenderer == null)
+        {
+            return;
+        }
+
+        // MaterialPropertyBlock cannot enable shader keywords. URP Lit ignores
+        // _EmissionColor entirely unless _EMISSION is enabled, so use renderer-
+        // local material instances while leaving the imported shared asset intact.
+        runtimeMaterials = buttonRenderer.materials;
+        foreach (Material runtimeMaterial in runtimeMaterials)
+        {
+            if (runtimeMaterial == null)
+            {
+                continue;
+            }
+
+            if (runtimeMaterial.HasProperty(EmissionMapId)
+                && emissionMask != null)
+            {
+                runtimeMaterial.SetTexture(EmissionMapId, emissionMask);
+            }
+
+            if (runtimeMaterial.HasProperty(EmissionColorId))
+            {
+                runtimeMaterial.EnableKeyword("_EMISSION");
+                runtimeMaterial.SetColor(EmissionColorId, Color.black);
+            }
+        }
     }
 
     static Texture GetOrCreateEmissionMask(Renderer targetRenderer)
