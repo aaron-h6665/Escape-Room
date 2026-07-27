@@ -1,0 +1,185 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+public sealed class EscapeRoomPrototypeRuntimeTests
+{
+    const BindingFlags InstanceFields = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+    readonly List<UnityEngine.Object> createdObjects = new List<UnityEngine.Object>();
+
+    [UnityTearDown]
+    public IEnumerator TearDown()
+    {
+        for (int index = createdObjects.Count - 1; index >= 0; index--)
+        {
+            if (createdObjects[index] != null)
+            {
+                UnityEngine.Object.Destroy(createdObjects[index]);
+            }
+        }
+        createdObjects.Clear();
+        yield return null;
+    }
+
+    [UnityTest]
+    public IEnumerator KeyChoice_RejectsRedAndAwardsOnlyTheVerifiedBlueKey()
+    {
+        Component door = CreateDoor("Room 2 Door");
+        GameObject inventoryObject = Track(new GameObject("Player Inventory"));
+        inventoryObject.AddComponent<BoxCollider>();
+        Component inventory = inventoryObject.AddComponent(RuntimeType("Inventory"));
+        ScriptableObject blueKey = Track(ScriptableObject.CreateInstance(RuntimeType("Item")));
+        blueKey.name = "Blue Key";
+        SetField(blueKey, "id", "blue_key");
+
+        GameObject puzzleObject = Track(new GameObject("Key Choice"));
+        Component puzzle = puzzleObject.AddComponent(RuntimeType("ColorKeyChoicePuzzle"));
+        SetField(puzzle, "id", "test-key-choice");
+        SetField(puzzle, "inventory", inventory);
+        SetField(puzzle, "blueKeyItem", blueKey);
+        SetField(puzzle, "exitDoor", door);
+        yield return null;
+
+        Invoke(puzzle, "Submit", false);
+        Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.False);
+        Assert.That(GetField<int>(puzzle, "failedAttempts"), Is.EqualTo(1));
+        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.Zero);
+        Assert.That(GetProperty<bool>(door, "IsOpen"), Is.False);
+
+        Invoke(puzzle, "Submit", true);
+        Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.True);
+        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.EqualTo(1));
+        Assert.That((bool)inventory.GetType().GetMethod("HasItem", new[] { typeof(string) }).Invoke(inventory, new object[] { "blue_key" }), Is.True);
+        Assert.That(GetProperty<bool>(door, "IsOpen"), Is.True);
+
+        Invoke(puzzle, "Submit", true);
+        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.EqualTo(1), "A replayed or repeated success must not duplicate the key.");
+    }
+
+    [UnityTest]
+    public IEnumerator Keypad_RequiresExactCodeAndPersistsSolvedState()
+    {
+        Component door = CreateDoor("Final Door");
+        GameObject keypadObject = Track(new GameObject("Numeric Keypad"));
+        Component keypad = keypadObject.AddComponent(RuntimeType("NumericKeypadPuzzle"));
+        SetField(keypad, "id", "test-keypad");
+        SetField(keypad, "correctCode", "4271");
+        SetField(keypad, "codeLength", 4);
+        SetField(keypad, "finalDoor", door);
+        yield return null;
+
+        foreach (string value in new[] { "4", "2", "7", "0", "enter" })
+        {
+            Invoke(keypad, "Press", value);
+        }
+        Assert.That(GetProperty<bool>(keypad, "IsSolved"), Is.False);
+        Assert.That(GetProperty<string>(keypad, "EnteredCode"), Is.Empty);
+        Assert.That(GetField<int>(keypad, "failedAttempts"), Is.EqualTo(1));
+        Assert.That(GetProperty<bool>(door, "IsOpen"), Is.False);
+
+        foreach (string value in new[] { "4", "2", "7", "1", "enter" })
+        {
+            Invoke(keypad, "Press", value);
+        }
+        Assert.That(GetProperty<bool>(keypad, "IsSolved"), Is.True);
+        Assert.That(GetProperty<bool>(door, "IsOpen"), Is.True);
+
+        object gameData = Activator.CreateInstance(RuntimeType("GameData"));
+        object[] saveArguments = { gameData };
+        keypad.GetType().GetMethod("SaveSnapshot").Invoke(keypad, saveArguments);
+        gameData = saveArguments[0];
+        IList keypadStates = GetList(gameData, "keypadStates");
+        Assert.That(keypadStates.Count, Is.EqualTo(1));
+        Assert.That(GetField<bool>(keypadStates[0], "isOpen"), Is.True);
+        Assert.That(GetField<string>(keypadStates[0], "enteredCode"), Is.EqualTo("4271"));
+        Assert.That(GetField<int>(keypadStates[0], "failedAttempts"), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts()
+    {
+        Type persistence = RuntimeType("IDataPersistence");
+        Type replay = RuntimeType("IReplayObject");
+        foreach (string typeName in new[]
+        {
+            "SimonSaysController",
+            "NoteInteractable",
+            "ColorKeyChoicePuzzle",
+            "NumericKeypadPuzzle",
+            "PrototypeSlidingDoor",
+            "EscapeRoomExit"
+        })
+        {
+            Type component = RuntimeType(typeName);
+            Assert.That(persistence.IsAssignableFrom(component), Is.True, typeName + " must persist normal game state.");
+            Assert.That(replay.IsAssignableFrom(component), Is.True, typeName + " must participate in replay snapshots.");
+        }
+    }
+
+    Component CreateDoor(string name)
+    {
+        GameObject root = Track(new GameObject(name));
+        root.SetActive(false);
+        Transform left = CreateChild("Left", root.transform).transform;
+        Transform right = CreateChild("Right", root.transform).transform;
+        left.localPosition = new Vector3(-0.75f, 0f, 0f);
+        right.localPosition = new Vector3(0.75f, 0f, 0f);
+        Component door = root.AddComponent(RuntimeType("PrototypeSlidingDoor"));
+        SetField(door, "id", "test-" + name);
+        SetField(door, "leftPanel", left);
+        SetField(door, "rightPanel", right);
+        root.SetActive(true);
+        return door;
+    }
+
+    GameObject CreateChild(string name, Transform parent)
+    {
+        GameObject child = new GameObject(name);
+        child.transform.SetParent(parent, false);
+        return child;
+    }
+
+    T Track<T>(T value) where T : UnityEngine.Object
+    {
+        createdObjects.Add(value);
+        return value;
+    }
+
+    static void Invoke(object target, string methodName, object argument)
+    {
+        target.GetType().GetMethod(methodName).Invoke(target, new[] { argument });
+    }
+
+    static IList GetList(object target, string fieldName)
+    {
+        return (IList)target.GetType().GetField(fieldName, InstanceFields).GetValue(target);
+    }
+
+    static T GetField<T>(object target, string fieldName)
+    {
+        return (T)target.GetType().GetField(fieldName, InstanceFields).GetValue(target);
+    }
+
+    static T GetProperty<T>(object target, string propertyName)
+    {
+        return (T)target.GetType().GetProperty(propertyName, InstanceFields).GetValue(target);
+    }
+
+    static void SetField(object target, string fieldName, object value)
+    {
+        FieldInfo field = target.GetType().GetField(fieldName, InstanceFields);
+        Assert.That(field, Is.Not.Null, $"Missing field {target.GetType().Name}.{fieldName}");
+        field.SetValue(target, value);
+    }
+
+    static Type RuntimeType(string typeName)
+    {
+        Type type = Type.GetType(typeName + ", Assembly-CSharp");
+        Assert.That(type, Is.Not.Null, $"Could not find runtime type '{typeName}'.");
+        return type;
+    }
+}

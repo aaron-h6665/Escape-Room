@@ -17,6 +17,8 @@ public class GameData
     public List<NoteSaveData> noteStates;
     public List<CaesarCipherSaveData> caesarCipherStates;
     public List<SimonSaysSaveData> simonSaysStates;
+    public List<KeyChoiceSaveData> keyChoiceStates;
+    public List<VictorySaveData> victoryStates;
     public InventorySaveData inventory;
     public string playerPromptText;
 
@@ -34,6 +36,8 @@ public class GameData
         noteStates = new List<NoteSaveData>();
         caesarCipherStates = new List<CaesarCipherSaveData>();
         simonSaysStates = new List<SimonSaysSaveData>();
+        keyChoiceStates = new List<KeyChoiceSaveData>();
+        victoryStates = new List<VictorySaveData>();
         inventory = new InventorySaveData();
         playerPromptText = string.Empty;
     }
@@ -58,6 +62,23 @@ public class KeypadSaveData
 {
     public string id;
     public bool isOpen;
+    public string enteredCode;
+    public int failedAttempts;
+}
+
+[System.Serializable]
+public class KeyChoiceSaveData
+{
+    public string id;
+    public bool isSolved;
+    public int failedAttempts;
+}
+
+[System.Serializable]
+public class VictorySaveData
+{
+    public string id;
+    public bool hasWon;
 }
 
 [System.Serializable]
