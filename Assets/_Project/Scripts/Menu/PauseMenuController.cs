@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PauseMenuController : MonoBehaviour
@@ -26,7 +25,7 @@ public class PauseMenuController : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(fallbackLevelSceneName);
+        SceneTransitionService.LoadScene(fallbackLevelSceneName);
     }
 
     public void SaveGame()
