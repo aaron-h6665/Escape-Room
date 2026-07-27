@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
@@ -29,13 +28,13 @@ public class MenuController : MonoBehaviour
     {
         SaveFileUtility.Delete(SaveFileName);
         ReplayManager.QueueRecordingOnNextScene();
-        SceneManager.LoadScene(NewGameLevel);
+        SceneTransitionService.LoadScene(NewGameLevel);
     }
 
     public void LoadGameDialogYes()
     {
         ReplayManager.QueuePlaybackOnNextScene();
-        SceneManager.LoadScene(NewGameLevel);
+        SceneTransitionService.LoadScene(NewGameLevel);
     }
 
     public void ExitButton()

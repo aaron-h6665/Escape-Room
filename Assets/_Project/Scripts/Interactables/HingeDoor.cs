@@ -9,6 +9,11 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
     [SerializeField] private string id;
     [SerializeField] private bool isOpen;
 
+    [Header("Puzzle Lock")]
+    [Tooltip("When assigned, the door cannot be opened until this Simon Says puzzle is solved.")]
+    [SerializeField] private SimonSaysController requiredPuzzle;
+    [SerializeField] private string lockedPrompt = "Door locked - solve Simon Says";
+
     [ContextMenu("Generate guid for id")]
     private void GenerateGuid()
     {
@@ -21,6 +26,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
     protected override string ReplayInteractionKind => "door_interacted";
     protected override string ReplayStateChangeKind => "door_opened";
     public override ReplayObjectState ReplayState => isOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
+    public bool IsLocked => requiredPuzzle != null && !requiredPuzzle.IsSolved;
 
     void Awake()
     {
@@ -34,7 +40,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
     protected override void Interact(GameObject interactor)
     {
-        if (isOpen)
+        if (isOpen || IsLocked)
         {
             return;
         }
@@ -48,6 +54,11 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
         myDoor.Play(doorOpen, 0, 0.0f);
         isOpen = true;
+    }
+
+    public override string GetPromptMessage()
+    {
+        return IsLocked ? lockedPrompt : base.GetPromptMessage();
     }
 
     public void LoadData(GameData data)

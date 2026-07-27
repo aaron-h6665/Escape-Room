@@ -107,6 +107,6 @@ public sealed class SceneTransitionOnInteract : MonoBehaviour
             }
         }
 
-        SceneManager.LoadScene(targetSceneName, loadMode);
+        SceneTransitionService.LoadScene(targetSceneName, loadMode);
     }
 }
