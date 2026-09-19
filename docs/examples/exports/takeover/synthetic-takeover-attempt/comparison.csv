@@ -1,0 +1,2 @@
+AttemptId,SourceRecordingId,TakeoverRecordingId,MilestoneId,OriginalSecondsAfterHandoff,TakeoverSecondsAfterHandoff,DifferenceSeconds,Outcome
+"synthetic-takeover-attempt","synthetic-normal","synthetic-takeover","keypad_completed","5","3","-2","matched"

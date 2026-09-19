@@ -1,0 +1,3 @@
+AttemptId,RecordingId,Sequence,Utc,ActiveSeconds,GameSeconds,RoomId,ObjectId,ObjectName,Category,Event,State,Succeeded,StateChanged,MilestoneId,Value,NumberValue
+"synthetic-takeover-attempt","synthetic-takeover","1","","1","0","","keypad","","Keypad","keypad_input","Idle","TRUE","FALSE","","4","0"
+"synthetic-takeover-attempt","synthetic-takeover","2","","3","0","","keypad","","Keypad","keypad_solved","Idle","TRUE","FALSE","keypad_completed","","0"

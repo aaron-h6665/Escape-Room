@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="23" result="Failed(Child)" total="23" passed="22" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:47:00Z" duration="2.0075429">
+  <test-suite type="TestSuite" id="1033" name="My project" fullname="My project" runstate="Runnable" testcasecount="23" result="Failed" site="Child" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:47:00Z" duration="2.007543" total="23" passed="22" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1029" name="CaesarCipher.Tests.PlayMode.dll" fullname="/Users/aaronhuang/Documents/My project/Library/ScriptAssemblies/CaesarCipher.Tests.PlayMode.dll" runstate="Runnable" testcasecount="23" result="Failed" site="Child" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:47:00Z" duration="2.002488" total="23" passed="22" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="35365" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1001" name="CaesarCipherRuntimeSmokeTests" fullname="CaesarCipherRuntimeSmokeTests" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.078540" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1004" name="NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" fullname="CaesarCipherRuntimeSmokeTests.NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" methodname="NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1662524015" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.017270" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1005" name="NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" fullname="CaesarCipherRuntimeSmokeTests.NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" methodname="NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1791294778" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.004848" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1002" name="ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" fullname="CaesarCipherRuntimeSmokeTests.ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" methodname="ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="157104619" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.037974" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1003" name="ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" fullname="CaesarCipherRuntimeSmokeTests.ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" methodname="ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="934632637" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.010864" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1006" name="EscapeRoomPrototypeRuntimeTests" fullname="EscapeRoomPrototypeRuntimeTests" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.016521" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1007" name="KeyChoice_RejectsRedAndAwardsOnlyTheVerifiedBlueKey" fullname="EscapeRoomPrototypeRuntimeTests.KeyChoice_RejectsRedAndAwardsOnlyTheVerifiedBlueKey" methodname="KeyChoice_RejectsRedAndAwardsOnlyTheVerifiedBlueKey" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="1615103946" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.006857" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+        </test-case>
+        <test-case id="1009" name="Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" fullname="EscapeRoomPrototypeRuntimeTests.Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" methodname="Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="1143779506" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.004016" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1008" name="Keypad_RequiresExactCodeAndPersistsSolvedState" fullname="EscapeRoomPrototypeRuntimeTests.Keypad_RequiresExactCodeAndPersistsSolvedState" methodname="Keypad_RequiresExactCodeAndPersistsSolvedState" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="1425337042" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.002962" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1010" name="PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" fullname="EscapeRoomPrototypeRuntimeTests.PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" methodname="PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="90967914" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.001463" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1011" name="ReplayFlowRuntimeTests" fullname="ReplayFlowRuntimeTests" classname="ReplayFlowRuntimeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.079193" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1016" name="DecodedPhraseTerminal_ReplaysItsModalAndTypedText" fullname="ReplayFlowRuntimeTests.DecodedPhraseTerminal_ReplaysItsModalAndTypedText" methodname="DecodedPhraseTerminal_ReplaysItsModalAndTypedText" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="815303580" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.028752" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="MissingManualRecording_DoesNotSubstituteAnotherRecording" fullname="ReplayFlowRuntimeTests.MissingManualRecording_DoesNotSubstituteAnotherRecording" methodname="MissingManualRecording_DoesNotSubstituteAnotherRecording" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="405162541" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.021859" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Selected recording is missing, incomplete, or incompatible. No random substitution was made.
+]]></output>
+        </test-case>
+        <test-case id="1014" name="PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" fullname="ReplayFlowRuntimeTests.PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" methodname="PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1312068462" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.015018" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1015" name="PlaybackPromptSnapshot_IsNotBlanked" fullname="ReplayFlowRuntimeTests.PlaybackPromptSnapshot_IsNotBlanked" methodname="PlaybackPromptSnapshot_IsNotBlanked" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1373372418" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.002688" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1013" name="Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" fullname="ReplayFlowRuntimeTests.Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" methodname="Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="300491875" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.009697" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Takeover began at replay 12.5s (game time 12.5s). Takeover ID=e565302ecb054f08a749395e2132235c, source ID=source-recording.
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1017" name="StudyReliabilityTests" fullname="StudyReliabilityTests" classname="StudyReliabilityTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.034648" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1026" name="Compatibility_RejectsIncompleteAndDifferentLevel" fullname="StudyReliabilityTests.Compatibility_RejectsIncompleteAndDifferentLevel" methodname="Compatibility_RejectsIncompleteAndDifferentLevel" classname="StudyReliabilityTests" runstate="Runnable" seed="1489888802" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.001171" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1023" name="Csv_ProtectsFormulasQuotesAndNewlines" fullname="StudyReliabilityTests.Csv_ProtectsFormulasQuotesAndNewlines" methodname="Csv_ProtectsFormulasQuotesAndNewlines" classname="StudyReliabilityTests" runstate="Runnable" seed="666553084" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.000834" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1024" name="Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" fullname="StudyReliabilityTests.Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" methodname="Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" classname="StudyReliabilityTests" runstate="Runnable" seed="1854932897" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.008076" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1021" name="Keypad_RestoresDraftFailuresAndFeedbackTimer" fullname="StudyReliabilityTests.Keypad_RestoresDraftFailuresAndFeedbackTimer" methodname="Keypad_RestoresDraftFailuresAndFeedbackTimer" classname="StudyReliabilityTests" runstate="Runnable" seed="1165259388" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.001424" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1022" name="ModalControlOwners_ReleaseIndependently" fullname="StudyReliabilityTests.ModalControlOwners_ReleaseIndependently" methodname="ModalControlOwners_ReleaseIndependently" classname="StudyReliabilityTests" runstate="Runnable" seed="1173904290" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.001812" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1020" name="Player_RestoresVelocityCrouchAndCameraHeight" fullname="StudyReliabilityTests.Player_RestoresVelocityCrouchAndCameraHeight" methodname="Player_RestoresVelocityCrouchAndCameraHeight" classname="StudyReliabilityTests" runstate="Runnable" seed="158844445" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.002386" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1025" name="RecoveryFailure_RetriesWithoutDiscardingTheSession" fullname="StudyReliabilityTests.RecoveryFailure_RetriesWithoutDiscardingTheSession" methodname="RecoveryFailure_RetriesWithoutDiscardingTheSession" classname="StudyReliabilityTests" runstate="Runnable" seed="282429696" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.008091" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[System.IO.IOException: The file '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/study-retry-4adfcdc291a3483999c5d3b58baeac62/blocked' already exists.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00191] in <299d5c9ae27b4d27af003e5f456f4b13>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <299d5c9ae27b4d27af003e5f456f4b13>:0 
+  at StudyExports.AtomicWrite (System.String path, System.String text) [0x00000] in /Users/aaronhuang/Documents/My project/Assets/_Project/Scripts/Study/StudyExports.cs:23 
+  at ReplayManager.WriteRecovery () [0x00012] in /Users/aaronhuang/Documents/My project/Assets/_Project/Scripts/Playback/ReplayManager.cs:628 
+Normal recording started. ID=c697208b5ec64ad1b31aee9d3de0f284, sample interval=0.03333334 seconds.
+]]></output>
+        </test-case>
+        <test-case id="1018" name="Simon_HandoffPreservesCueIndexAndRemainingTime" fullname="StudyReliabilityTests.Simon_HandoffPreservesCueIndexAndRemainingTime" methodname="Simon_HandoffPreservesCueIndexAndRemainingTime" classname="StudyReliabilityTests" runstate="Runnable" seed="303649839" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.008508" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1019" name="SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" fullname="StudyReliabilityTests.SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" methodname="SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" classname="StudyReliabilityTests" runstate="Runnable" seed="1531881344" result="Passed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:46:58Z" duration="0.001121" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1027" name="ZZStudyLevelFlowTests" fullname="ZZStudyLevelFlowTests" classname="ZZStudyLevelFlowTests" runstate="Runnable" testcasecount="1" result="Failed" site="Child" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:47:00Z" duration="1.791830" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1028" name="ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" fullname="ZZStudyLevelFlowTests.ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" methodname="ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" classname="ZZStudyLevelFlowTests" runstate="Runnable" seed="1766841365" result="Failed" start-time="2026-09-19 17:46:58Z" end-time="2026-09-19 17:47:00Z" duration="1.791076" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[Unhandled log message: '[Exception] MissingReferenceException: The object of type 'InventoryUI' has been destroyed but you are still trying to access it.
+Your script should either check if it is null or you should not destroy the object.'. Use UnityEngine.TestTools.LogAssert.Expect]]></message>
+            <stack-trace><![CDATA[UnityEngine.Object+MarshalledUnityObject.TryThrowEditorNullExceptionObject (UnityEngine.Object unityObj, System.String parameterName) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/UnityEngineObject.bindings.cs:1145)
+UnityEngine.Bindings.ThrowHelper.ThrowNullReferenceException (System.Object obj) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/BindingsHelpers.cs:61)
+UnityEngine.Component.get_gameObject () (at <7a0053ef0b124ed383ca4e2ce8c64943>:0)
+InventoryUI.SetVisible (System.Boolean visible) (at Assets/_Project/Scripts/Inventory/InventoryUI.cs:33)
+CaesarAnswerTerminal.RestoreGameplayHud () (at Assets/_Project/Scripts/Interactables/CaesarAnswerTerminal.cs:222)
+CaesarAnswerTerminal.Close (System.Boolean recordEvent) (at Assets/_Project/Scripts/Interactables/CaesarAnswerTerminal.cs:321)
+CaesarAnswerTerminal.OnDisable () (at Assets/_Project/Scripts/Interactables/CaesarAnswerTerminal.cs:370)
+
+]]></stack-trace>
+          </failure>
+          <output><![CDATA[Replay recording launch detected. Starting from new GameData.
+Normal recording started. ID=1cd71370548a4197bc42e4694075be43, sample interval=0.03333334 seconds.
+Game save skipped during replay test mode.
+Replay recording launch detected. Starting from new GameData.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-bb5f12d9d5db418d92ab4ba108b32b29/recordings/normal/1cd71370548a4197bc42e4694075be43.json'. Poses=9, world checkpoints=9, events=21.
+Takeover began at replay 0.02s (game time 0.02s). Takeover ID=283cfbfcaede42208c3a2c78e82a0c14, source ID=1cd71370548a4197bc42e4694075be43.
+Replay playback launch detected. Skipping data.game load.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-bb5f12d9d5db418d92ab4ba108b32b29/recordings/normal/1cd71370548a4197bc42e4694075be43.json'. Poses=9, world checkpoints=9, events=21.
+Takeover began at replay 0.024s (game time 0.024s). Takeover ID=aad4a862d49e4d439594c0407d8c7b25, source ID=1cd71370548a4197bc42e4694075be43.
+Replay playback launch detected. Skipping data.game load.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-bb5f12d9d5db418d92ab4ba108b32b29/recordings/normal/1cd71370548a4197bc42e4694075be43.json'. Poses=9, world checkpoints=9, events=21.
+Takeover began at replay 0.026s (game time 0.026s). Takeover ID=f2f959e1225649979fca99aa159598a1, source ID=1cd71370548a4197bc42e4694075be43.
+Replay playback launch detected. Skipping data.game load.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-bb5f12d9d5db418d92ab4ba108b32b29/recordings/normal/1cd71370548a4197bc42e4694075be43.json'. Poses=9, world checkpoints=9, events=21.
+Takeover began at replay 0.038s (game time 0.038s). Takeover ID=40f8ac16c05c499e83f87d5dd7e01447, source ID=1cd71370548a4197bc42e4694075be43.
+MissingReferenceException: The object of type 'InventoryUI' has been destroyed but you are still trying to access it.
+Your script should either check if it is null or you should not destroy the object.
+UnityEngine.Object+MarshalledUnityObject.TryThrowEditorNullExceptionObject (UnityEngine.Object unityObj, System.String parameterName) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/UnityEngineObject.bindings.cs:1145)
+UnityEngine.Bindings.ThrowHelper.ThrowNullReferenceException (System.Object obj) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/BindingsHelpers.cs:61)
+UnityEngine.Component.get_gameObject () (at <7a0053ef0b124ed383ca4e2ce8c64943>:0)
+InventoryUI.SetVisible (System.Boolean visible) (at Assets/_Project/Scripts/Inventory/InventoryUI.cs:33)
+CaesarAnswerTerminal.RestoreGameplayHud () (at Assets/_Project/Scripts/Interactables/CaesarAnswerTerminal.cs:222)
+CaesarAnswerTerminal.Close (System.Boolean recordEvent) (at Assets/_Project/Scripts/Interactables/CaesarAnswerTerminal.cs:321)
+CaesarAnswerTerminal.OnDisable () (at Assets/_Project/Scripts/Interactables/CaesarAnswerTerminal.cs:370)
+
+Replay playback launch detected. Skipping data.game load.
+Saving results to: /Users/aaronhuang/Library/Application Support/DefaultCompany/My project/TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
