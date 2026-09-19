@@ -2985,8 +2985,8 @@ MonoBehaviour:
   replayFileName: replay.json
   saveReplayOnStop: 1
   loadReplayFileOnPlayback: 1
-  playbackSelection: 1
-  manualRecordingFileName: 1de6ba5f76b24b39b814747cd489732a.json
+  playbackSelection: 0
+  manualRecordingFileName:
   currentState: 0
   snapshotDelta: 0.033333335
 --- !u!4 &300249097
