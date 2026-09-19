@@ -93,7 +93,7 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
     {
         if (redKey != null) redKey.gameObject.SetActive(!isSolved);
         if (blueKey != null) blueKey.gameObject.SetActive(!isSolved);
-        if (isSolved)
+        if (isSolved && !(ReplayManager.instance?.IsRestoring ?? false))
         {
             exitDoor?.SetOpen(true, false);
             hingeExitDoor?.SetOpen(true, false);
@@ -144,9 +144,18 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
     }
 
     public void LoadData(GameData data) => LoadState(data);
-    public void LoadSnapshot(GameData data) => LoadState(data);
+    public void LoadSnapshot(GameData data)
+    {
+        LoadState(data);
+        var ui = data.uiStates?.Find(v => v.id == ReplayTargetId);
+        if (ui != null && feedbackText != null) { feedbackText.text = ui.feedback; feedbackText.color = ui.color; }
+    }
     public void SaveData(ref GameData data) => SaveState(ref data);
-    public void SaveSnapshot(ref GameData data) => SaveState(ref data);
+    public void SaveSnapshot(ref GameData data)
+    {
+        SaveState(ref data);
+        data.uiStates.Add(new UiSnapshot { id = ReplayTargetId, feedback = feedbackText != null ? feedbackText.text : "", color = feedbackText != null ? feedbackText.color : Color.white });
+    }
 
     void LoadState(GameData data)
     {

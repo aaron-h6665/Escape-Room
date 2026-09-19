@@ -10,6 +10,8 @@ public static class ReplayIdentity
             return serializedId;
         }
 
+        StableReplayId identity = component != null ? component.GetComponent<StableReplayId>() : null;
+        if (identity != null && !string.IsNullOrWhiteSpace(identity.value)) return identity.value + ":" + component.GetType().Name;
         return BuildScenePath(component);
     }
 

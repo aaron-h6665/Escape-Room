@@ -162,7 +162,7 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject, IReplay
             return;
         }
 
-        if (data.inventory.items.Count == 0 && RestoreLegacyPickedUpItems(data))
+        if (!data.hasMotorState && data.inventory.items.Count == 0 && RestoreLegacyPickedUpItems(data))
         {
             return;
         }
@@ -359,6 +359,13 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject, IReplay
         string sourcePickupId = sourcePickupIds[slotIndex];
         Vector3 dropPosition = (dropOrigin != null ? dropOrigin : transform).position
             + (dropOrigin != null ? dropOrigin : transform).forward * dropDistance;
+        // Keep required items on the accessible side of walls and above the floor.
+        Vector3 origin = (dropOrigin != null ? dropOrigin : transform).position;
+        Vector3 direction = (dropPosition - origin).normalized;
+        if (Physics.SphereCast(origin, 0.12f, direction, out RaycastHit wall, dropDistance, 1 << 7, QueryTriggerInteraction.Ignore))
+            dropPosition = origin + direction * Mathf.Max(0.2f, wall.distance - 0.2f);
+        if (Physics.Raycast(dropPosition, Vector3.down, out RaycastHit floor, 10f, 1 << 7, QueryTriggerInteraction.Ignore))
+            dropPosition = floor.point + Vector3.up * 0.15f;
         Quaternion dropRotation = Quaternion.identity;
 
         if (!TryRestorePersistentPickup(sourcePickupId, dropPosition, dropRotation))
@@ -432,8 +439,11 @@ public class Inventory : MonoBehaviour, IDataPersistence, IReplayObject, IReplay
 
     void SetSelectedSlot(int slotIndex)
     {
+        int previous = selectedSlotIndex;
         selectedSlotIndex = IsValidSlot(slotIndex) ? slotIndex : -1;
         ui?.RefreshSlots();
+        if (previous != selectedSlotIndex && !(ReplayManager.instance?.IsRestoring ?? false))
+            ReplayEventBus.Publish(this, "inventory_slot_selected", ReplayObjectState.Activated, true, false, numberValue: selectedSlotIndex);
     }
 
     bool SelectRelativeSlot(int step)

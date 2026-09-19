@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryUI : MonoBehaviour
+public class InventoryUI : MonoBehaviour, IReplayObject, IReplayTimeline
 {
     [Header("Prefabs")]
     [SerializeField]
@@ -25,7 +25,7 @@ public class InventoryUI : MonoBehaviour
     float inventoryFullMessageDuration = 1f;
 
     readonly List<ItemUI> slotUIs = new List<ItemUI>();
-    Coroutine inventoryFullCoroutine;
+    float inventoryFeedbackRemaining;
     public bool IsVisible => gameObject.activeSelf;
 
     public void SetVisible(bool visible)
@@ -82,41 +82,27 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        if (inventoryFullCoroutine != null)
-        {
-            StopCoroutine(inventoryFullCoroutine);
-        }
-
-        inventoryFullCoroutine = StartCoroutine(ShowInventoryFullMessageRoutine());
+        inventoryFeedbackRemaining = inventoryFullMessageDuration;
+        RenderFeedback();
     }
-
-    IEnumerator ShowInventoryFullMessageRoutine()
+    void Update()
     {
+        if (!ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceReplayPresentation(Time.deltaTime);
+    }
+    public void AdvanceReplayPresentation(float seconds)
+    {
+        inventoryFeedbackRemaining = Mathf.Max(0f, inventoryFeedbackRemaining - seconds);
+        RenderFeedback();
+    }
+    void RenderFeedback()
+    {
+        if (inventoryFullText == null) return;
         inventoryFullText.text = "Inventory is full.";
-        inventoryFullText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(Mathf.Max(0f, inventoryFullMessageDuration));
-
-        if (inventoryFullText != null)
-        {
-            inventoryFullText.gameObject.SetActive(false);
-        }
-
-        inventoryFullCoroutine = null;
+        inventoryFullText.gameObject.SetActive(inventoryFeedbackRemaining > 0f);
     }
-
-    void HideInventoryFullMessage()
-    {
-        if (inventoryFullCoroutine != null)
-        {
-            StopCoroutine(inventoryFullCoroutine);
-            inventoryFullCoroutine = null;
-        }
-
-        if (inventoryFullText != null)
-        {
-            inventoryFullText.gameObject.SetActive(false);
-        }
-    }
+    void HideInventoryFullMessage() { inventoryFeedbackRemaining = 0f; RenderFeedback(); }
+    public void SaveSnapshot(ref GameData data) => data.inventoryFeedbackRemaining = inventoryFeedbackRemaining;
+    public void LoadSnapshot(GameData data) { inventoryFeedbackRemaining = data.inventoryFeedbackRemaining; RenderFeedback(); }
 
     void ResolveInventoryFullText()
     {

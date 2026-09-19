@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
-public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, IReplayObject
+public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, IReplayObject, IReplayHandoff, IReplayTimeline
 {
     public enum RingSelection
     {
@@ -71,7 +71,11 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
     bool pointerDragging;
     RingSelection draggedRing;
     float dragStartPointerAngle;
-    int dragStartIndex;
+    float dragStartIndex;
+    float displayedInnerIndex;
+    Quaternion snapStart, snapTarget;
+    float snapElapsed;
+    bool snapping;
     int openedFrame = -1;
     Coroutine innerSnapCoroutine;
     Coroutine outerSnapCoroutine;
@@ -150,9 +154,12 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         PauseManager.PauseStarting += HandlePauseStarting;
     }
 
+    public void OnTakeover() { if (isInspecting) { AcquireInputSession(); pointerDragging = false; } }
+
     void Update()
     {
         bool playbackActive = ReplayManager.IsPlaybackActive();
+        if (!playbackActive && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceReplayPresentation(Time.deltaTime);
         if (!wasPlaybackActive && playbackActive && inputSessionActive)
         {
             ReleaseInputSession();
@@ -163,6 +170,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             if (takeoverActive)
             {
                 AcquireInputSession();
+                pointerDragging = false;
             }
             else
             {
@@ -181,7 +189,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             AcquireInputSession();
         }
 
-        if (!inputSessionActive || (PauseManager.Instance != null && PauseManager.Instance.IsPaused))
+        if (!inputSessionActive || Time.timeScale == 0f || (inputManager?.GameplayInputSuppressed ?? false) || (PauseManager.Instance != null && PauseManager.Instance.IsPaused))
         {
             return;
         }
@@ -467,7 +475,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         SetSelectedRing(hitRing.Value, true);
         StopRingSnap(hitRing.Value);
         draggedRing = hitRing.Value;
-        dragStartIndex = draggedRing == RingSelection.Inner ? innerIndex : outerIndex;
+        dragStartIndex = displayedInnerIndex;
         dragStartPointerAngle = PointerAngle(screenPosition);
         pointerDragging = true;
     }
@@ -530,6 +538,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
     void ApplyRingRotation(RingSelection ring, float index, bool animate)
     {
         CaptureBaselines();
+        if (ring == RingSelection.Inner) displayedInnerIndex = index;
         Transform target = ring == RingSelection.Inner ? innerRing : outerRing;
         if (target == null)
         {
@@ -545,34 +554,25 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             return;
         }
 
-        Coroutine coroutine = StartCoroutine(SnapRing(target, destination));
         if (ring == RingSelection.Inner)
         {
-            innerSnapCoroutine = coroutine;
+            snapStart = target.localRotation; snapTarget = destination; snapElapsed = 0f; snapping = true;
         }
-        else
-        {
-            outerSnapCoroutine = coroutine;
-        }
+        else target.localRotation = destination;
     }
 
-    IEnumerator SnapRing(Transform target, Quaternion destination)
+    public void AdvanceReplayPresentation(float seconds)
     {
-        Quaternion start = target.localRotation;
-        float elapsed = 0f;
-        while (elapsed < snapDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(elapsed / snapDuration);
-            t = t * t * (3f - 2f * t);
-            target.localRotation = Quaternion.Slerp(start, destination, t);
-            yield return null;
-        }
-        target.localRotation = destination;
+        if (!snapping || innerRing == null) return;
+        snapElapsed = Mathf.Min(snapDuration, snapElapsed + seconds);
+        float t = Mathf.SmoothStep(0f, 1f, snapElapsed / Mathf.Max(0.001f, snapDuration));
+        innerRing.localRotation = Quaternion.Slerp(snapStart, snapTarget, t);
+        if (snapElapsed >= snapDuration) snapping = false;
     }
 
     void StopRingSnap(RingSelection ring)
     {
+        if (ring == RingSelection.Inner) snapping = false;
         Coroutine coroutine = ring == RingSelection.Inner ? innerSnapCoroutine : outerSnapCoroutine;
         if (coroutine != null)
         {
@@ -630,13 +630,12 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
 
     void SetInspectionVisuals(bool visible)
     {
-        ResolveModelReferences();
-        ResolvePlayerReferences(null);
-        EnsureInspectionCamera();
-        EnsureInspectionHud();
-
         if (visible)
         {
+            ResolveModelReferences();
+            ResolvePlayerReferences(null);
+            EnsureInspectionCamera();
+            EnsureInspectionHud();
             int inspectionLayer = ResolveInspectionLayer();
             originalLayers.Clear();
             if (inspectionLayer >= 0)
@@ -878,7 +877,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         cursorWasVisible = Cursor.visible;
         cursorWasLocked = Cursor.lockState;
 
-        inputManager?.SetPlayerControlLocked(true);
+        if (inputManager != null) inputManager.AcquireControl(this);
         if (playerInteract != null)
         {
             playerInteract.enabled = false;
@@ -896,7 +895,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         }
         if (inputManager != null)
         {
-            inputManager.SetPlayerControlLocked(playerControlWasLocked);
+            inputManager.ReleaseControl(this);
         }
         if (playerInteract != null)
         {
@@ -935,8 +934,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             inventoryWasVisible = inventoryUI == null || inventoryUI.IsVisible;
             promptWasVisible = playerUI == null || playerUI.PromptVisible;
             crosshairWasVisible = crosshair == null || crosshair.activeSelf;
-            inventoryUI?.SetVisible(false);
-            playerUI?.SetPromptVisible(false);
+            if (inventoryUI != null) inventoryUI.SetVisible(false);
+            if (playerUI != null) playerUI.SetPromptVisible(false);
             if (crosshair != null) crosshair.SetActive(false);
             hudHidden = true;
             return;
@@ -944,8 +943,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
 
         if (visible && hudHidden)
         {
-            inventoryUI?.SetVisible(inventoryWasVisible);
-            playerUI?.SetPromptVisible(promptWasVisible);
+            if (inventoryUI != null) inventoryUI.SetVisible(inventoryWasVisible);
+            if (playerUI != null) playerUI.SetPromptVisible(promptWasVisible);
             if (crosshair != null) crosshair.SetActive(crosshairWasVisible);
             hudHidden = false;
         }
@@ -1100,6 +1099,10 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         saved.outerIndex = 14;
         saved.selectedRing = (int)RingSelection.Inner;
         saved.isInspecting = includeInspectionState && isInspecting;
+        saved.hasPresentation = includeInspectionState;
+        saved.innerRotation = innerRing != null ? innerRing.localRotation : Quaternion.identity;
+        saved.snapStart = snapStart; saved.snapTarget = snapTarget; saved.snapElapsed = snapElapsed;
+        saved.snapping = snapping; saved.displayedInnerIndex = displayedInnerIndex;
     }
 
     void LoadCipherState(GameData data, bool restoreInspectionState)
@@ -1125,10 +1128,16 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
 
         selectedRing = RingSelection.Inner;
         outerIndex = 14;
-        bool animate = restoreInspectionState && ReplayManager.IsPlaybackActive();
+        bool animate = restoreInspectionState && ReplayManager.IsPlaybackActive() && !saved.hasPresentation;
         SetRingIndex(RingSelection.Inner, saved.innerIndex, animate, false);
         SetRingIndex(RingSelection.Outer, 14, animate, false);
         SetInspectionState(restoreInspectionState && saved.isInspecting, false);
+        if (restoreInspectionState && saved.hasPresentation)
+        {
+            if (innerRing != null) innerRing.localRotation = saved.innerRotation;
+            snapStart = saved.snapStart; snapTarget = saved.snapTarget; snapElapsed = saved.snapElapsed;
+            snapping = saved.snapping; displayedInnerIndex = saved.displayedInnerIndex;
+        }
     }
 
     static RingSelection ParseRing(string value)
@@ -1146,13 +1155,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         return wheelCenter != null ? wheelCenter.position : transform.position;
     }
 
-    void HandlePauseStarting()
-    {
-        if (isInspecting)
-        {
-            CloseInspection(true);
-        }
-    }
+    void HandlePauseStarting() { }
 
     protected override void OnDisable()
     {

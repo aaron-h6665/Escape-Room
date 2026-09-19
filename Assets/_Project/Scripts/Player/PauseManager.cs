@@ -78,6 +78,7 @@ public class PauseManager : MonoBehaviour
             return;
         }
 
+        ReplayManager.instance?.RecordSessionEvent("paused");
         PauseStarting?.Invoke();
         ResolveInputManager();
 
@@ -93,7 +94,7 @@ public class PauseManager : MonoBehaviour
 
         if (inputManager != null)
         {
-            inputManager.SetPlayerControlLocked(true);
+            inputManager.AcquireControl(this);
         }
 
         SceneManager.LoadScene(pauseSceneName, LoadSceneMode.Additive);
@@ -114,6 +115,7 @@ public class PauseManager : MonoBehaviour
 
         RestoreGameplayState();
         isPaused = false;
+        ReplayManager.instance?.RecordSessionEvent("resumed");
     }
 
     public void SaveGame()
@@ -135,7 +137,7 @@ public class PauseManager : MonoBehaviour
 
         if (inputManager != null)
         {
-            inputManager.SetPlayerControlLocked(previousPlayerControlLocked);
+            inputManager.ReleaseControl(this);
         }
     }
 

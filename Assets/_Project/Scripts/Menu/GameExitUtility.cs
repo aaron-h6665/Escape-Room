@@ -6,7 +6,8 @@ public static class GameExitUtility
     {
         if (ReplayManager.instance != null)
         {
-            ReplayManager.instance.StopRecording();
+            ReplayManager.instance.Stop();
+            if (!ReplayManager.instance.RetrySave()) return;
         }
 
 #if UNITY_EDITOR

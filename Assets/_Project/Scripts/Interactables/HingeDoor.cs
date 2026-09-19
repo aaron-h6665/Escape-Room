@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
-public class HingeDoor : Interactable, IDataPersistence, IReplayObject
+public class HingeDoor : Interactable, IDataPersistence, IReplayObject, IReplayTimeline
 {
     [SerializeField] private Animator myDoor = null;
 
@@ -10,7 +10,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
     [SerializeField, Min(0.1f)] private float openAnimationDuration = 1.1f;
     [SerializeField] private string id;
     [SerializeField] private bool isOpen;
-    Coroutine holdOpenRoutine;
+    float animationProgress;
 
     [Header("Puzzle Lock")]
     [Tooltip("When assigned, the door cannot be opened until this Simon Says puzzle is solved.")]
@@ -52,7 +52,10 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
     public void SetOpen(bool open, bool recordEvent)
     {
-        if (!open) return;
+        if (!open)
+        {
+            isOpen = false; animationProgress = 0f; ApplyDoorVisualState(); return;
+        }
         if (!OpenDoor()) return;
         if (recordEvent)
         {
@@ -72,24 +75,20 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
             return false;
         }
 
-        myDoor.Play(doorOpen, 0, 0.0f);
-        myDoor.speed = 1f;
         isOpen = true;
-        if (holdOpenRoutine != null) StopCoroutine(holdOpenRoutine);
-        holdOpenRoutine = StartCoroutine(HoldOpenPose());
+        animationProgress = 0f;
+        ApplyDoorVisualState();
         return true;
     }
 
-    IEnumerator HoldOpenPose()
+    void Update()
     {
-        yield return new WaitForSeconds(Mathf.Max(0.1f, openAnimationDuration));
-        if (myDoor != null && isOpen)
-        {
-            myDoor.Play(doorOpen, 0, 1f);
-            myDoor.Update(0f);
-            myDoor.speed = 0f;
-        }
-        holdOpenRoutine = null;
+        if (!ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceReplayPresentation(Time.deltaTime);
+    }
+    public void AdvanceReplayPresentation(float seconds)
+    {
+        if (isOpen) animationProgress = Mathf.Clamp01(animationProgress + seconds / Mathf.Max(0.1f, openAnimationDuration));
+        ApplyDoorVisualState();
     }
 
     public override string GetPromptMessage()
@@ -138,6 +137,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
         }
 
         isOpen = doorData.isOpen;
+        animationProgress = doorData.hasAnimationState ? doorData.animationProgress : isOpen ? 1f : 0f;
         ApplyDoorVisualState();
     }
 
@@ -162,17 +162,20 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
         }
 
         doorData.isOpen = isOpen;
+        doorData.hasAnimationState = true;
+        doorData.animationProgress = animationProgress;
     }
 
     void ApplyDoorVisualState()
     {
         ResolveDoorAnimator();
-        if (!isOpen || myDoor == null)
+        if (myDoor == null)
         {
             return;
         }
 
-        myDoor.Play(doorOpen, 0, 1f);
+        myDoor.fireEvents = false;
+        myDoor.Play(doorOpen, 0, animationProgress);
         myDoor.Update(0f);
         myDoor.speed = 0f;
     }

@@ -37,7 +37,7 @@ public sealed class ReplayFlowRuntimeTests
     }
 
     [UnityTest]
-    public IEnumerator MissingManualRecording_FallsBackToAValidNormalRecording()
+    public IEnumerator MissingManualRecording_DoesNotSubstituteAnotherRecording()
     {
         string storageRoot = CreateTemporaryStorageRoot();
         string normalDirectory = Path.Combine(storageRoot, "recordings", "normal");
@@ -54,7 +54,7 @@ public sealed class ReplayFlowRuntimeTests
 
         string resolvedPath = (string)Invoke(manager, "ResolvePlaybackPath");
 
-        Assert.That(resolvedPath, Is.EqualTo(availablePath));
+        Assert.That(resolvedPath, Is.Empty);
         yield return null;
     }
 

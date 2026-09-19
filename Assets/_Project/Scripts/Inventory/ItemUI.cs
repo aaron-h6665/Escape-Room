@@ -37,6 +37,8 @@ public class ItemUI : MonoBehaviour
             button = GetComponent<Button>();
         }
 
+        normalColor = new Color(0.14f, 0.17f, 0.21f, 0.94f);
+        selectedColor = new Color(0.72f, 0.55f, 0.26f, 1f);
         transform.localScale = Vector3.one;
         if (button != null)
         {
@@ -68,6 +70,7 @@ public class ItemUI : MonoBehaviour
 
     void OnClicked()
     {
+        if (ReplayManager.IsPlaybackActive() || Time.timeScale == 0f) return;
         selectSlotAction?.Invoke(slotIndex);
     }
 

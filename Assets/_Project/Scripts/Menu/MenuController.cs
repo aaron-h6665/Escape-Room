@@ -47,5 +47,7 @@ public class MenuController : MonoBehaviour
         newGameButton = MenuButtonBinder.BindByName(this, newGameButton, "NewGameButton", NewGameDialogYes);
         loadGameButton = MenuButtonBinder.BindByName(this, loadGameButton, "LoadGameButton (1)", LoadGameDialogYes);
         exitButton = MenuButtonBinder.BindByName(this, exitButton, "ExitButton", ExitButton);
+        foreach (var button in GetComponentsInChildren<Button>(true))
+            if (button.name == "OptionsButton") MenuButtonBinder.Bind(button, StudyMenuPanel.ShowOptions);
     }
 }

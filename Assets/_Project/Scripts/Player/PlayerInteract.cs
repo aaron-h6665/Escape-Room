@@ -44,7 +44,7 @@ public class PlayerInteract : MonoBehaviour
         if (interactable != null)
         {
             playerUI.UpdateText(interactable.GetPromptMessage());
-            if (!ReplayManager.IsPlaybackActive() && inputManager.OnFoot.Interact.WasPressedThisFrame())
+            if (!ReplayManager.IsPlaybackActive() && !inputManager.PlayerControlLocked && !inputManager.GameplayInputSuppressed && Time.timeScale > 0f && inputManager.OnFoot.Interact.WasPressedThisFrame())
             {
                 interactable.BaseInteract(gameObject);
                 if (!isActiveAndEnabled)

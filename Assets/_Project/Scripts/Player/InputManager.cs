@@ -8,13 +8,28 @@ public class InputManager : MonoBehaviour
     [System.NonSerialized]
     private PlayerInput.OnFootActions onFoot;
     private bool playerControlLocked;
+    readonly System.Collections.Generic.HashSet<object> controlOwners = new System.Collections.Generic.HashSet<object>();
+    bool consumingTakeover;
+    int consumeFrame;
+    public bool GameplayInputSuppressed => consumingTakeover;
+    public void AcquireControl(object owner) => controlOwners.Add(owner);
+    public void ReleaseControl(object owner) => controlOwners.Remove(owner);
+    public void ConsumeTakeoverInput() { consumingTakeover = true; consumeFrame = Time.frameCount; }
+    void Update()
+    {
+        StudyOptions.PollDevice();
+        if (consumingTakeover && Time.frameCount > consumeFrame
+            && !(Gamepad.current?.rightTrigger.isPressed ?? false)
+            && !(Keyboard.current?.tKey.isPressed ?? false)
+            && !(Mouse.current?.leftButton.isPressed ?? false)) consumingTakeover = false;
+    }
     private InputAction inventoryToggleAction;
     private InputAction inventoryToggleAlternateAction;
     private InputAction takeoverAlternateAction;
     private InputAction crouchAction;
 
     public PlayerInput.OnFootActions OnFoot => onFoot;
-    public bool PlayerControlLocked => playerControlLocked;
+    public bool PlayerControlLocked => playerControlLocked || controlOwners.Count > 0;
     public event Action PausePressed;
     public event Action TakeoverPressed;
     public event Action<int> InventoryNavigationPressed;
@@ -97,12 +112,12 @@ public class InputManager : MonoBehaviour
 
     bool CanMove()
     {
-        return !ReplayManager.IsPlaybackActive() && !playerControlLocked && motor != null && motor.enabled;
+        return !ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false) && !PlayerControlLocked && !consumingTakeover && motor != null && motor.enabled;
     }
 
     bool CanLook()
     {
-        return !ReplayManager.IsPlaybackActive() && !playerControlLocked && look != null && look.enabled;
+        return !ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false) && !PlayerControlLocked && !consumingTakeover && look != null && look.enabled;
     }
 
     void OnPausePerformed(InputAction.CallbackContext context)
@@ -112,7 +127,7 @@ public class InputManager : MonoBehaviour
 
     void OnTakeoverAlternatePerformed(InputAction.CallbackContext context)
     {
-        if (ReplayManager.IsPlaybackActive() && !playerControlLocked)
+        if (ReplayManager.IsPlaybackActive() && Time.timeScale > 0f && !consumingTakeover)
         {
             TakeoverPressed?.Invoke();
         }
@@ -190,7 +205,7 @@ public class InputManager : MonoBehaviour
 
     bool CanUseInventoryInput()
     {
-        return enabled && !ReplayManager.IsPlaybackActive() && !playerControlLocked;
+        return enabled && !ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false) && !PlayerControlLocked && !consumingTakeover;
     }
 
     private void OnEnable()

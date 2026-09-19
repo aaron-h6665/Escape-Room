@@ -46,12 +46,12 @@ public class TimeSpentManager : MonoBehaviour, IDataPersistence, IReplayObject
 
     void Update()
     {
-        if (ReplayManager.IsPlaybackActive())
+        if (ReplayManager.instance != null && ReplayManager.instance.CurrentState != ReplayManager.State.Idle)
         {
             return;
         }
 
-        if (!isRunning) return;
+        if (!isRunning || ReplayManager.instance != null) return;
 
         elapsedTime += Time.deltaTime;
         UpdateTimeText();
