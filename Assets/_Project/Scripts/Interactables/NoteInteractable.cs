@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
 
-public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
+public class NoteInteractable : Interactable, IDataPersistence, IReplayObject, IReplayHandoff
 {
     [Header("Note UI")]
     [SerializeField] GameObject noteCanvas;
@@ -79,6 +79,8 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
         }
     }
 
+    public void OnTakeover() { if (noteOpen) AcquireInputSession(null); }
+
     void Update()
     {
         bool playbackActive = ReplayManager.IsPlaybackActive();
@@ -105,7 +107,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
             return;
         }
 
-        if (!noteOpen || Time.frameCount == openedFrame)
+        if (!noteOpen || Time.timeScale == 0f || (inputManager?.GameplayInputSuppressed ?? false) || Time.frameCount == openedFrame)
         {
             return;
         }
@@ -195,7 +197,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
         if (inputManager != null)
         {
             playerControlWasLocked = inputManager.PlayerControlLocked;
-            inputManager.SetPlayerControlLocked(true);
+            inputManager.AcquireControl(this);
         }
 
         if (player != null)
@@ -225,7 +227,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
         }
         if (inputManager != null)
         {
-            inputManager.SetPlayerControlLocked(playerControlWasLocked);
+            inputManager.ReleaseControl(this);
         }
         if (playerInteract != null)
         {
@@ -276,18 +278,18 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
             inventoryWasVisible = inventoryUI == null || inventoryUI.IsVisible;
             promptWasVisible = playerUI == null || playerUI.PromptVisible;
             crosshairWasVisible = playerCrosshair == null || playerCrosshair.IsVisible;
-            inventoryUI?.SetVisible(false);
-            playerUI?.SetPromptVisible(false);
-            playerCrosshair?.SetPresentationVisible(false);
+            if (inventoryUI != null) inventoryUI.SetVisible(false);
+            if (playerUI != null) playerUI.SetPromptVisible(false);
+            if (playerCrosshair != null) playerCrosshair.SetPresentationVisible(false);
             hudHidden = true;
             return;
         }
 
         if (visible && hudHidden)
         {
-            inventoryUI?.SetVisible(inventoryWasVisible);
-            playerUI?.SetPromptVisible(promptWasVisible);
-            playerCrosshair?.SetPresentationVisible(crosshairWasVisible);
+            if (inventoryUI != null) inventoryUI.SetVisible(inventoryWasVisible);
+            if (playerUI != null) playerUI.SetPromptVisible(promptWasVisible);
+            if (playerCrosshair != null) playerCrosshair.SetPresentationVisible(crosshairWasVisible);
             hudHidden = false;
         }
     }
@@ -441,7 +443,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
             return true;
         }
 
-        return Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame;
+        return Keyboard.current != null && (Keyboard.current.eKey.wasPressedThisFrame || Keyboard.current.escapeKey.wasPressedThisFrame);
     }
 
     void EnsureHighlightMaterial()

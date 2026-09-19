@@ -1,0 +1,3 @@
+AttemptId,RecordingId,Sequence,Utc,ActiveSeconds,GameSeconds,RoomId,ObjectId,ObjectName,Category,Event,State,Succeeded,StateChanged,MilestoneId,Value,NumberValue
+"synthetic-normal-attempt","synthetic-normal","1","","10","0","","simon","","Puzzle","simon_completed","Idle","TRUE","FALSE","simon_completed","","0"
+"synthetic-normal-attempt","synthetic-normal","2","","20","0","","keypad","","Keypad","keypad_solved","Idle","TRUE","FALSE","keypad_completed","","0"

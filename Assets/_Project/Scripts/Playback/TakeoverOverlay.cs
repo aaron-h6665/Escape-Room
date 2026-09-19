@@ -41,7 +41,7 @@ public class TakeoverOverlay : MonoBehaviour
         canvasObject.transform.SetParent(transform, false);
         Canvas canvas = canvasObject.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 100;
+        canvas.sortingOrder = 2000;
 
         CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -54,8 +54,8 @@ public class TakeoverOverlay : MonoBehaviour
         buttonRect.anchorMin = new Vector2(0.5f, 1f);
         buttonRect.anchorMax = new Vector2(0.5f, 1f);
         buttonRect.pivot = new Vector2(0.5f, 1f);
-        buttonRect.anchoredPosition = new Vector2(0f, -50f);
-        buttonRect.sizeDelta = new Vector2(420f, 120f);
+        buttonRect.anchoredPosition = new Vector2(0f, -20f);
+        buttonRect.sizeDelta = new Vector2(340f, 90f);
 
         Image image = buttonObject.GetComponent<Image>();
         image.color = new Color(0.94f, 0.58f, 0.08f, 0.96f);
@@ -77,13 +77,15 @@ public class TakeoverOverlay : MonoBehaviour
         textRect.offsetMin = Vector2.zero;
         textRect.offsetMax = Vector2.zero;
         TextMeshProUGUI label = textObject.GetComponent<TextMeshProUGUI>();
-        label.text = "TAKE OVER\n<size=28>Click, press T, or pull RT</size>";
+        label.text = "TAKE OVER\n<size=20>Click, press T, or pull RT</size>";
         label.alignment = TextAlignmentOptions.Center;
         label.color = new Color(0.08f, 0.06f, 0.03f, 1f);
-        label.fontSize = 42f;
+        label.fontSize = 30f;
         label.fontStyle = FontStyles.Bold;
         label.raycastTarget = false;
     }
+
+    public void HideForTakeover() => SetVisible(false);
 
     void RequestTakeover()
     {

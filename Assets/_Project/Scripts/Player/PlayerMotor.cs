@@ -65,6 +65,7 @@ public class PlayerMotor : MonoBehaviour, IDataPersistence, IReplayObject
     // Update is called once per frame
     void Update()
     {
+        if (ReplayManager.IsPlaybackActive() || (ReplayManager.instance?.IsHandoffFrame ?? false)) return;
         isGrounded = controller.isGrounded;
         UpdateCrouch();
     }
@@ -124,7 +125,7 @@ public class PlayerMotor : MonoBehaviour, IDataPersistence, IReplayObject
     {
         // A player can overlap more than one laser in the same physics step.
         // Count that contact as one death rather than one death per collider.
-        if (Time.unscaledTime < nextAllowedDeathTime)
+        if (ReplayManager.IsPlaybackActive() || Time.unscaledTime < nextAllowedDeathTime)
         {
             return false;
         }
@@ -168,16 +169,40 @@ public class PlayerMotor : MonoBehaviour, IDataPersistence, IReplayObject
     public void SaveSnapshot(ref GameData data)
     {
         data.playerPosition = transform.position;
+        data.hasMotorState = true;
+        data.horizontalVelocity = horizontalVelocity;
+        data.verticalVelocity = playerVelocity;
+        data.grounded = isGrounded;
+        data.crouchRequested = crouchRequested;
+        data.isCrouching = IsCrouching;
+        data.controllerHeight = controller.height;
+        data.controllerCenter = controller.center;
+        data.cameraLocalPosition = playerCamera != null ? playerCamera.transform.localPosition : Vector3.zero;
+        data.deathCount = DeathCount;
     }
 
     public void LoadSnapshot(GameData data)
     {
         ApplyPosition(data.playerPosition);
+        if (!data.hasMotorState) return;
+        horizontalVelocity = data.horizontalVelocity;
+        playerVelocity = data.verticalVelocity;
+        isGrounded = data.grounded;
+        crouchRequested = data.crouchRequested;
+        IsCrouching = data.isCrouching;
+        controller.height = data.controllerHeight;
+        controller.center = data.controllerCenter;
+        if (playerCamera != null) playerCamera.transform.localPosition = data.cameraLocalPosition;
+        DeathCount = data.deathCount;
+        DeathCountChanged?.Invoke(DeathCount);
     }
 
     public void ApplyReplayPosition(Vector3 position)
     {
+        Vector3 horizontal = horizontalVelocity, vertical = playerVelocity;
         ApplyPosition(position);
+        horizontalVelocity = horizontal;
+        playerVelocity = vertical;
     }
 
     void ApplyPosition(Vector3 position)

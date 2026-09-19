@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget
+public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget, IReplayTimeline
 {
     [SerializeField] string id;
     [SerializeField] Transform leftPanel;
@@ -15,7 +15,7 @@ public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IRep
     Vector3 leftClosedPosition;
     Vector3 rightClosedPosition;
     bool positionsCaptured;
-    Coroutine animationRoutine;
+    float progress;
 
     public string ReplayTargetId => ReplayIdentity.Resolve(this, id);
     public string ReplayTargetName => gameObject.name;
@@ -38,42 +38,33 @@ public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IRep
         CapturePositions();
         if (isOpen == open)
         {
-            ApplyImmediate();
             return;
         }
 
         isOpen = open;
-        if (animationRoutine != null)
-        {
-            StopCoroutine(animationRoutine);
-        }
-        animationRoutine = StartCoroutine(Animate());
-
         if (recordEvent)
         {
             ReplayEventBus.Publish(this, open ? "door_opened" : "door_closed", ReplayState, true, true);
         }
     }
 
-    IEnumerator Animate()
+    void Update()
     {
-        Vector3 leftStart = leftPanel != null ? leftPanel.localPosition : Vector3.zero;
-        Vector3 rightStart = rightPanel != null ? rightPanel.localPosition : Vector3.zero;
-        Vector3 leftTarget = leftClosedPosition + (isOpen ? leftOpenOffset : Vector3.zero);
-        Vector3 rightTarget = rightClosedPosition + (isOpen ? rightOpenOffset : Vector3.zero);
-        float elapsed = 0f;
+        if (!ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceReplayPresentation(Time.deltaTime);
+    }
 
-        while (elapsed < animationDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / animationDuration));
-            if (leftPanel != null) leftPanel.localPosition = Vector3.Lerp(leftStart, leftTarget, t);
-            if (rightPanel != null) rightPanel.localPosition = Vector3.Lerp(rightStart, rightTarget, t);
-            yield return null;
-        }
+    public void AdvanceReplayPresentation(float seconds)
+    {
+        progress = Mathf.MoveTowards(progress, isOpen ? 1f : 0f, seconds / Mathf.Max(0.05f, animationDuration));
+        ApplyProgress();
+    }
 
-        ApplyImmediate();
-        animationRoutine = null;
+    void ApplyProgress()
+    {
+        CapturePositions();
+        float t = Mathf.SmoothStep(0f, 1f, progress);
+        if (leftPanel != null) leftPanel.localPosition = leftClosedPosition + leftOpenOffset * t;
+        if (rightPanel != null) rightPanel.localPosition = rightClosedPosition + rightOpenOffset * t;
     }
 
     void CapturePositions()
@@ -86,9 +77,8 @@ public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IRep
 
     void ApplyImmediate()
     {
-        CapturePositions();
-        if (leftPanel != null) leftPanel.localPosition = leftClosedPosition + (isOpen ? leftOpenOffset : Vector3.zero);
-        if (rightPanel != null) rightPanel.localPosition = rightClosedPosition + (isOpen ? rightOpenOffset : Vector3.zero);
+        progress = isOpen ? 1f : 0f;
+        ApplyProgress();
     }
 
     public bool ApplyReplayEvent(ReplayEventData replayEvent)
@@ -109,9 +99,8 @@ public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IRep
         DoorSaveData saved = data?.doorStates?.Find(value => value.id == ReplayTargetId);
         if (saved == null) return;
         isOpen = saved.isOpen;
-        if (animationRoutine != null) StopCoroutine(animationRoutine);
-        animationRoutine = null;
-        ApplyImmediate();
+        progress = saved.hasAnimationState ? saved.animationProgress : isOpen ? 1f : 0f;
+        ApplyProgress();
     }
 
     void SaveState(ref GameData data)
@@ -125,5 +114,7 @@ public sealed class PrototypeSlidingDoor : MonoBehaviour, IDataPersistence, IRep
             data.doorStates.Add(saved);
         }
         saved.isOpen = isOpen;
+        saved.hasAnimationState = true;
+        saved.animationProgress = progress;
     }
 }

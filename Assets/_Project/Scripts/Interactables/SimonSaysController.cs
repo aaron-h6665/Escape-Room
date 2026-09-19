@@ -15,7 +15,7 @@ public enum SimonSaysPhase
     Solved = 5
 }
 
-public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
+public class SimonSaysController : Interactable, IDataPersistence, IReplayObject, IReplayTimeline
 {
     const string StartedEvent = "simon_started";
     const string RoundStartedEvent = "simon_round_started";
@@ -68,6 +68,13 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
     int playerInputIndex;
     bool inputCuePlaying;
     Coroutine activeRoutine;
+    // Explicit resumable phases replace coroutine-local timing.
+    enum CueStage { None, StartDelay, SequenceOn, SequenceGap, InputCue, ResultOn, ResultOff, NextDelay, Completion }
+    CueStage stage;
+    float remaining;
+    int cueIndex;
+    SimonButtonColor pressedColor;
+    string renderedCue = "";
     ReplayManager.State previousReplayState = ReplayManager.State.Idle;
     AudioClip generatedRoundLow;
     AudioClip generatedRoundHigh;
@@ -144,28 +151,93 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
 
     void Update()
     {
-        ReplayManager.State replayState = ReplayManager.instance != null
-            ? ReplayManager.instance.CurrentState
-            : ReplayManager.State.Idle;
+        if (!ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceTimeline(Time.deltaTime);
+    }
 
-        bool takeoverStarted = previousReplayState == ReplayManager.State.Playback
-            && replayState == ReplayManager.State.Takeover;
-        if (takeoverStarted
-            && phase == SimonSaysPhase.ShowingSequence
-            && currentRound == 0
-            && activeRoutine == null)
+    void AdvanceTimeline(float delta)
+    {
+        if (stage == CueStage.None || delta <= 0f) return;
+        remaining -= delta;
+        int guard = 0;
+        while (stage != CueStage.None && remaining <= 0f && guard++ < 128)
         {
-            activeRoutine = StartCoroutine(BeginFirstRound());
+            float overflow = -remaining;
+            switch (stage)
+            {
+                case CueStage.StartDelay: case CueStage.NextDelay: BeginRound(); break;
+                case CueStage.SequenceOn: Enter(CueStage.SequenceGap, sequenceGap); break;
+                case CueStage.SequenceGap:
+                    cueIndex++;
+                    if (cueIndex < activeSequence.Count) Enter(CueStage.SequenceOn, buttonCueDuration);
+                    else { phase = SimonSaysPhase.AwaitingInput; Enter(CueStage.None, 0); }
+                    break;
+                case CueStage.InputCue:
+                    inputCuePlaying = false;
+                    if (phase == SimonSaysPhase.AwaitingInput) Enter(CueStage.None, 0);
+                    else { cueIndex = 0; Enter(CueStage.ResultOn, resultPulseDuration); }
+                    break;
+                case CueStage.ResultOn: Enter(CueStage.ResultOff, resultPulseDuration); break;
+                case CueStage.ResultOff:
+                    cueIndex++;
+                    if (cueIndex < (phase == SimonSaysPhase.Failed ? 3 : 2)) Enter(CueStage.ResultOn, resultPulseDuration);
+                    else if (phase == SimonSaysPhase.Failed) ResetPuzzle();
+                    else if (currentRound >= fixedPattern.Length) CompletePuzzle(false);
+                    else Enter(CueStage.NextDelay, nextRoundDelay);
+                    break;
+                case CueStage.Completion:
+                    cueIndex++;
+                    if (cueIndex < buttons.Length * 2) Enter(CueStage.Completion, resultPulseDuration);
+                    else Enter(CueStage.None, 0);
+                    break;
+            }
+            remaining -= overflow;
         }
-        else if (takeoverStarted
-            && phase == SimonSaysPhase.RoundSuccess
-            && activeRoutine == null
-            && currentRound < fixedPattern.Length)
-        {
-            activeRoutine = StartCoroutine(BeginNextRoundAfterDelay());
-        }
+    }
 
-        previousReplayState = replayState;
+    void Enter(CueStage next, float duration)
+    {
+        stage = next; remaining = Mathf.Max(0f, duration);
+        UpdateStartInteractionSurface(); RenderTimeline();
+    }
+
+    void RenderTimeline()
+    {
+        ResetAllButtonVisuals();
+        string key = currentRound + ":" + stage + ":" + cueIndex + ":" + pressedColor + ":" + phase;
+        bool sound = key != renderedCue;
+        renderedCue = key;
+        if (stage == CueStage.SequenceOn && cueIndex < activeSequence.Count)
+        {
+            SimonSaysButton button = FindButton(activeSequence[cueIndex]);
+            button?.SetFeedback(SimonSaysButton.GetDisplayColor(activeSequence[cueIndex]), resultBrightness, true);
+            if (sound) button?.PlayTone();
+        }
+        else if (stage == CueStage.InputCue)
+        {
+            SimonSaysButton button = FindButton(pressedColor);
+            button?.SetFeedback(SimonSaysButton.GetDisplayColor(pressedColor), resultBrightness, true);
+            if (sound) button?.PlayTone();
+        }
+        else if (stage == CueStage.ResultOn)
+        {
+            SetAllButtonFeedback(phase == SimonSaysPhase.Failed ? failureColor : roundSuccessColor, true);
+            var clips = phase == SimonSaysPhase.Failed ? GetFailureClips() : new[] { GetRoundLowClip(), GetRoundHighClip() };
+            if (sound && clips.Length > 0) PlayResultClip(clips[cueIndex % clips.Length]);
+        }
+        else if (stage == CueStage.Completion && buttons.Length > 0)
+        {
+            var chase = clockwiseButtons != null && clockwiseButtons.Length > 0 ? clockwiseButtons : buttons;
+            var button = chase[cueIndex % chase.Length];
+            button?.SetFeedback(SimonSaysButton.GetDisplayColor(button.ButtonColor), resultBrightness, true);
+            var clips = GetCompletionClips();
+            if (sound && clips.Length > 0) PlayResultClip(clips[cueIndex % clips.Length]);
+        }
+        else if (IsSolved) ApplySolvedVisuals();
+    }
+
+    public void AdvanceReplayPresentation(float seconds)
+    {
+        remaining = Mathf.Max(0f, remaining - seconds);
     }
 
     protected override void OnDisable()
@@ -234,418 +306,71 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
         }
     }
 
-    protected override void Interact(GameObject interactor)
-    {
-        if (phase == SimonSaysPhase.Idle)
-        {
-            StartPuzzleInternal(false, false);
-        }
-    }
-
-    public void HandleButtonInteraction(SimonSaysButton button)
-    {
-        if (ReplayManager.IsPlaybackActive())
-        {
-            return;
-        }
-
-        if (phase == SimonSaysPhase.Idle)
-        {
-            StartPuzzleInternal(true, false);
-            return;
-        }
-
-        SubmitButton(button, false);
-    }
-
-    public void HandleReplayButtonPress(SimonSaysButton button)
-    {
-        if (button == null)
-        {
-            return;
-        }
-
-        StartCoroutine(button.PlayCue(buttonCueDuration));
-        if (phase == SimonSaysPhase.AwaitingInput)
-        {
-            SubmitButton(button, true, false);
-        }
-    }
+    protected override void Interact(GameObject interactor) => StartPuzzle();
 
     public void StartPuzzle()
     {
-        if (phase == SimonSaysPhase.Idle)
-        {
-            StartPuzzleInternal(true, false);
-        }
+        if (phase != SimonSaysPhase.Idle || ReplayManager.IsPlaybackActive()) return;
+        activeSequence.Clear(); currentRound = playerInputIndex = cueIndex = 0;
+        phase = SimonSaysPhase.ShowingSequence;
+        Enter(CueStage.StartDelay, startDelay);
+        ReplayEventBus.Publish(this, StartedEvent, ReplayState, true, true);
     }
 
     public void ResetPuzzle()
     {
-        StopActiveRoutine();
-        activeSequence.Clear();
-        currentRound = 0;
-        playerInputIndex = 0;
-        phase = SimonSaysPhase.Idle;
-        UpdateStartInteractionSurface();
-        ApplyIdleVisuals();
-    }
-
-    void StartPuzzleInternal(bool publishStartedEvent, bool replayDriven)
-    {
-        if (phase == SimonSaysPhase.Solved)
-        {
-            return;
-        }
-
-        StopActiveRoutine();
-        activeSequence.Clear();
-        currentRound = 0;
-        playerInputIndex = 0;
-        phase = SimonSaysPhase.ShowingSequence;
-        UpdateStartInteractionSurface();
-        ResetAllButtonVisuals();
-
-        if (publishStartedEvent && !replayDriven)
-        {
-            ReplayEventBus.Publish(
-                this,
-                StartedEvent,
-                ReplayObjectState.Activated,
-                true,
-                true);
-        }
-
-        if (!replayDriven)
-        {
-            activeRoutine = StartCoroutine(BeginFirstRound());
-        }
-    }
-
-    IEnumerator BeginFirstRound()
-    {
-        yield return new WaitForSeconds(startDelay);
-        activeRoutine = null;
-        BeginRound();
-    }
-
-    IEnumerator BeginNextRoundAfterDelay()
-    {
-        yield return new WaitForSeconds(nextRoundDelay);
-        activeRoutine = null;
-        BeginRound();
+        StopActiveRoutine(); activeSequence.Clear(); currentRound = playerInputIndex = cueIndex = 0;
+        phase = SimonSaysPhase.Idle; Enter(CueStage.None, 0);
     }
 
     void BeginRound()
     {
-        if (currentRound >= fixedPattern.Length || phase == SimonSaysPhase.Solved)
-        {
-            return;
-        }
-
-        phase = SimonSaysPhase.ShowingSequence;
-        playerInputIndex = 0;
-        activeSequence.Add(fixedPattern[currentRound]);
-        currentRound = activeSequence.Count;
-
-        ReplayEventBus.Publish(
-            this,
-            RoundStartedEvent,
-            ReplayObjectState.Activated,
-            true,
-            true,
-            textValue: currentRound.ToString(),
-            customPayload: SerializeSequence(activeSequence));
-
-        activeRoutine = StartCoroutine(ShowCurrentSequence());
+        if (currentRound >= fixedPattern.Length) return;
+        activeSequence.Add(fixedPattern[currentRound]); currentRound = activeSequence.Count;
+        cueIndex = playerInputIndex = 0; phase = SimonSaysPhase.ShowingSequence;
+        Enter(CueStage.SequenceOn, buttonCueDuration);
+        ReplayEventBus.Publish(this, RoundStartedEvent, ReplayState, true, true,
+            textValue: currentRound.ToString(), customPayload: SerializeSequence(activeSequence));
     }
 
-    IEnumerator ShowCurrentSequence()
+    public void HandleButtonInteraction(SimonSaysButton button)
     {
-        ResetAllButtonVisuals();
-
-        foreach (SimonButtonColor color in activeSequence)
-        {
-            SimonSaysButton button = FindButton(color);
-            if (button != null)
-            {
-                yield return button.PlayCue(buttonCueDuration);
-            }
-
-            yield return new WaitForSeconds(sequenceGap);
-        }
-
-        playerInputIndex = 0;
-        phase = SimonSaysPhase.AwaitingInput;
-        activeRoutine = null;
-    }
-
-    void SubmitButton(
-        SimonSaysButton button,
-        bool replayDriven,
-        bool playCue = true)
-    {
-        if (phase != SimonSaysPhase.AwaitingInput
-            || inputCuePlaying
-            || button == null
-            || playerInputIndex >= activeSequence.Count)
-        {
-            return;
-        }
-
-        if (!replayDriven)
-        {
-            button.RecordAcceptedPress();
-        }
-
-        if (playCue)
-        {
-            StartCoroutine(button.PlayCue(buttonCueDuration));
-        }
-        inputCuePlaying = true;
-
-        SimonButtonColor expected = activeSequence[playerInputIndex];
-        if (button.ButtonColor != expected)
+        if (ReplayManager.IsPlaybackActive()) return;
+        if (phase == SimonSaysPhase.Idle) { StartPuzzle(); return; }
+        if (phase != SimonSaysPhase.AwaitingInput || inputCuePlaying || button == null || playerInputIndex >= activeSequence.Count) return;
+        button.RecordAcceptedPress(); pressedColor = button.ButtonColor; inputCuePlaying = true;
+        if (pressedColor != activeSequence[playerInputIndex])
         {
             phase = SimonSaysPhase.Failed;
-            if (!replayDriven)
-            {
-                ReplayEventBus.Publish(
-                    this,
-                    FailedEvent,
-                    ReplayObjectState.Deactivated,
-                    false,
-                    true,
-                    textValue: currentRound.ToString());
-                onPuzzleFailed?.Invoke();
-            }
-
-            StopActiveRoutine();
-            activeRoutine = StartCoroutine(
-                PlayFailureFeedbackAfterButtonCue());
-            return;
+            ReplayEventBus.Publish(this, FailedEvent, ReplayState, false, true, textValue: currentRound.ToString());
+            onPuzzleFailed?.Invoke();
         }
-
-        playerInputIndex++;
-        if (playerInputIndex < activeSequence.Count)
+        else if (++playerInputIndex >= activeSequence.Count)
         {
-            StartCoroutine(ReleaseInputAfterButtonCue());
-            return;
-        }
-
-        phase = SimonSaysPhase.RoundSuccess;
-        if (!replayDriven)
-        {
-            ReplayEventBus.Publish(
-                this,
-                RoundSucceededEvent,
-                ReplayObjectState.Activated,
-                true,
-                true,
-                textValue: currentRound.ToString());
+            phase = SimonSaysPhase.RoundSuccess;
+            ReplayEventBus.Publish(this, RoundSucceededEvent, ReplayState, true, true, textValue: currentRound.ToString());
             onRoundSucceeded?.Invoke();
         }
-
-        StopActiveRoutine();
-        activeRoutine = StartCoroutine(
-            PlayRoundSuccessFeedbackAfterButtonCue());
+        Enter(CueStage.InputCue, buttonCueDuration);
     }
 
-    IEnumerator ReleaseInputAfterButtonCue()
-    {
-        yield return new WaitForSeconds(buttonCueDuration);
-        inputCuePlaying = false;
-    }
-
-    IEnumerator PlayRoundSuccessFeedbackAfterButtonCue()
-    {
-        yield return new WaitForSeconds(buttonCueDuration);
-        inputCuePlaying = false;
-        yield return PlayRoundSuccessFeedback();
-    }
-
-    IEnumerator PlayRoundSuccessFeedback()
-    {
-        yield return PulseAllButtons(
-            roundSuccessColor,
-            2,
-            new[] { GetRoundLowClip(), GetRoundHighClip() });
-        activeRoutine = null;
-
-        if (currentRound >= fixedPattern.Length)
-        {
-            if (!ReplayManager.IsPlaybackActive())
-            {
-                CompletePuzzle(false);
-            }
-            yield break;
-        }
-
-        if (!ReplayManager.IsPlaybackActive())
-        {
-            activeRoutine = StartCoroutine(BeginNextRoundAfterDelay());
-        }
-    }
-
-    IEnumerator PlayFailureFeedback()
-    {
-        yield return PulseAllButtons(
-            failureColor,
-            3,
-            GetFailureClips());
-
-        activeSequence.Clear();
-        currentRound = 0;
-        playerInputIndex = 0;
-        phase = SimonSaysPhase.Idle;
-        activeRoutine = null;
-        UpdateStartInteractionSurface();
-        ApplyIdleVisuals();
-    }
-
-    IEnumerator PlayFailureFeedbackAfterButtonCue()
-    {
-        yield return new WaitForSeconds(buttonCueDuration);
-        inputCuePlaying = false;
-        yield return PlayFailureFeedback();
-    }
-
-    IEnumerator PlayGameSuccessFeedback()
-    {
-        ResetAllButtonVisuals();
-        SimonSaysButton[] chase = clockwiseButtons != null
-            && clockwiseButtons.Length > 0
-            ? clockwiseButtons
-            : buttons;
-        AudioClip[] ascendingClips = GetCompletionClips();
-
-        for (int cycle = 0; cycle < 2; cycle++)
-        {
-            for (int index = 0; index < chase.Length; index++)
-            {
-                SimonSaysButton button = chase[index];
-                if (button == null)
-                {
-                    continue;
-                }
-
-                button.SetFeedback(
-                    SimonSaysButton.GetDisplayColor(button.ButtonColor),
-                    resultBrightness,
-                    true);
-                PlayResultClip(
-                    ascendingClips != null && ascendingClips.Length > 0
-                        ? ascendingClips[index % ascendingClips.Length]
-                        : null);
-                yield return new WaitForSeconds(resultPulseDuration);
-                button.ResetVisual();
-            }
-        }
-
-        ApplySolvedVisuals();
-        activeRoutine = null;
-    }
-
-    IEnumerator PulseAllButtons(
-        Color color,
-        int pulseCount,
-        AudioClip[] clips)
-    {
-        for (int pulse = 0; pulse < pulseCount; pulse++)
-        {
-            SetAllButtonFeedback(color, true);
-            PlayResultClip(
-                clips != null && pulse < clips.Length
-                    ? clips[pulse]
-                    : null);
-            yield return new WaitForSeconds(resultPulseDuration);
-            ResetAllButtonVisuals();
-            yield return new WaitForSeconds(resultPulseDuration);
-        }
-    }
+    public void HandleReplayButtonPress(SimonSaysButton button) { }
 
     void CompletePuzzle(bool replayDriven)
     {
-        StopActiveRoutine();
-        phase = SimonSaysPhase.Solved;
-        playerInputIndex = activeSequence.Count;
-        UpdateStartInteractionSurface();
-
+        phase = SimonSaysPhase.Solved; playerInputIndex = activeSequence.Count; cueIndex = 0;
+        Enter(CueStage.Completion, resultPulseDuration);
         if (!replayDriven)
         {
-            ReplayEventBus.Publish(
-                this,
-                CompletedEvent,
-                ReplayObjectState.Completed,
-                true,
-                true,
-                customPayload: SerializeSequence(activeSequence));
+            ReplayEventBus.Publish(this, CompletedEvent, ReplayState, true, true, customPayload: SerializeSequence(activeSequence));
             onPuzzleCompleted?.Invoke();
         }
-
-        activeRoutine = StartCoroutine(PlayGameSuccessFeedback());
     }
 
     public override bool ApplyReplayEvent(ReplayEventData replayEvent)
     {
-        if (replayEvent == null)
-        {
-            return false;
-        }
-
-        switch (replayEvent.eventKind)
-        {
-            case "simon_interacted":
-                return true;
-            case StartedEvent:
-                StartPuzzleInternal(false, true);
-                return true;
-            case RoundStartedEvent:
-                ApplyReplayRoundStarted(replayEvent);
-                return true;
-            case RoundSucceededEvent:
-                StopActiveRoutine();
-                phase = SimonSaysPhase.RoundSuccess;
-                UpdateStartInteractionSurface();
-                activeRoutine = StartCoroutine(
-                    PlayRoundSuccessFeedbackAfterButtonCue());
-                return true;
-            case FailedEvent:
-                StopActiveRoutine();
-                phase = SimonSaysPhase.Failed;
-                UpdateStartInteractionSurface();
-                activeRoutine = StartCoroutine(
-                    PlayFailureFeedbackAfterButtonCue());
-                return true;
-            case CompletedEvent:
-                CompletePuzzle(true);
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    void ApplyReplayRoundStarted(ReplayEventData replayEvent)
-    {
-        List<SimonButtonColor> replaySequence = ParseSequence(
-            replayEvent.customPayload);
-        if (replaySequence.Count == 0)
-        {
-            int round = Mathf.Clamp(
-                ParseInt(replayEvent.textValue, 1),
-                1,
-                fixedPattern.Length);
-            replaySequence.AddRange(fixedPattern.Take(round));
-        }
-
-        StopActiveRoutine();
-        activeSequence.Clear();
-        activeSequence.AddRange(replaySequence);
-        currentRound = activeSequence.Count;
-        playerInputIndex = 0;
-        phase = SimonSaysPhase.ShowingSequence;
-        UpdateStartInteractionSurface();
-        activeRoutine = StartCoroutine(ShowCurrentSequence());
+        // v3 playback restores complete snapshots; legacy previews cannot reproduce cue timing.
+        return replayEvent != null && replayEvent.eventKind.StartsWith("simon_", StringComparison.Ordinal);
     }
 
     public void LoadData(GameData data)
@@ -694,6 +419,11 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
 
         saved.isSolved = IsSolved;
         saved.phase = (int)phase;
+        saved.hasTimeline = true;
+        saved.timelineStage = (int)stage;
+        saved.stageRemaining = remaining;
+        saved.cueIndex = cueIndex;
+        saved.pressedColor = (int)pressedColor;
         saved.currentRound = currentRound;
         saved.playerInputIndex = playerInputIndex;
         saved.sequence = activeSequence
@@ -734,16 +464,13 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
         phase = saved.isSolved
             ? SimonSaysPhase.Solved
             : SanitizePhase(saved.phase);
+        stage = saved.hasTimeline ? (CueStage)saved.timelineStage : CueStage.None;
+        remaining = saved.stageRemaining;
+        cueIndex = saved.cueIndex;
+        pressedColor = (SimonButtonColor)saved.pressedColor;
+        inputCuePlaying = stage == CueStage.InputCue;
         UpdateStartInteractionSurface();
-
-        if (phase == SimonSaysPhase.Solved)
-        {
-            ApplySolvedVisuals();
-        }
-        else
-        {
-            ApplyIdleVisuals();
-        }
+        RenderTimeline();
     }
 
     void RestoreSolvedState()

@@ -19,15 +19,17 @@ public class PlayerLook : MonoBehaviour, IDataPersistence, IReplayObject
 
     public void ProcessLook(Vector2 input)
     {
-        float mouseX = input.x;
-        float mouseY = input.y;
+        StudyOptions options = StudyOptions.Current;
+        float factor = StudyOptions.UsingGamepad ? Time.deltaTime * 4f * options.controllerSensitivity : options.mouseSensitivity / 60f;
+        float mouseX = input.x * factor;
+        float mouseY = input.y * factor * (options.invertLook ? -1f : 1f);
 
-        xRotation -= (mouseY * Time.deltaTime) * ySensitivity;
+        xRotation -= mouseY * ySensitivity;
         xRotation = Mathf.Clamp(xRotation, -80f, 80f);
 
         cam.transform.localRotation = Quaternion.Euler(xRotation, 0,0);
 
-        transform.Rotate(Vector3.up * (mouseX * Time.deltaTime) * xSensitivity);
+        transform.Rotate(Vector3.up * mouseX * xSensitivity);
     }
 
     public void LoadData(GameData data)

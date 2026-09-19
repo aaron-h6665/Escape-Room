@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget
+public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget, IReplayTimeline
 {
     [SerializeField] string id;
     [SerializeField] string correctCode = "4271";
@@ -14,7 +14,7 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
     [SerializeField] string enteredCode = "";
     [SerializeField] bool isSolved;
     [SerializeField] int failedAttempts;
-    Coroutine feedbackRoutine;
+    float feedbackRemaining;
 
     public string ReplayTargetId => ReplayIdentity.Resolve(this, id);
     public string ReplayTargetName => gameObject.name;
@@ -50,6 +50,7 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         if (value == "clear") enteredCode = "";
         else if (enteredCode.Length < codeLength && value.Length == 1 && char.IsDigit(value[0])) enteredCode += value;
 
+        feedbackRemaining = 0f;
         RefreshDisplay();
         if (record)
         {
@@ -66,8 +67,8 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         if (enteredCode == correctCode)
         {
             isSolved = true;
-            if (feedbackRoutine != null) StopCoroutine(feedbackRoutine);
-            feedbackRoutine = null;
+
+            feedbackRemaining = 0f;
             SetSolvedDisplay();
             finalDoor?.Open();
             if (record) ReplayEventBus.Publish(this, "keypad_solved", ReplayObjectState.Completed, true, true, textValue: correctCode, numberValue: failedAttempts);
@@ -76,26 +77,29 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
 
         failedAttempts++;
         enteredCode = "";
-        if (feedbackRoutine != null) StopCoroutine(feedbackRoutine);
-        feedbackRoutine = StartCoroutine(ShowDenied());
+
+        feedbackRemaining = 0.65f;
+        RefreshDisplay();
         if (record) ReplayEventBus.Publish(this, "keypad_denied", ReplayObjectState.Attempted, false, false, numberValue: failedAttempts);
     }
 
-    IEnumerator ShowDenied()
+    void Update()
     {
-        if (displayText != null)
-        {
-            displayText.text = "TRY AGAIN";
-            displayText.color = new Color(1f, 0.25f, 0.2f);
-        }
-        yield return new WaitForSeconds(0.65f);
-        feedbackRoutine = null;
+        if (!ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceReplayPresentation(Time.deltaTime);
+    }
+    public void AdvanceReplayPresentation(float seconds)
+    {
+        feedbackRemaining = Mathf.Max(0f, feedbackRemaining - seconds);
         RefreshDisplay();
     }
 
     void RefreshDisplay()
     {
         if (displayText == null || isSolved) return;
+        if (feedbackRemaining > 0f)
+        {
+            displayText.text = "TRY AGAIN"; displayText.color = new Color(1f, 0.25f, 0.2f); return;
+        }
         displayText.color = new Color(0.35f, 0.95f, 1f);
         displayText.text = string.IsNullOrEmpty(enteredCode) ? "----" : enteredCode.PadRight(codeLength, '-');
     }
@@ -119,16 +123,17 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         {
             failedAttempts = Mathf.RoundToInt(replayEvent.numberValue);
             enteredCode = "";
-            if (feedbackRoutine != null) StopCoroutine(feedbackRoutine);
-            feedbackRoutine = StartCoroutine(ShowDenied());
+
+            feedbackRemaining = 0.65f;
+        RefreshDisplay();
             return true;
         }
         if (replayEvent.eventKind == "keypad_solved")
         {
             isSolved = true;
             enteredCode = correctCode;
-            if (feedbackRoutine != null) StopCoroutine(feedbackRoutine);
-            feedbackRoutine = null;
+
+            feedbackRemaining = 0f;
             finalDoor?.SetOpen(true, false);
             SetSolvedDisplay();
             return true;
@@ -148,7 +153,8 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         isSolved = saved.isOpen;
         enteredCode = saved.enteredCode ?? "";
         failedAttempts = saved.failedAttempts;
-        if (isSolved) finalDoor?.SetOpen(true, false);
+        feedbackRemaining = saved.feedbackRemaining;
+        if (isSolved && !(ReplayManager.instance?.IsRestoring ?? false)) finalDoor?.SetOpen(true, false);
         RefreshDisplay();
         if (isSolved) SetSolvedDisplay();
     }
@@ -166,5 +172,6 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         saved.isOpen = isSolved;
         saved.enteredCode = enteredCode;
         saved.failedAttempts = failedAttempts;
+        saved.feedbackRemaining = feedbackRemaining;
     }
 }

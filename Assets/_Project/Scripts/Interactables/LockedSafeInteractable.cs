@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersistence, IReplayObject
+public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersistence, IReplayObject, IReplayTimeline
 {
     [Header("Combined Safe Animation")]
     [SerializeField] Animator safeAnimator;
@@ -26,6 +26,8 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
     [SerializeField] float waitTimer = 1f;
     [SerializeField] bool pauseInteraction;
     [SerializeField] bool safeOpen;
+    float animationProgress = 1f;
+    float interactionRemaining;
 
     [Header("Save Data")]
     [SerializeField] private string id;
@@ -54,7 +56,7 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
 
         EnsureInteractionCollider();
 
-        SetClosedInteriorBlockers(!safeOpen);
+        SetClosedInteriorBlockers(!safeOpen || animationProgress < 1f);
 
         if (ReplayManager.instance != null)
         {
@@ -116,15 +118,22 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
         }
 
         safeOpen = !safeOpen;
-        SetClosedInteriorBlockers(!safeOpen);
-        StartCoroutine(PauseSafeInteraction());
+        SetClosedInteriorBlockers(!safeOpen || animationProgress < 1f);
+        animationProgress = 0f;
+        interactionRemaining = waitTimer;
+        pauseInteraction = true;
     }
 
-    IEnumerator PauseSafeInteraction()
+    void Update()
     {
-        pauseInteraction = true;
-        yield return new WaitForSeconds(waitTimer);
-        pauseInteraction = false;
+        if (!ReplayManager.IsPlaybackActive() && !(ReplayManager.instance?.IsHandoffFrame ?? false)) AdvanceReplayPresentation(Time.deltaTime);
+    }
+    public void AdvanceReplayPresentation(float seconds)
+    {
+        interactionRemaining = Mathf.Max(0, interactionRemaining - seconds);
+        pauseInteraction = interactionRemaining > 0;
+        animationProgress = Mathf.Clamp01(animationProgress + seconds / Mathf.Max(0.1f, waitTimer));
+        ApplySafeVisualState();
     }
 
     bool PlaySafeAnimation(bool opening)
@@ -232,7 +241,9 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
         }
 
         safeOpen = safeData.isOpen;
-        pauseInteraction = false;
+        animationProgress = safeData.hasAnimationState ? safeData.animationProgress : 1f;
+        interactionRemaining = safeData.interactionRemaining;
+        pauseInteraction = interactionRemaining > 0;
         ApplySafeVisualState();
     }
 
@@ -257,6 +268,9 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
         }
 
         safeData.isOpen = safeOpen;
+        safeData.hasAnimationState = true;
+        safeData.animationProgress = animationProgress;
+        safeData.interactionRemaining = interactionRemaining;
     }
 
     void ApplySafeVisualState()
@@ -271,7 +285,7 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
             ApplyAnimationState(doorAnimator, safeOpen ? doorOpenAnimationName : doorCloseAnimationName);
         }
 
-        SetClosedInteriorBlockers(!safeOpen);
+        SetClosedInteriorBlockers(!safeOpen || animationProgress < 1f);
     }
 
     void ApplyAnimationState(Animator animator, string animationName)
@@ -281,7 +295,9 @@ public class LockedSafeInteractable : InventoryLockedInteractable, IDataPersiste
             return;
         }
 
-        animator.Play(animationName, 0, 1f);
+        animator.fireEvents = false;
+        animator.speed = 0f;
+        animator.Play(animationName, 0, animationProgress);
         animator.Update(0f);
     }
 

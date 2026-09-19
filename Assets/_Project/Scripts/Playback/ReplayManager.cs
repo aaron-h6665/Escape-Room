@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[DefaultExecutionOrder(-10000)]
 public class ReplayManager : MonoBehaviour
 {
     public const string DefaultReplayFileName = "replay.json";
@@ -42,6 +43,24 @@ public class ReplayManager : MonoBehaviour
     ReplayRecordingData sourceRecording;
     bool legacyPlayback;
     bool finalized;
+    bool snapshotDirty;
+    int takeoverFrame = -1;
+    long lastAppliedSequence;
+    float gameTimeOrigin, nextRecoveryAt;
+    bool hadFocus = true;
+    float focusTimeScale = 1f;
+    bool legacyPreviewAllowed;
+    StudyConfiguration configuration;
+    ReplayRecordingData observation;
+    readonly List<ReplayRecordingData> pendingObservations = new List<ReplayRecordingData>();
+    public string LastError { get; private set; } = "";
+    bool activeSavePending, recoverySavePending;
+    public bool SavePending { get => activeSavePending || recoverySavePending || pendingObservations.Count > 0; private set => activeSavePending = value; }
+    public bool IsRestoring { get; private set; }
+    public bool IsHandoffFrame => takeoverFrame == Time.frameCount;
+    public bool AuthoritativePlayback => IsPlaybackActive() && sourceRecording?.formatVersion == 3;
+    public string CurrentRoomId { get; set; } = "";
+    public event Action TakenOver;
     float recordingTime;
     float sampleAccumulator;
     int poseIndex;
@@ -74,8 +93,8 @@ public class ReplayManager : MonoBehaviour
     {
         if (instance != null && instance != this)
         {
-            Debug.LogError("Found more than one ReplayManager in the scene.");
             enabled = false;
+            Destroy(gameObject);
             return;
         }
 
@@ -84,6 +103,7 @@ public class ReplayManager : MonoBehaviour
         SceneManager.sceneLoaded += HandleSceneLoaded;
         EnsureReplayContainer();
         ResolveSceneReferences();
+        gameObject.AddComponent<StudyFrameRecorder>();
         if (GetComponent<TakeoverOverlay>() == null)
         {
             gameObject.AddComponent<TakeoverOverlay>();
@@ -129,11 +149,22 @@ public class ReplayManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        if (currentState == State.Playback) FinishObservation("application_quit");
         FinalizeActiveRecording("application_quit");
+    }
+
+    void OnApplicationFocus(bool focus)
+    {
+        if (hadFocus == focus) return;
+        hadFocus = focus;
+        RecordSessionEvent(focus ? "focus_restored" : "focus_lost");
+        if (!focus) { focusTimeScale = Time.timeScale; Time.timeScale = 0f; AudioListener.pause = true; }
+        else { Time.timeScale = PauseManager.Instance != null && PauseManager.Instance.IsPaused ? 0f : focusTimeScale; AudioListener.pause = false; }
     }
 
     void Update()
     {
+        if (Time.frameCount == takeoverFrame || !hadFocus) return;
         if (currentState == State.Record || currentState == State.Takeover)
         {
             RecordingUpdate();
@@ -146,7 +177,12 @@ public class ReplayManager : MonoBehaviour
 
     public void StartRecording()
     {
+        if (SavePending && !RetrySave()) return;
+        LastError = "";
+        if (!ReadConfiguration()) return;
         CurrentLaunchMode = LaunchMode.Record;
+        sourceRecording = null;
+        timeSpentManager?.ResetTimer();
         BeginRecording("normal", null, -1f, -1f);
         Debug.Log($"Normal recording started. ID={activeRecording.recordingId}, sample interval={activeRecording.snapshotDelta:0.########} seconds.", this);
     }
@@ -159,7 +195,10 @@ public class ReplayManager : MonoBehaviour
         finalized = false;
         recordingTime = 0f;
         sampleAccumulator = 0f;
-        activeRecording = new ReplayRecordingData(kind, resolvedDelta);
+        activeRecording = NewRecording(kind, resolvedDelta);
+        gameTimeOrigin = timeSpentManager != null ? timeSpentManager.ElapsedTime : 0f;
+        nextRecoveryAt = 5f;
+        SavePending = false;
         if (source != null)
         {
             activeRecording.sourceRecordingId = source.recordingId;
@@ -169,10 +208,14 @@ public class ReplayManager : MonoBehaviour
         currentState = kind == "takeover" ? State.Takeover : State.Record;
         CapturePose();
         CaptureWorldCheckpoint();
+        WriteRecovery();
     }
 
     public void StartPlayback()
     {
+        if (SavePending && !RetrySave()) return;
+        LastError = "";
+        if (!ReadConfiguration()) return;
         CurrentLaunchMode = LaunchMode.Playback;
         finalized = false;
         bool loaded = loadReplayFileOnPlayback ? LoadReplay() : replayContainer.Count > 0;
@@ -207,6 +250,10 @@ public class ReplayManager : MonoBehaviour
             eventIndex = 0;
             legacySnapshotIndex = 0;
             currentState = State.Playback;
+            observation = NewRecording("observation", ResolveSnapshotDelta());
+            observation.sourceRecordingId = sourceRecording?.recordingId ?? "legacy";
+            observation.sourceSha256 = HashSource();
+            lastAppliedSequence = 0;
 
             if (legacyPlayback)
             {
@@ -215,9 +262,7 @@ public class ReplayManager : MonoBehaviour
             }
             else
             {
-                ApplyDueWorldCheckpoints();
-                ApplyDueEvents();
-                ApplyPoseAtTime(0f);
+                ApplyPlaybackFrame(0f);
             }
 
             Debug.Log($"Playback started from '{loadedReplayPath}'. Poses={(sourceRecording?.poses?.Count ?? 0)}, world checkpoints={(sourceRecording?.worldCheckpoints?.Count ?? replayContainer.Count)}, events={(sourceRecording?.events?.Count ?? 0)}.", this);
@@ -229,7 +274,7 @@ public class ReplayManager : MonoBehaviour
 
     public void TakeOver()
     {
-        if (currentState != State.Playback)
+        if (currentState != State.Playback || Time.timeScale == 0f || !hadFocus || sourceRecording?.formatVersion != 3)
         {
             return;
         }
@@ -242,7 +287,26 @@ public class ReplayManager : MonoBehaviour
         float takeoverAt = recordingTime;
         float takeoverGameTime = timeSpentManager != null ? timeSpentManager.ElapsedTime : takeoverAt;
         ReplayRecordingData source = sourceRecording;
+        ReplayRecordingData watching = observation;
+        if (watching != null)
+        {
+            watching.status = "taken_over";
+            FinishObservation("takeover");
+        }
+        takeoverFrame = Time.frameCount;
+        inputManager?.ConsumeTakeoverInput();
+        // Live ownership is acquired before the first checkpoint is written.
+        currentState = State.Takeover;
+        GetComponent<TakeoverOverlay>()?.HideForTakeover();
+        foreach (IReplayHandoff target in replayObjects.OfType<IReplayHandoff>()) target.OnTakeover();
+        TakenOver?.Invoke();
         BeginRecording("takeover", source, takeoverAt, takeoverGameTime);
+        activeRecording.sourceAttemptId = watching?.attemptId ?? "";
+        activeRecording.takeoverAfterSequence = lastAppliedSequence;
+        activeRecording.takeoverRoomId = CurrentRoomId;
+        activeRecording.sourceSha256 = HashSource();
+        RecordSessionEvent("takeover");
+        WriteRecovery();
         Debug.Log($"Takeover began at replay {takeoverAt:0.###}s (game time {takeoverGameTime:0.###}s). Takeover ID={activeRecording.recordingId}, source ID={source?.recordingId}.", this);
     }
 
@@ -253,13 +317,14 @@ public class ReplayManager : MonoBehaviour
             return;
         }
 
+        replayEvent.utc = DateTime.UtcNow.ToString("O");
+        replayEvent.sequence = activeRecording.events.Count + 1;
+        replayEvent.roomId = CurrentRoomId;
+        replayEvent.milestoneId = AuthoredMilestone(replayEvent);
         replayEvent.recordingTime = recordingTime;
         replayEvent.gameTime = timeSpentManager != null ? timeSpentManager.ElapsedTime : recordingTime;
         activeRecording.events.Add(replayEvent);
-        if (replayEvent.stateChanged)
-        {
-            CaptureWorldCheckpoint();
-        }
+        snapshotDirty = true;
     }
 
     public void Register(IReplayObject replayObject)
@@ -272,24 +337,33 @@ public class ReplayManager : MonoBehaviour
 
     void RecordingUpdate()
     {
-        float delta = Time.deltaTime;
-        recordingTime += delta;
-        sampleAccumulator += delta;
-        float interval = activeRecording != null ? activeRecording.snapshotDelta : ResolveSnapshotDelta();
-        while (sampleAccumulator >= interval)
+        recordingTime += Time.deltaTime;
+        sampleAccumulator += Time.deltaTime;
+        timeSpentManager?.ApplyReplayElapsedTime(gameTimeOrigin + recordingTime);
+        if (activeRecording != null) activeRecording.duration = recordingTime;
+    }
+
+    // Called after every gameplay LateUpdate, including camera look. Never invents past samples.
+    public void CaptureRenderedFrame()
+    {
+        if (!IsRecordingActive() || activeRecording == null || Time.timeScale == 0f) return;
+        if (snapshotDirty || sampleAccumulator >= ResolveSnapshotDelta())
         {
-            float sampleTime = recordingTime - sampleAccumulator + interval;
-            CapturePose(sampleTime);
-            sampleAccumulator -= interval;
+            CapturePose();
+            CaptureWorldCheckpoint();
+            snapshotDirty = false;
+            sampleAccumulator = 0f;
         }
-        if (activeRecording != null)
+        if (recordingTime >= nextRecoveryAt)
         {
-            activeRecording.duration = recordingTime;
+            WriteRecovery();
+            nextRecoveryAt = recordingTime + 5f;
         }
     }
 
     void PlaybackUpdate()
     {
+        if (!legacyPlayback && sourceRecording == null) return;
         recordingTime += Time.deltaTime;
         if (legacyPlayback)
         {
@@ -305,9 +379,7 @@ public class ReplayManager : MonoBehaviour
             return;
         }
 
-        ApplyDueWorldCheckpoints();
-        ApplyDueEvents();
-        ApplyPoseAtTime(recordingTime);
+        ApplyPlaybackFrame(Mathf.Min(recordingTime, sourceRecording.duration));
         if (sourceRecording != null && recordingTime >= sourceRecording.duration)
         {
             ApplyPoseAtTime(sourceRecording.duration);
@@ -345,12 +417,32 @@ public class ReplayManager : MonoBehaviour
             return;
         }
         RefreshReplayObjects();
-        SnapshotData snapshot = new SnapshotData(recordingTime);
+        SnapshotData snapshot = new SnapshotData(recordingTime) { lastEventSequence = activeRecording.events.Count };
+        snapshot.gameData.roomId = CurrentRoomId;
         foreach (IReplayObject replayObject in replayObjects)
         {
             replayObject.SaveSnapshot(ref snapshot.gameData);
         }
         activeRecording.worldCheckpoints.Add(snapshot);
+    }
+
+    void ApplyPlaybackFrame(float time)
+    {
+        if (sourceRecording.formatVersion < 3)
+        {
+            ApplyDueWorldCheckpoints(); ApplyDueEvents(); ApplyPoseAtTime(time); return;
+        }
+        var frames = sourceRecording.worldCheckpoints;
+        while (checkpointIndex + 1 < frames.Count && frames[checkpointIndex + 1].frameTime <= time) checkpointIndex++;
+        if (frames.Count > 0)
+        {
+            SnapshotData frame = frames[checkpointIndex];
+            ApplySnapshot(frame);
+            lastAppliedSequence = frame.lastEventSequence;
+            foreach (IReplayTimeline target in replayObjects.OfType<IReplayTimeline>())
+                target.AdvanceReplayPresentation(Mathf.Max(0f, time - frame.frameTime));
+        }
+        ApplyPoseAtTime(time);
     }
 
     void ApplyDueWorldCheckpoints()
@@ -448,15 +540,22 @@ public class ReplayManager : MonoBehaviour
             return;
         }
         RefreshReplayObjects();
-        foreach (IReplayObject replayObject in replayObjects)
+        CurrentRoomId = snapshot.gameData.roomId ?? "";
+        IsRestoring = true;
+        try
         {
-            replayObject.LoadSnapshot(snapshot.gameData);
+            // Inventory and puzzle state first; door presentation and modals afterwards.
+            foreach (IReplayObject replayObject in replayObjects.OrderBy(o => o is Inventory ? 0 : o is IReplayTimeline ? 2 : 1))
+                replayObject.LoadSnapshot(snapshot.gameData);
         }
+        finally { IsRestoring = false; }
     }
 
     void StopPlayback()
     {
+        FinishObservation("playback_completed");
         currentState = State.Idle;
+        StudyMenuPanel.ShowCompletion();
         Debug.Log("Playback reached the end of the selected recording.", this);
     }
 
@@ -464,7 +563,8 @@ public class ReplayManager : MonoBehaviour
     {
         if (currentState == State.Playback)
         {
-            StopPlayback();
+            FinishObservation("stopped");
+            currentState = State.Idle;
             return;
         }
         FinalizeActiveRecording("stop");
@@ -485,56 +585,113 @@ public class ReplayManager : MonoBehaviour
 
     public void FinalizeActiveRecording(string reason)
     {
-        if (finalized || activeRecording == null || (currentState != State.Record && currentState != State.Takeover))
-        {
-            return;
-        }
-        finalized = true;
-        State previousState = currentState;
+        if (finalized || activeRecording == null || !IsRecordingActive()) return;
+        CapturePose(); CaptureWorldCheckpoint();
         activeRecording.duration = recordingTime;
-        CapturePose();
-        CaptureWorldCheckpoint();
+        activeRecording.status = reason == "game_completed" ? "completed" : "incomplete";
+        activeRecording.terminationReason = reason;
+        activeRecording.endedUtc = DateTime.UtcNow.ToString("O");
         currentState = State.Idle;
-        if (!saveReplayOnStop)
-        {
-            Debug.Log($"Recording {activeRecording.recordingId} finalized without saving because saveReplayOnStop is disabled.", this);
-            return;
-        }
+        finalized = true;
+        SavePending = saveReplayOnStop;
+        RetrySave();
+    }
 
-        string summaryId = previousState == State.Takeover && sourceRecording != null ? Guid.NewGuid().ToString("N") : string.Empty;
-        activeRecording.summaryId = summaryId;
-        string directory = previousState == State.Takeover ? TakeoverDirectory : NormalDirectory;
-        string recordingPath = Path.Combine(directory, activeRecording.recordingId + ".json");
-        if (!TryWriteRecording(activeRecording, recordingPath))
+    public bool RetrySave()
+    {
+        if (!SavePending) return true;
+        if (recoverySavePending) { WriteRecovery(); if (recoverySavePending) return false; }
+        try
         {
-            return;
+            foreach (var pending in pendingObservations.ToArray())
+            {
+                StudyExports.AtomicWrite(Path.Combine(StorageRoot, "recordings", "observation", pending.recordingId + ".json"), JsonUtility.ToJson(pending, true));
+                StudyExports.Write(StorageRoot, pending, null);
+                pendingObservations.Remove(pending);
+            }
+            if (!activeSavePending || activeRecording == null) { LastError = ""; return true; }
+            string directory = activeRecording.recordingKind == "takeover" ? TakeoverDirectory : NormalDirectory;
+            StudyExports.AtomicWrite(Path.Combine(directory, activeRecording.recordingId + ".json"), JsonUtility.ToJson(activeRecording, true));
+            StudyExports.Write(StorageRoot, activeRecording, sourceRecording);
+            SavePending = false;
+            LastError = "";
+            return true;
         }
-        Debug.Log($"Recording finalized ({reason}). Saved to '{recordingPath}'. Poses={activeRecording.poses.Count}, checkpoints={activeRecording.worldCheckpoints.Count}, events={activeRecording.events.Count}.", this);
+        catch (Exception e) { LastError = "Could not save. Please retry."; Debug.LogError(e, this); return false; }
+    }
 
-        if (previousState == State.Takeover && sourceRecording != null)
+    public void SaveReplay() => WriteRecovery();
+
+    void WriteRecovery()
+    {
+        if (!saveReplayOnStop || activeRecording == null) return;
+        try { StudyExports.AtomicWrite(Path.Combine(StorageRoot, "recovery", activeRecording.recordingId + ".json"), JsonUtility.ToJson(activeRecording)); recoverySavePending = false; if (!SavePending) LastError = ""; }
+        catch (Exception e) { recoverySavePending = true; LastError = "Could not save. Please retry."; Debug.LogError(e, this); }
+    }
+
+    void FinishObservation(string reason)
+    {
+        if (observation == null) return;
+        observation.duration = Mathf.Min(recordingTime, sourceRecording?.duration ?? recordingTime);
+        observation.status = reason == "takeover" ? "taken_over" : reason == "playback_completed" ? "completed_without_takeover" : "incomplete";
+        observation.terminationReason = reason;
+        observation.endedUtc = DateTime.UtcNow.ToString("O");
+        pendingObservations.Add(observation);
+        observation = null;
+        RetrySave();
+    }
+
+    public void RecordSessionEvent(string kind, string value = "")
+    {
+        var e = new ReplayEventData { eventKind = kind, objectId = "session", objectName = "Session", objectCategory = "Session", textValue = value, succeeded = true };
+        if (IsRecordingActive()) RecordEvent(e);
+        else if (observation != null)
         {
-            string summaryPath = Path.Combine(SummaryDirectory, summaryId + ".csv");
-            try
-            {
-                int rows = TakeoverComparison.WriteCsv(sourceRecording, activeRecording, summaryId, summaryPath);
-                Debug.Log($"Takeover comparison saved to '{summaryPath}' with {rows} readable rows.", this);
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError($"Could not save takeover comparison to '{summaryPath}'.\n{exception}", this);
-            }
+            e.utc = DateTime.UtcNow.ToString("O"); e.sequence = observation.events.Count + 1; e.recordingTime = recordingTime; e.gameTime = recordingTime;
+            observation.events.Add(e);
         }
     }
 
-    public void SaveReplay()
+    ReplayRecordingData NewRecording(string kind, float delta)
     {
-        if (activeRecording == null)
+        return new ReplayRecordingData(kind, delta) { participantCode = configuration?.participantCode ?? "", inputDevice = StudyOptions.DeviceName,
+            settingsJson = JsonUtility.ToJson(StudyOptions.Current),
+            targetIds = Resources.FindObjectsOfTypeAll<MonoBehaviour>().Where(b => b != null && b.gameObject.scene.IsValid()).OfType<IReplayEventTarget>().Select(t => t.ReplayTargetId).OrderBy(x => x, StringComparer.Ordinal).ToList() };
+    }
+
+    bool ReadConfiguration()
+    {
+        try
         {
-            Debug.LogWarning("SaveReplay was requested, but there is no active recording.", this);
-            return;
+            configuration = StudyConfiguration.Read(StorageRoot);
+            if (configuration != null)
+            {
+                playbackSelection = configuration.playbackSelection == "manual" ? ReplaySelectionMode.Manual : ReplaySelectionMode.Random;
+                manualRecordingFileName = configuration.recordingFile;
+                legacyPreviewAllowed = configuration.allowLegacyPreview;
+            }
+            return true;
         }
-        string directory = activeRecording.recordingKind == "takeover" ? TakeoverDirectory : NormalDirectory;
-        TryWriteRecording(activeRecording, Path.Combine(directory, activeRecording.recordingId + ".json"));
+        catch (Exception e) { LastError = "Unable to start. Please contact the operator."; Debug.LogError(e, this); return false; }
+    }
+
+    string HashSource()
+    {
+        if (!File.Exists(loadedReplayPath)) return "";
+        using (var sha = System.Security.Cryptography.SHA256.Create())
+            return BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(loadedReplayPath))).Replace("-", "").ToLowerInvariant();
+    }
+
+    static string AuthoredMilestone(ReplayEventData e)
+    {
+        switch (e.eventKind)
+        {
+            case "simon_completed": return "simon_completed";
+            case "key_choice_submitted": return e.succeeded ? "caesar_completed" : "";
+            case "keypad_solved": return "keypad_completed";
+            case "escape_room_completed": return "escape_completed";
+            default: return "";
+        }
     }
 
     bool TryWriteRecording(ReplayRecordingData recording, string path)
@@ -600,6 +757,8 @@ public class ReplayManager : MonoBehaviour
                     Debug.LogError($"Recording metadata is invalid in '{path}'.", this);
                     return false;
                 }
+                if (!IsCompatibleRecording(data) && !(legacyPreviewAllowed && data.formatVersion < 3))
+                    throw new InvalidDataException("Recording is not compatible with this study build.");
                 EnsureRecordingLists(data);
                 sourceRecording = data;
                 snapshotDelta = ResolveLoadedSnapshotDelta(data.snapshotDelta, path);
@@ -608,6 +767,7 @@ public class ReplayManager : MonoBehaviour
                 return true;
             }
 
+            if (!legacyPreviewAllowed) throw new InvalidDataException("Legacy preview is disabled.");
             ReplayFileData legacy = JsonUtility.FromJson<ReplayFileData>(json);
             if (legacy?.snapshots == null || legacy.snapshots.Count == 0)
             {
@@ -632,73 +792,63 @@ public class ReplayManager : MonoBehaviour
     {
         if (playbackSelection == ReplaySelectionMode.Manual)
         {
-            if (string.IsNullOrWhiteSpace(manualRecordingFileName))
-            {
-                Debug.LogWarning("Manual replay selection has no filename or UUID. Falling back to a random normal recording.", this);
-            }
-            else
-            {
-                string name = manualRecordingFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? manualRecordingFileName : manualRecordingFileName + ".json";
-                string manualPath = Path.IsPathRooted(name) ? name : Path.Combine(NormalDirectory, name);
-                if (!File.Exists(manualPath) && string.Equals(name, DefaultReplayFileName, StringComparison.OrdinalIgnoreCase))
-                {
-                    manualPath = SaveFileUtility.GetPath(DefaultReplayFileName, StorageRoot);
-                }
-                if (IsReadableRecording(manualPath))
-                {
-                    Debug.Log($"Manual replay selection chose '{manualPath}'.", this);
-                    return manualPath;
-                }
-
-                Debug.LogWarning($"Manual replay '{manualPath}' is missing or invalid. Falling back to a random normal recording.", this);
-            }
+            string name = manualRecordingFileName ?? "";
+            if (!name.EndsWith(".json", StringComparison.OrdinalIgnoreCase)) name += ".json";
+            string path = Path.IsPathRooted(name) ? name : Path.Combine(NormalDirectory, name);
+            if (IsReadableRecording(path)) return path;
+            LastError = "Unable to load. Please contact the operator.";
+            Debug.LogWarning("Selected recording is missing, incomplete, or incompatible. No random substitution was made.", this);
+            return "";
         }
-
-        if (Directory.Exists(NormalDirectory))
-        {
-            string[] recordings = Directory.GetFiles(NormalDirectory, "*.json").Where(IsReadableRecording).ToArray();
-            if (recordings.Length > 0)
-            {
-                string selected = recordings[UnityEngine.Random.Range(0, recordings.Length)];
-                Debug.Log($"Random replay selection chose '{selected}' from {recordings.Length} valid normal recordings.", this);
-                return selected;
-            }
-            Debug.LogWarning($"No valid normal recordings exist in '{NormalDirectory}'. Checking the legacy replay location.", this);
-        }
-        else
-        {
-            Debug.LogWarning($"Normal recordings folder does not exist yet: '{NormalDirectory}'. Checking the legacy replay location.", this);
-        }
-
-        string legacyPath = SaveFileUtility.GetPath(ResolveReplayFileName(), StorageRoot);
-        if (File.Exists(legacyPath))
-        {
-            Debug.Log($"Using legacy replay fallback '{legacyPath}'.", this);
-            return legacyPath;
-        }
-        Debug.LogError($"No recordings exist. Add a normal recording under '{NormalDirectory}' or provide '{legacyPath}'.", this);
-        return string.Empty;
+        string[] files = Directory.Exists(NormalDirectory) ? Directory.GetFiles(NormalDirectory, "*.json").Where(IsReadableRecording).ToArray() : Array.Empty<string>();
+        if (files.Length > 0) return files[UnityEngine.Random.Range(0, files.Length)];
+        LastError = "Unable to load. Please contact the operator.";
+        Debug.LogWarning("No compatible completed normal recordings are available.", this);
+        return "";
     }
 
     bool IsReadableRecording(string path)
     {
         try
         {
-            if (new FileInfo(path).Length <= 2) return false;
             string json = File.ReadAllText(path);
-            if (json.Contains("\"formatVersion\""))
-            {
-                ReplayRecordingData recording = JsonUtility.FromJson<ReplayRecordingData>(json);
-                return recording != null && !string.IsNullOrWhiteSpace(recording.recordingId);
-            }
-            ReplayFileData legacy = JsonUtility.FromJson<ReplayFileData>(json);
-            return legacy?.snapshots != null && legacy.snapshots.Count > 0;
+            if (legacyPreviewAllowed && playbackSelection == ReplaySelectionMode.Manual && !json.Contains("\"formatVersion\""))
+                return JsonUtility.FromJson<ReplayFileData>(json)?.snapshots?.Count > 0;
+            var data = JsonUtility.FromJson<ReplayRecordingData>(json);
+            if (legacyPreviewAllowed && playbackSelection == ReplaySelectionMode.Manual && data?.formatVersion < 3) return true;
+            return IsCompatibleRecording(data);
         }
-        catch
-        {
-            return false;
-        }
+        catch { return false; }
     }
+
+    public static bool IsCompatibleRecording(ReplayRecordingData data)
+    {
+        if (data == null || data.formatVersion != 3 || string.IsNullOrWhiteSpace(data.recordingId)
+            || data.levelVersion != StudyConfiguration.LevelVersion || data.configurationId != StudyConfiguration.ConfigurationId
+            || data.recordingKind != "normal" || data.status != "completed" || data.worldCheckpoints == null || data.worldCheckpoints.Count == 0
+            || data.poses == null || data.poses.Count == 0 || data.events == null || float.IsNaN(data.duration) || float.IsInfinity(data.duration) || data.duration <= 0) return false;
+        long seq = 0; float time = -1;
+        foreach (var e in data.events)
+        {
+            if (e == null || e.sequence != ++seq || !FiniteTime(e.recordingTime) || e.recordingTime < time || e.recordingTime > data.duration) return false;
+            time = e.recordingTime;
+        }
+        time = -1; long boundary = 0;
+        foreach (var frame in data.worldCheckpoints)
+        {
+            if (frame?.gameData == null || !FiniteTime(frame.frameTime) || frame.frameTime < time || frame.frameTime > data.duration
+                || frame.lastEventSequence < boundary || frame.lastEventSequence > seq) return false;
+            time = frame.frameTime; boundary = frame.lastEventSequence;
+        }
+        time = -1;
+        foreach (var pose in data.poses)
+        {
+            if (pose == null || !FiniteTime(pose.recordingTime) || pose.recordingTime < time || pose.recordingTime > data.duration) return false;
+            time = pose.recordingTime;
+        }
+        return data.worldCheckpoints[0].frameTime == 0f;
+    }
+    static bool FiniteTime(float value) => !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0;
 
     ReplayRecordingData ConvertLegacyRecording(List<SnapshotData> snapshots, float delta, string sourcePath)
     {
@@ -765,6 +915,12 @@ public class ReplayManager : MonoBehaviour
     void ValidateEventTargets(ReplayRecordingData data)
     {
         RefreshEventTargets();
+        if (data.formatVersion == 3)
+        {
+            string[] currentIds = eventTargets.Keys.OrderBy(x => x, StringComparer.Ordinal).ToArray();
+            if (data.targetIds == null || !currentIds.SequenceEqual(data.targetIds.OrderBy(x => x, StringComparer.Ordinal)))
+                throw new InvalidDataException("Recording object manifest does not match this scene.");
+        }
         HashSet<string> sceneIds = new HashSet<string>();
         foreach (IReplayEventTarget target in Resources.FindObjectsOfTypeAll<MonoBehaviour>().Where(b => b != null && b.gameObject.scene.IsValid()).OfType<IReplayEventTarget>())
         {
@@ -773,12 +929,11 @@ public class ReplayManager : MonoBehaviour
                 Debug.LogWarning($"Replay target '{target.ReplayTargetName}' has no stable ID; scene-path fallback will be used.", target as UnityEngine.Object);
             }
             else if (!sceneIds.Add(target.ReplayTargetId))
-            {
-                Debug.LogError($"Duplicate replay target ID '{target.ReplayTargetId}' detected. Playback comparisons may be ambiguous.", target as UnityEngine.Object);
-            }
+                throw new InvalidDataException("Duplicate replay target ID: " + target.ReplayTargetId);
         }
         foreach (ReplayEventData replayEvent in data.events.Where(e => e != null && !string.IsNullOrWhiteSpace(e.objectId)))
         {
+            if (replayEvent.objectCategory == "Session") continue;
             if (!eventTargets.ContainsKey(replayEvent.objectId))
             {
                 WarnUnsupportedOnce(replayEvent, $"Recording references missing replay target ID '{replayEvent.objectId}' for event '{replayEvent.eventKind}'.");
@@ -819,7 +974,7 @@ public class ReplayManager : MonoBehaviour
         data.events = data.events ?? new List<ReplayEventData>();
         data.poses.Sort((a, b) => (a?.recordingTime ?? 0f).CompareTo(b?.recordingTime ?? 0f));
         data.worldCheckpoints.Sort((a, b) => (a?.frameTime ?? 0f).CompareTo(b?.frameTime ?? 0f));
-        data.events.Sort((a, b) => (a?.recordingTime ?? 0f).CompareTo(b?.recordingTime ?? 0f));
+        data.events = data.events.OrderBy(e => e.recordingTime).ThenBy(e => e.sequence).ToList();
         data.duration = data.duration > 0f ? data.duration : Mathf.Max(data.poses.LastOrDefault()?.recordingTime ?? 0f, data.worldCheckpoints.LastOrDefault()?.frameTime ?? 0f);
     }
 

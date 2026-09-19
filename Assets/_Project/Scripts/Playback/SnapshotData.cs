@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class SnapshotData
 {
     public float frameTime;
+    public long lastEventSequence;
 
     public GameData gameData;
 

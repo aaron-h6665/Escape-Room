@@ -18,7 +18,11 @@ public enum ReplayObjectState
 [Serializable]
 public class ReplayEventData
 {
-    public int schemaVersion = 1;
+    public int schemaVersion = 2;
+    public long sequence;
+    public string utc = "";
+    public string roomId = "";
+    public string milestoneId = "";
     public float recordingTime;
     public float gameTime;
     public string eventKind = string.Empty;
@@ -52,7 +56,23 @@ public class ReplayPoseSample
 [Serializable]
 public class ReplayRecordingData
 {
-    public int formatVersion = 2;
+    public int formatVersion = 3;
+    public string attemptId = Guid.NewGuid().ToString("N");
+    public string participantCode = "";
+    public string levelVersion = StudyConfiguration.LevelVersion;
+    public string configurationId = StudyConfiguration.ConfigurationId;
+    public string buildVersion = StudyConfiguration.BuildVersion;
+    public string platform = Application.platform.ToString();
+    public string inputDevice = "";
+    public string settingsJson = "";
+    public string endedUtc = "";
+    public string status = "incomplete";
+    public string terminationReason = "";
+    public string sourceAttemptId = "";
+    public long takeoverAfterSequence;
+    public string takeoverRoomId = "";
+    public string sourceSha256 = "";
+    public List<string> targetIds = new List<string>();
     public string recordingId = string.Empty;
     public string recordingKind = "normal";
     public string sourceRecordingId = string.Empty;

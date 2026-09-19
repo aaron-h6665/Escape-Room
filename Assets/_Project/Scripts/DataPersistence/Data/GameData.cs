@@ -6,6 +6,14 @@ public class GameData
 {
 
     public float elapsedTime;
+    public string roomId = "";
+    public bool hasMotorState;
+    public float caesarSuccessRemaining, inventoryFeedbackRemaining;
+    public Vector3 horizontalVelocity, verticalVelocity, cameraLocalPosition, controllerCenter;
+    public float controllerHeight;
+    public bool crouchRequested, isCrouching, grounded;
+    public int deathCount;
+    public List<UiSnapshot> uiStates = new List<UiSnapshot>();
     public Vector3 playerPosition;
     public Quaternion playerRotation;
     public Quaternion playerCameraRotation;
@@ -46,6 +54,9 @@ public class GameData
 [System.Serializable]
 public class DoorSaveData
 {
+    public bool hasAnimationState;
+    public float animationProgress;
+    public Vector3 leftPosition, rightPosition;
     public string id;
     public bool isOpen;
 }
@@ -53,6 +64,9 @@ public class DoorSaveData
 [System.Serializable]
 public class SafeSaveData
 {
+    public bool hasAnimationState;
+    public float animationProgress;
+    public float interactionRemaining;
     public string id;
     public bool isOpen;
 }
@@ -63,6 +77,7 @@ public class KeypadSaveData
     public string id;
     public bool isOpen;
     public string enteredCode;
+    public float feedbackRemaining;
     public int failedAttempts;
 }
 
@@ -104,6 +119,10 @@ public class NoteSaveData
 [System.Serializable]
 public class CaesarCipherSaveData
 {
+    public bool hasPresentation;
+    public Quaternion innerRotation, snapStart, snapTarget;
+    public float snapElapsed, displayedInnerIndex;
+    public bool snapping;
     public string id;
     public int innerIndex;
     public int outerIndex;
@@ -119,6 +138,9 @@ public class SimonSaysSaveData
     public int phase;
     public int currentRound;
     public int playerInputIndex;
+    public bool hasTimeline;
+    public int timelineStage, cueIndex, pressedColor;
+    public float stageRemaining;
     public List<int> sequence;
 
     public SimonSaysSaveData()
@@ -147,4 +169,12 @@ public class InventoryItemSaveData
     public int slotIndex;
     public string itemId;
     public string sourcePickupId;
+}
+
+[System.Serializable]
+public class UiSnapshot
+{
+    public string id, text, feedback, selected;
+    public bool isOpen;
+    public UnityEngine.Color color;
 }

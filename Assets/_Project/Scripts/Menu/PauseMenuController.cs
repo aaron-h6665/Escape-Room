@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 using UnityEngine.UI;
 
 public class PauseMenuController : MonoBehaviour
@@ -12,6 +13,7 @@ public class PauseMenuController : MonoBehaviour
 
     private void Awake()
     {
+        foreach (Canvas canvas in gameObject.scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Canvas>(true))) canvas.sortingOrder = 2500;
         resumeButton = MenuButtonBinder.BindByName(this, resumeButton, "ResumeButton", ResumeGame);
         saveGameButton = MenuButtonBinder.BindByName(this, saveGameButton, "SaveGameButton", SaveGame);
         exitButton = MenuButtonBinder.BindByName(this, exitButton, "ExitButton", ExitGame);
