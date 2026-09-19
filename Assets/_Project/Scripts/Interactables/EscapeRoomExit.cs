@@ -42,10 +42,20 @@ public sealed class EscapeRoomExit : MonoBehaviour, IDataPersistence, IReplayObj
     void ApplyState()
     {
         if (victoryScreen != null) victoryScreen.SetActive(hasWon);
-        if (victoryText != null) victoryText.text = "YOU ESCAPED!\n\nThree rooms solved. Recording complete.";
+        if (victoryText != null) victoryText.text = "ESCAPE ROOM COMPLETE\n\n<size=55%><color=#C2CAD8>You have completed the escape room.\nThank you for participating.</color></size>";
         if (!hasWon) return;
         InputManager input = FindAnyObjectByType<InputManager>();
         input?.SetPlayerControlLocked(true);
+        FindAnyObjectByType<InventoryUI>()?.SetVisible(false);
+        FindAnyObjectByType<PlayerUI>()?.SetPromptVisible(false);
+        foreach (Canvas canvas in FindObjectsByType<Canvas>(FindObjectsInactive.Include))
+        {
+            if (canvas == null || (victoryScreen != null &&
+                (canvas.gameObject == victoryScreen || canvas.transform.IsChildOf(victoryScreen.transform)))) continue;
+            canvas.enabled = false;
+        }
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public bool ApplyReplayEvent(ReplayEventData replayEvent)

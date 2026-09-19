@@ -30,13 +30,6 @@ public class PlayerInteract : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ReplayManager.IsPlaybackActive())
-        {
-            SetFocusedInteractable(null);
-            playerUI?.UpdateText(string.Empty);
-            return;
-        }
-
         if (cam == null || playerUI == null || inputManager == null)
         {
             SetFocusedInteractable(null);
@@ -51,7 +44,7 @@ public class PlayerInteract : MonoBehaviour
         if (interactable != null)
         {
             playerUI.UpdateText(interactable.GetPromptMessage());
-            if (inputManager.OnFoot.Interact.WasPressedThisFrame())
+            if (!ReplayManager.IsPlaybackActive() && inputManager.OnFoot.Interact.WasPressedThisFrame())
             {
                 interactable.BaseInteract(gameObject);
                 if (!isActiveAndEnabled)

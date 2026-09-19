@@ -21,9 +21,9 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
     [SerializeField] Vector3 parentLocalRotationAxis = Vector3.forward;
     [SerializeField] float innerRotationDirection = 1f;
     [SerializeField] float outerRotationDirection = 1f;
-    [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int innerIndex;
-    [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int outerIndex;
-    [SerializeField] RingSelection selectedRing = RingSelection.Outer;
+    [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int innerIndex = 13;
+    [SerializeField, Range(0, CaesarCipherMath.NotchCount - 1)] int outerIndex = 14;
+    [SerializeField] RingSelection selectedRing = RingSelection.Inner;
 
     [Header("Top Letter Calibration")]
     [Tooltip("Symbol physically at screen-top on the inner ring when its rotation index is zero. The imported model starts on O.")]
@@ -129,6 +129,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
 
     void Awake()
     {
+        selectedRing = RingSelection.Inner;
+        outerIndex = 14;
         CaptureBaselines();
         ResolveModelReferences();
         SetRingColliderState(false);
@@ -190,7 +192,6 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             return;
         }
 
-        ProcessSelectionInput();
         ProcessStepInput();
         ProcessPointerInput();
     }
@@ -257,10 +258,13 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
                 SetInspectionState(false, false);
                 return true;
             case "caesar_ring_selected":
-                SetSelectedRing(ParseRing(replayEvent.textValue), false);
+                SetSelectedRing(RingSelection.Inner, false);
                 return true;
             case "caesar_ring_rotated":
-                SetRingIndex(ParseRing(replayEvent.textValue), Mathf.RoundToInt(replayEvent.numberValue), true, false);
+                if (ParseRing(replayEvent.textValue) == RingSelection.Inner)
+                {
+                    SetRingIndex(RingSelection.Inner, Mathf.RoundToInt(replayEvent.numberValue), true, false);
+                }
                 return true;
             default:
                 return false;
@@ -342,17 +346,6 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         }
     }
 
-    void ProcessSelectionInput()
-    {
-        bool keyboardToggle = Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame;
-        bool gamepadToggle = Gamepad.current != null &&
-            (Gamepad.current.leftShoulder.wasPressedThisFrame || Gamepad.current.rightShoulder.wasPressedThisFrame);
-        if (keyboardToggle || gamepadToggle)
-        {
-            SetSelectedRing(selectedRing == RingSelection.Inner ? RingSelection.Outer : RingSelection.Inner, true);
-        }
-    }
-
     void ProcessStepInput()
     {
         int direction = 0;
@@ -382,8 +375,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
 
         if (direction != 0)
         {
-            int current = selectedRing == RingSelection.Inner ? innerIndex : outerIndex;
-            SetRingIndex(selectedRing, current + direction, true, true);
+            SetRingIndex(RingSelection.Inner, innerIndex + direction, true, true);
         }
     }
 
@@ -465,11 +457,6 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
                 hitRing = RingSelection.Inner;
                 break;
             }
-            if (hit.collider == outerRingCollider)
-            {
-                hitRing = RingSelection.Outer;
-                break;
-            }
         }
 
         if (!hitRing.HasValue)
@@ -513,18 +500,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
 
     void SetSelectedRing(RingSelection ring, bool recordEvent)
     {
-        if (selectedRing == ring)
-        {
-            return;
-        }
-
-        selectedRing = ring;
+        selectedRing = RingSelection.Inner;
         UpdateHudText();
-        if (recordEvent)
-        {
-            ReplayEventBus.Publish(this, "caesar_ring_selected", ReplayObjectState.Activated, true, false,
-                textValue: RingName(ring));
-        }
     }
 
     void SetRingIndex(RingSelection ring, int value, bool animate, bool recordEvent)
@@ -885,7 +862,7 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         }
         if (outerRingCollider != null && outerRingCollider != worldInteractionCollider)
         {
-            outerRingCollider.enabled = enabledState;
+            outerRingCollider.enabled = false;
         }
     }
 
@@ -992,7 +969,6 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 0.5f;
 
-        selectedRingText = CreateHudText("Selected Ring", canvasObject.transform, new Vector2(0.3f, 0.89f), new Vector2(0.7f, 0.98f), 34f, TextAlignmentOptions.Center);
         controlsText = CreateHudText("Controls", canvasObject.transform, new Vector2(0.2f, 0.01f), new Vector2(0.8f, 0.12f), 25f, TextAlignmentOptions.Center);
 
         GameObject panel = new GameObject("Pinned Clue", typeof(RectTransform), typeof(Image));
@@ -1063,16 +1039,11 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
     {
         if (selectedRingText != null)
         {
-            string selection = selectedRing == RingSelection.Inner ? "INNER" : "OUTER";
-            float displayedInnerIndex = previewRing == RingSelection.Inner ? previewIndex : innerIndex;
-            float displayedOuterIndex = previewRing == RingSelection.Outer ? previewIndex : outerIndex;
-            char innerTop = TopSymbol(RingSelection.Inner, displayedInnerIndex);
-            char outerTop = TopSymbol(RingSelection.Outer, displayedOuterIndex);
-            selectedRingText.text = $"{selection} RING SELECTED   Outer top: {outerTop}   Inner top: {innerTop}";
+            selectedRingText.gameObject.SetActive(false);
         }
         if (controlsText != null)
         {
-            controlsText.text = "Drag a ring • Tab/Shoulder selects • A/D or ←/→ rotates • E/Esc/B closes";
+            controlsText.text = "Drag the inner ring • A/D or ←/→ rotates • E/Esc/B exits";
         }
     }
 
@@ -1126,8 +1097,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             data.caesarCipherStates.Add(saved);
         }
         saved.innerIndex = innerIndex;
-        saved.outerIndex = outerIndex;
-        saved.selectedRing = (int)selectedRing;
+        saved.outerIndex = 14;
+        saved.selectedRing = (int)RingSelection.Inner;
         saved.isInspecting = includeInspectionState && isInspecting;
     }
 
@@ -1152,10 +1123,11 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
             return;
         }
 
-        selectedRing = saved.selectedRing == (int)RingSelection.Inner ? RingSelection.Inner : RingSelection.Outer;
+        selectedRing = RingSelection.Inner;
+        outerIndex = 14;
         bool animate = restoreInspectionState && ReplayManager.IsPlaybackActive();
         SetRingIndex(RingSelection.Inner, saved.innerIndex, animate, false);
-        SetRingIndex(RingSelection.Outer, saved.outerIndex, animate, false);
+        SetRingIndex(RingSelection.Outer, 14, animate, false);
         SetInspectionState(restoreInspectionState && saved.isInspecting, false);
     }
 

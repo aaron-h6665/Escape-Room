@@ -38,7 +38,7 @@ public sealed class CaesarCipherRuntimeSmokeTests
         Assert.That(GetProperty<bool>(cipher, "IsInspecting"), Is.True);
         Assert.That(worldCollider.enabled, Is.False);
         Assert.That(innerCollider.enabled, Is.True);
-        Assert.That(outerCollider.enabled, Is.True);
+        Assert.That(outerCollider.enabled, Is.False, "Only the inner ring is turnable.");
         Assert.That(innerCollider.gameObject.layer, Is.EqualTo(8));
         Assert.That(outerCollider.gameObject.layer, Is.EqualTo(8));
         Camera overlayCamera = GetField<Camera>(cipher, "inspectionCamera");
@@ -59,22 +59,25 @@ public sealed class CaesarCipherRuntimeSmokeTests
     }
 
     [UnityTest]
-    public IEnumerator ReplayRotation_ReachesQuestionMarkAndSelectsRingsIndependently()
+    public IEnumerator ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA()
     {
         Component cipher = CreateCipher(out _, out _, out _);
         yield return null;
 
+        Assert.That(GetProperty<char>(cipher, "OuterTopSymbol"), Is.EqualTo('A'));
+        Assert.That(GetProperty<char>(cipher, "InnerTopSymbol"), Is.EqualTo('A'));
+
         object rotateOuter = CreateReplayEvent("caesar_ring_rotated", "outer", 26f);
-        object selectInner = CreateReplayEvent("caesar_ring_selected", "inner");
+        object selectOuter = CreateReplayEvent("caesar_ring_selected", "outer");
         object rotateInner = CreateReplayEvent("caesar_ring_rotated", "inner", -1f);
         Assert.That(ApplyReplayEvent(cipher, rotateOuter), Is.True);
-        Assert.That(ApplyReplayEvent(cipher, selectInner), Is.True);
+        Assert.That(ApplyReplayEvent(cipher, selectOuter), Is.True);
         Assert.That(ApplyReplayEvent(cipher, rotateInner), Is.True);
 
-        Assert.That(GetProperty<int>(cipher, "OuterIndex"), Is.EqualTo(26));
+        Assert.That(GetProperty<int>(cipher, "OuterIndex"), Is.EqualTo(14));
         Assert.That(GetProperty<int>(cipher, "InnerIndex"), Is.EqualTo(26));
         Assert.That(GetProperty(cipher, "SelectedRing").ToString(), Is.EqualTo("Inner"));
-        Assert.That(GetProperty<char>(cipher, "OuterTopSymbol"), Is.EqualTo('M'));
+        Assert.That(GetProperty<char>(cipher, "OuterTopSymbol"), Is.EqualTo('A'));
         Assert.That(GetProperty<char>(cipher, "InnerTopSymbol"), Is.EqualTo('N'));
     }
 
@@ -100,7 +103,7 @@ public sealed class CaesarCipherRuntimeSmokeTests
 
         Invoke(cipher, "LoadData", gameData);
         Assert.That(GetProperty<int>(cipher, "InnerIndex"), Is.EqualTo(26));
-        Assert.That(GetProperty<int>(cipher, "OuterIndex"), Is.EqualTo(0));
+        Assert.That(GetProperty<int>(cipher, "OuterIndex"), Is.EqualTo(14));
         Assert.That(GetProperty<bool>(cipher, "IsInspecting"), Is.False);
 
         object[] saveArguments = { gameData };

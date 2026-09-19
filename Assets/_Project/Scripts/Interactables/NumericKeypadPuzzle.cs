@@ -8,6 +8,7 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
     [SerializeField] string id;
     [SerializeField] string correctCode = "4271";
     [SerializeField, Min(1)] int codeLength = 4;
+    [SerializeField] bool autoSubmitOnCodeLength;
     [SerializeField] TMP_Text displayText;
     [SerializeField] PrototypeSlidingDoor finalDoor;
     [SerializeField] string enteredCode = "";
@@ -54,6 +55,10 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         {
             ReplayEventBus.Publish(this, "keypad_input", ReplayState, true, false, textValue: value, customPayload: enteredCode);
         }
+        if (autoSubmitOnCodeLength && enteredCode.Length == codeLength)
+        {
+            Submit(record);
+        }
     }
 
     void Submit(bool record)
@@ -80,7 +85,7 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
     {
         if (displayText != null)
         {
-            displayText.text = "NOPE";
+            displayText.text = "TRY AGAIN";
             displayText.color = new Color(1f, 0.25f, 0.2f);
         }
         yield return new WaitForSeconds(0.65f);

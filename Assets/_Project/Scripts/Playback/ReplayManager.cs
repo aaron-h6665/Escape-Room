@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ReplayManager : MonoBehaviour
 {
@@ -54,10 +55,20 @@ public class ReplayManager : MonoBehaviour
     TimeSpentManager timeSpentManager;
     readonly Dictionary<string, IReplayEventTarget> eventTargets = new Dictionary<string, IReplayEventTarget>();
     readonly HashSet<string> unsupportedEventWarnings = new HashSet<string>();
+    [NonSerialized] string storageRootOverride;
 
-    string NormalDirectory => Path.Combine(Application.persistentDataPath, "recordings", "normal");
-    string TakeoverDirectory => Path.Combine(Application.persistentDataPath, "recordings", "takeover");
-    string SummaryDirectory => Path.Combine(Application.persistentDataPath, "summaries");
+    string StorageRoot => string.IsNullOrWhiteSpace(storageRootOverride) ? Application.persistentDataPath : storageRootOverride;
+    string NormalDirectory => Path.Combine(StorageRoot, "recordings", "normal");
+    string TakeoverDirectory => Path.Combine(StorageRoot, "recordings", "takeover");
+    string SummaryDirectory => Path.Combine(StorageRoot, "summaries");
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState()
+    {
+        instance = null;
+        QueuedLaunchMode = LaunchMode.None;
+        CurrentLaunchMode = LaunchMode.None;
+    }
 
     void Awake()
     {
@@ -69,6 +80,8 @@ public class ReplayManager : MonoBehaviour
         }
 
         instance = this;
+        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += HandleSceneLoaded;
         EnsureReplayContainer();
         ResolveSceneReferences();
         if (GetComponent<TakeoverOverlay>() == null)
@@ -81,15 +94,12 @@ public class ReplayManager : MonoBehaviour
     {
         RefreshReplayObjects();
         ResolveSceneReferences();
-        if (inputManager != null)
-        {
-            inputManager.TakeoverPressed += TakeOver;
-        }
         StartQueuedLaunchMode();
     }
 
     void OnDestroy()
     {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
         if (inputManager != null)
         {
             inputManager.TakeoverPressed -= TakeOver;
@@ -97,6 +107,23 @@ public class ReplayManager : MonoBehaviour
         if (instance == this)
         {
             instance = null;
+        }
+    }
+
+    void HandleSceneLoaded(Scene scene, LoadSceneMode loadMode)
+    {
+        if (scene.name == SceneTransitionService.LoadingSceneName)
+        {
+            return;
+        }
+
+        RefreshReplayObjects();
+        ResolveSceneReferences();
+        RefreshEventTargets();
+
+        if (currentState == State.Idle && QueuedLaunchMode != LaunchMode.None)
+        {
+            StartQueuedLaunchMode();
         }
     }
 
@@ -607,17 +634,24 @@ public class ReplayManager : MonoBehaviour
         {
             if (string.IsNullOrWhiteSpace(manualRecordingFileName))
             {
-                Debug.LogError("Manual replay selection is enabled, but no recording filename or UUID was provided.", this);
-                return string.Empty;
+                Debug.LogWarning("Manual replay selection has no filename or UUID. Falling back to a random normal recording.", this);
             }
-            string name = manualRecordingFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? manualRecordingFileName : manualRecordingFileName + ".json";
-            string manualPath = Path.IsPathRooted(name) ? name : Path.Combine(NormalDirectory, name);
-            if (!File.Exists(manualPath) && string.Equals(name, DefaultReplayFileName, StringComparison.OrdinalIgnoreCase))
+            else
             {
-                manualPath = SaveFileUtility.GetPath(DefaultReplayFileName);
+                string name = manualRecordingFileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? manualRecordingFileName : manualRecordingFileName + ".json";
+                string manualPath = Path.IsPathRooted(name) ? name : Path.Combine(NormalDirectory, name);
+                if (!File.Exists(manualPath) && string.Equals(name, DefaultReplayFileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    manualPath = SaveFileUtility.GetPath(DefaultReplayFileName, StorageRoot);
+                }
+                if (IsReadableRecording(manualPath))
+                {
+                    Debug.Log($"Manual replay selection chose '{manualPath}'.", this);
+                    return manualPath;
+                }
+
+                Debug.LogWarning($"Manual replay '{manualPath}' is missing or invalid. Falling back to a random normal recording.", this);
             }
-            Debug.Log($"Manual replay selection chose '{manualPath}'.", this);
-            return manualPath;
         }
 
         if (Directory.Exists(NormalDirectory))
@@ -636,7 +670,7 @@ public class ReplayManager : MonoBehaviour
             Debug.LogWarning($"Normal recordings folder does not exist yet: '{NormalDirectory}'. Checking the legacy replay location.", this);
         }
 
-        string legacyPath = SaveFileUtility.GetPath(ResolveReplayFileName());
+        string legacyPath = SaveFileUtility.GetPath(ResolveReplayFileName(), StorageRoot);
         if (File.Exists(legacyPath))
         {
             Debug.Log($"Using legacy replay fallback '{legacyPath}'.", this);
@@ -801,10 +835,30 @@ public class ReplayManager : MonoBehaviour
 
     void ResolveSceneReferences()
     {
-        if (inputManager == null) inputManager = FindAnyObjectByType<InputManager>();
+        BindInputManager();
         if (playerMotor == null) playerMotor = FindAnyObjectByType<PlayerMotor>();
         if (playerLook == null) playerLook = FindAnyObjectByType<PlayerLook>();
         if (timeSpentManager == null) timeSpentManager = FindAnyObjectByType<TimeSpentManager>();
+    }
+
+    void BindInputManager()
+    {
+        InputManager resolvedInputManager = FindAnyObjectByType<InputManager>();
+        if (inputManager == resolvedInputManager)
+        {
+            return;
+        }
+
+        if (inputManager != null)
+        {
+            inputManager.TakeoverPressed -= TakeOver;
+        }
+
+        inputManager = resolvedInputManager;
+        if (inputManager != null)
+        {
+            inputManager.TakeoverPressed += TakeOver;
+        }
     }
 
     void EnsureReplayContainer()

@@ -19,6 +19,11 @@ public sealed class PlayerCrosshair : MonoBehaviour
 
     private Canvas crosshairCanvas;
     private InputManager inputManager;
+    private bool presentationVisible = true;
+
+    public bool IsVisible => crosshairCanvas != null
+        && crosshairCanvas.enabled
+        && crosshairCanvas.gameObject.activeInHierarchy;
 
     private void Awake()
     {
@@ -44,6 +49,12 @@ public sealed class PlayerCrosshair : MonoBehaviour
         centerGap = Mathf.Max(0f, centerGap);
         outlineThickness = Mathf.Max(0f, outlineThickness);
         centerDotSize = Mathf.Max(0f, centerDotSize);
+    }
+
+    public void SetPresentationVisible(bool visible)
+    {
+        presentationVisible = visible;
+        RefreshVisibility();
     }
 
     private void CreateCrosshair()
@@ -142,6 +153,7 @@ public sealed class PlayerCrosshair : MonoBehaviour
         }
 
         bool controlIsLocked = inputManager != null && inputManager.PlayerControlLocked;
-        crosshairCanvas.enabled = !hideWhenPlayerControlIsLocked || !controlIsLocked;
+        crosshairCanvas.enabled = presentationVisible
+            && (!hideWhenPlayerControlIsLocked || !controlIsLocked);
     }
 }

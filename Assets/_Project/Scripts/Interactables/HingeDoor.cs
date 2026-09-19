@@ -1,13 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 {
     [SerializeField] private Animator myDoor = null;
 
     [SerializeField] private string doorOpen = "HingeDoorOpen";
+    [SerializeField, Min(0.1f)] private float openAnimationDuration = 1.1f;
     [SerializeField] private string id;
     [SerializeField] private bool isOpen;
+    Coroutine holdOpenRoutine;
 
     [Header("Puzzle Lock")]
     [Tooltip("When assigned, the door cannot be opened until this Simon Says puzzle is solved.")]
@@ -27,6 +30,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
     protected override string ReplayStateChangeKind => "door_opened";
     public override ReplayObjectState ReplayState => isOpen ? ReplayObjectState.Open : ReplayObjectState.Closed;
     public bool IsLocked => requiredPuzzle != null && !requiredPuzzle.IsSolved;
+    public bool IsOpen => isOpen;
 
     void Awake()
     {
@@ -40,25 +44,64 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
     protected override void Interact(GameObject interactor)
     {
-        if (isOpen || IsLocked)
+        if (IsLocked) return;
+        OpenDoor();
+    }
+
+    public void Open() => SetOpen(true, true);
+
+    public void SetOpen(bool open, bool recordEvent)
+    {
+        if (!open) return;
+        if (!OpenDoor()) return;
+        if (recordEvent)
         {
-            return;
+            ReplayEventBus.Publish(this, "door_opened", ReplayObjectState.Open, true, true,
+                position: transform.position, rotation: transform.rotation);
         }
+    }
+
+    bool OpenDoor()
+    {
+        if (isOpen) return false;
 
         ResolveDoorAnimator();
         if (myDoor == null)
         {
             Debug.LogWarning("HingeDoor could not find an Animator containing the door-open animation.", this);
-            return;
+            return false;
         }
 
         myDoor.Play(doorOpen, 0, 0.0f);
+        myDoor.speed = 1f;
         isOpen = true;
+        if (holdOpenRoutine != null) StopCoroutine(holdOpenRoutine);
+        holdOpenRoutine = StartCoroutine(HoldOpenPose());
+        return true;
+    }
+
+    IEnumerator HoldOpenPose()
+    {
+        yield return new WaitForSeconds(Mathf.Max(0.1f, openAnimationDuration));
+        if (myDoor != null && isOpen)
+        {
+            myDoor.Play(doorOpen, 0, 1f);
+            myDoor.Update(0f);
+            myDoor.speed = 0f;
+        }
+        holdOpenRoutine = null;
     }
 
     public override string GetPromptMessage()
     {
         return IsLocked ? lockedPrompt : base.GetPromptMessage();
+    }
+
+    public override bool ApplyReplayEvent(ReplayEventData replayEvent)
+    {
+        if (replayEvent?.eventKind != "door_opened") return false;
+        SetOpen(true, false);
+        return true;
     }
 
     public void LoadData(GameData data)
@@ -131,6 +174,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject
 
         myDoor.Play(doorOpen, 0, 1f);
         myDoor.Update(0f);
+        myDoor.speed = 0f;
     }
 
     void ResolveDoorAnimator()

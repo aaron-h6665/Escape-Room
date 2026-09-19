@@ -44,6 +44,17 @@ public sealed class EscapeRoomPrototypeRuntimeTests
         SetField(puzzle, "exitDoor", door);
         yield return null;
 
+        Invoke(puzzle, "Submit", true);
+        Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.False, "Key submissions must remain locked until the decoded phrase is verified.");
+        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.Zero);
+
+        bool wrongPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "RED KEY" });
+        Assert.That(wrongPhrase, Is.False);
+        Assert.That(GetProperty<bool>(puzzle, "AnswerVerified"), Is.False);
+        bool correctPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "blue key" });
+        Assert.That(correctPhrase, Is.True);
+        Assert.That(GetProperty<bool>(puzzle, "AnswerVerified"), Is.True);
+
         Invoke(puzzle, "Submit", false);
         Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.False);
         Assert.That(GetField<int>(puzzle, "failedAttempts"), Is.EqualTo(1));
@@ -97,6 +108,31 @@ public sealed class EscapeRoomPrototypeRuntimeTests
         Assert.That(GetField<bool>(keypadStates[0], "isOpen"), Is.True);
         Assert.That(GetField<string>(keypadStates[0], "enteredCode"), Is.EqualTo("4271"));
         Assert.That(GetField<int>(keypadStates[0], "failedAttempts"), Is.EqualTo(1));
+    }
+
+    [UnityTest]
+    public IEnumerator Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode()
+    {
+        Component door = CreateDoor("Auto Submit Door");
+        GameObject keypadObject = Track(new GameObject("Auto Submit Numeric Keypad"));
+        Component keypad = keypadObject.AddComponent(RuntimeType("NumericKeypadPuzzle"));
+        SetField(keypad, "id", "test-auto-submit-keypad");
+        SetField(keypad, "correctCode", "4271");
+        SetField(keypad, "codeLength", 4);
+        SetField(keypad, "autoSubmitOnCodeLength", true);
+        SetField(keypad, "finalDoor", door);
+        yield return null;
+
+        foreach (string value in new[] { "4", "2", "7", "0" }) Invoke(keypad, "Press", value);
+        Assert.That(GetProperty<bool>(keypad, "IsSolved"), Is.False);
+        Assert.That(GetProperty<string>(keypad, "EnteredCode"), Is.Empty);
+        Assert.That(GetField<int>(keypad, "failedAttempts"), Is.EqualTo(1));
+        Assert.That(GetProperty<bool>(door, "IsOpen"), Is.False);
+
+        foreach (string value in new[] { "4", "2", "7", "1" }) Invoke(keypad, "Press", value);
+        Assert.That(GetProperty<bool>(keypad, "IsSolved"), Is.True);
+        Assert.That(GetProperty<string>(keypad, "EnteredCode"), Is.EqualTo("4271"));
+        Assert.That(GetProperty<bool>(door, "IsOpen"), Is.True);
     }
 
     [Test]

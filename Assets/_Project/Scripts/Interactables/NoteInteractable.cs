@@ -18,6 +18,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
     [SerializeField] PlayerInteract playerInteract;
     [SerializeField] InventoryUI inventoryUI;
     [SerializeField] PlayerUI playerUI;
+    PlayerCrosshair playerCrosshair;
 
     bool noteOpen;
     [SerializeField] bool hasBeenRead;
@@ -31,6 +32,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
     bool hudHidden;
     bool inventoryWasVisible;
     bool promptWasVisible;
+    bool crosshairWasVisible;
 
     [Header("Replay Data")]
     [SerializeField] private string id;
@@ -273,8 +275,10 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
         {
             inventoryWasVisible = inventoryUI == null || inventoryUI.IsVisible;
             promptWasVisible = playerUI == null || playerUI.PromptVisible;
+            crosshairWasVisible = playerCrosshair == null || playerCrosshair.IsVisible;
             inventoryUI?.SetVisible(false);
             playerUI?.SetPromptVisible(false);
+            playerCrosshair?.SetPresentationVisible(false);
             hudHidden = true;
             return;
         }
@@ -283,6 +287,7 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
         {
             inventoryUI?.SetVisible(inventoryWasVisible);
             playerUI?.SetPromptVisible(promptWasVisible);
+            playerCrosshair?.SetPresentationVisible(crosshairWasVisible);
             hudHidden = false;
         }
     }
@@ -304,6 +309,15 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject
             playerUI = FindAnyObjectByType<PlayerUI>();
 #else
             playerUI = FindObjectOfType<PlayerUI>();
+#endif
+        }
+
+        if (playerCrosshair == null)
+        {
+#if UNITY_2023_1_OR_NEWER
+            playerCrosshair = FindAnyObjectByType<PlayerCrosshair>();
+#else
+            playerCrosshair = FindObjectOfType<PlayerCrosshair>();
 #endif
         }
     }

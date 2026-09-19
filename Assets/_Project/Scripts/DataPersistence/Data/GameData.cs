@@ -70,8 +70,10 @@ public class KeypadSaveData
 public class KeyChoiceSaveData
 {
     public string id;
+    public bool answerVerified;
     public bool isSolved;
     public int failedAttempts;
+    public int answerAttempts;
 }
 
 [System.Serializable]
