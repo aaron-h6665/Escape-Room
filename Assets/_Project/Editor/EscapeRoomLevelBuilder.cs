@@ -16,7 +16,6 @@ public static class EscapeRoomLevelBuilder
     const string ScenePath = "Assets/_Project/Scenes/Level.unity";
     const string MaterialFolder = "Assets/_Project/Materials/Prototype";
     const string PaperTexturePath = "Assets/Jovial Games/Paper_Texture_Bundle/1080/Paper_6.png";
-    const string BlueKeyPath = "Assets/_Project/Scripts/Inventory/BlueKey.asset";
     const int InteractableLayer = 6;
     const int BlockerLayer = 7;
 
@@ -29,9 +28,31 @@ public static class EscapeRoomLevelBuilder
     static Material yellowMaterial;
     static Material paperMaterial;
     static Material displayMaterial;
+    static Material keypadPanelMaterial;
+    static Material keypadButtonMaterial;
 
     [MenuItem("Tools/Escape Room/Rebuild Level Prototype")]
     public static void BuildFromMenu() => Build();
+
+    [MenuItem("Tools/Escape Room/Upgrade Prototype Keypad")]
+    public static void UpgradePrototypeKeypad()
+    {
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        EnsureAssets();
+        Transform gameplay = GameObject.Find("EscapeRoomPrototype/Gameplay")?.transform;
+        if (gameplay == null) throw new InvalidOperationException("EscapeRoomPrototype/Gameplay is missing.");
+
+        Transform oldKeypad = gameplay.Find("Room3_NumericKeypad");
+        if (oldKeypad != null) UnityEngine.Object.DestroyImmediate(oldKeypad.gameObject);
+        PrototypeSlidingDoor finalDoor = gameplay.Find("Room3_FinalDoors")?.GetComponent<PrototypeSlidingDoor>();
+        if (finalDoor == null) throw new InvalidOperationException("Room3_FinalDoors is missing its sliding-door component.");
+
+        CreateKeypad(gameplay, finalDoor);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log("Prototype keypad upgraded with a recessed viewport, fitted status text, textured controls, and delete input.");
+    }
 
     [MenuItem("Tools/Escape Room/Validate Level Prototype")]
     public static void Validate()
@@ -42,7 +63,7 @@ public static class EscapeRoomLevelBuilder
         RequireCount<SimonSaysController>(root, 1);
         RequireCount<ColorKeyChoicePuzzle>(root, 1);
         RequireCount<NumericKeypadPuzzle>(root, 1);
-        RequireCount<NumericKeypadButton>(root, 12);
+        RequireCount<NumericKeypadButton>(root, 13);
         RequireCount<NoteInteractable>(root, 3);
         RequireCount<PrototypeSlidingDoor>(root, 3);
         RequireCount<EscapeRoomExit>(root, 1);
@@ -70,16 +91,13 @@ public static class EscapeRoomLevelBuilder
         HashSet<string> keypadValues = root.GetComponentsInChildren<NumericKeypadButton>(true)
             .Select(button => new SerializedObject(button).FindProperty("value").stringValue)
             .ToHashSet();
-        string[] requiredKeys = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "enter" };
+        string[] requiredKeys = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "delete", "enter" };
         if (requiredKeys.Any(value => !keypadValues.Contains(value)))
-            throw new InvalidOperationException("The numeric keypad is missing one or more digits, CLEAR, or ENTER.");
+            throw new InvalidOperationException("The numeric keypad is missing one or more digits, CLEAR, DELETE, or ENTER.");
 
-        Renderer redKeyRenderer = root.transform.Find("Gameplay/RedKeyChoice/Bow")?.GetComponent<Renderer>();
-        Renderer blueKeyRenderer = root.transform.Find("Gameplay/BlueKeyChoice/Bow")?.GetComponent<Renderer>();
-        if (redKeyRenderer == null || redKeyRenderer.sharedMaterial.color.r <= redKeyRenderer.sharedMaterial.color.b)
-            throw new InvalidOperationException("The red key is missing its red visual treatment.");
-        if (blueKeyRenderer == null || blueKeyRenderer.sharedMaterial.color.b <= blueKeyRenderer.sharedMaterial.color.r)
-            throw new InvalidOperationException("The blue key is missing its blue visual treatment.");
+        if (root.GetComponentsInChildren<ColorKeyChoiceInteractable>(true).Length != 0)
+            throw new InvalidOperationException("The Caesar room must not contain colored key choices.");
+        RequireCount<CaesarAnswerTerminal>(root, 1);
 
         PlayerMotor[] activePlayers = UnityEngine.Object.FindObjectsByType<PlayerMotor>(FindObjectsSortMode.None);
         if (activePlayers.Length != 1) throw new InvalidOperationException("Exactly one active PlayerMotor is required; found " + activePlayers.Length + ".");
@@ -92,9 +110,9 @@ public static class EscapeRoomLevelBuilder
                 throw new InvalidOperationException("Missing script on " + gameObject.name + ".");
         }
         string[] clueTexts = root.GetComponentsInChildren<NoteInteractable>(true).Select(note => note.ClueText).ToArray();
-        if (!clueTexts.Any(text => text.Contains("EOXH NHB"))) throw new InvalidOperationException("The Caesar cipher clue is missing.");
+        if (!clueTexts.Any(text => text.Contains("VLOHQW RUELW"))) throw new InvalidOperationException("The Caesar phrase clue is missing.");
         if (!clueTexts.Any(text => text.Contains("42")) || !clueTexts.Any(text => text.Contains("71"))) throw new InvalidOperationException("The split keypad clues are missing.");
-        Debug.Log("Level validation passed: continuous three-room flow, 3 persisted doors, 3 replayable notes, verified key choice, 12-button keypad, exit trigger, and victory UI are present.");
+        Debug.Log("Level validation passed: continuous three-room flow, 3 persisted doors, 3 replayable notes, Caesar phrase terminal, 13-button keypad, exit trigger, and victory UI are present.");
     }
 
     static void RequireCount<T>(GameObject root, int expected) where T : Component
@@ -106,6 +124,8 @@ public static class EscapeRoomLevelBuilder
     public static void Build()
     {
         Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        if (scene.GetRootGameObjects().Any(root => root.GetComponentInChildren<StudyRoom>(true) != null))
+            throw new InvalidOperationException("Prototype rebuild stopped: Level contains the configured study environment. Use Tools/Escape Room/Repair Current Level In Place to update this level without replacing its rooms.");
         EnsureAssets();
 
         GameObject previousPrototype = GameObject.Find("EscapeRoomPrototype");
@@ -135,8 +155,8 @@ public static class EscapeRoomLevelBuilder
         EditorUtility.SetDirty(simon);
 
         CreateNote(gameplay.transform, "Room2_CaesarNote", new Vector3(-3.8f, 1.4f, 8.2f), Quaternion.Euler(0f, 90f, 0f),
-            "CAESAR'S NOTE\n\nEOXH NHB\n\nJulius moved every letter\nthree places forward.", "room2_caesar_note");
-        CreateKeyChoice(gameplay.transform, roomTwoDoor);
+            "CAESAR'S NOTE\n\nDECODE THIS MESSAGE:\nVLOHQW RUELW\n\nKeep outer A at the marker. Turn the inner ring 3 spaces CCW until inner X sits under outer A. Read each coded outer letter as the matching inner letter, then enter the decoded words at the terminal.", "room2_caesar_note");
+        CreatePhraseTerminal(gameplay.transform, roomTwoDoor);
 
         CreateNote(gameplay.transform, "Room3_FirstDigitsNote", new Vector3(-3.8f, 1.4f, 18.1f), Quaternion.Euler(0f, 90f, 0f),
             "TORN CODE — LEFT HALF\n\nThe code begins with:\n\n42", "room3_note_first_digits");
@@ -153,7 +173,7 @@ public static class EscapeRoomLevelBuilder
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
-        Debug.Log("Escape-room prototype rebuilt in Level: Simon Says -> Caesar key choice -> four-digit keypad -> exit victory.");
+        Debug.Log("Escape-room prototype rebuilt in Level: Simon Says -> Caesar phrase -> four-digit keypad -> exit victory.");
     }
 
     static void EnsureAssets()
@@ -175,16 +195,11 @@ public static class EscapeRoomLevelBuilder
         paperMaterial.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(PaperTexturePath);
         if (paperMaterial.HasProperty("_Smoothness")) paperMaterial.SetFloat("_Smoothness", 0.08f);
         displayMaterial = GetMaterial("Display", new Color(0.02f, 0.12f, 0.15f), 0.25f);
+        keypadPanelMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_panelmaterial_standard.mat");
+        keypadButtonMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_buttonMaterial_standard.mat");
+        if (keypadPanelMaterial == null) keypadPanelMaterial = darkMaterial;
+        if (keypadButtonMaterial == null) keypadButtonMaterial = wallMaterial;
 
-        Item blueKey = AssetDatabase.LoadAssetAtPath<Item>(BlueKeyPath);
-        if (blueKey == null)
-        {
-            blueKey = ScriptableObject.CreateInstance<Item>();
-            blueKey.name = "BlueKey";
-            blueKey.id = "blue_key";
-            blueKey.description = "The verified blue key";
-            AssetDatabase.CreateAsset(blueKey, BlueKeyPath);
-        }
     }
 
     static Material GetMaterial(string name, Color color, float metallic)
@@ -360,50 +375,82 @@ public static class EscapeRoomLevelBuilder
         return controller;
     }
 
-    static void CreateKeyChoice(Transform parent, PrototypeSlidingDoor exitDoor)
+    static void CreatePhraseTerminal(Transform parent, PrototypeSlidingDoor exitDoor)
     {
-        GameObject puzzleObject = Child(parent.gameObject, "Room2_KeyChoicePuzzle");
+        GameObject puzzleObject = Child(parent.gameObject, "Room2_CaesarPhrasePuzzle");
         ColorKeyChoicePuzzle puzzle = puzzleObject.AddComponent<ColorKeyChoicePuzzle>();
-        Set(puzzle, "id", "room2_key_choice");
+        Set(puzzle, "id", "room2_caesar_phrase");
         Set(puzzle, "exitDoor", exitDoor);
-        Set(puzzle, "blueKeyItem", AssetDatabase.LoadAssetAtPath<Item>(BlueKeyPath));
 
-        ColorKeyChoiceInteractable red = CreateKey(parent, puzzle, false, new Vector3(-1.55f, 1.1f, 11.5f), redMaterial);
-        ColorKeyChoiceInteractable blue = CreateKey(parent, puzzle, true, new Vector3(1.55f, 1.1f, 11.5f), blueMaterial);
-        Set(puzzle, "redKey", red);
-        Set(puzzle, "blueKey", blue);
-        TMP_Text feedback = WorldText(parent, "KeyFeedback", "Decode the note, then submit exactly one key.", new Vector3(0f, 2.35f, 12.4f), Quaternion.identity, 0.22f, Color.white, TextAlignmentOptions.Center);
-        Set(puzzle, "feedbackText", feedback);
+        GameObject terminalObject = Cube(parent, "Room2_DecodedPhraseTerminal", new Vector3(0f, 1.35f, 12.35f), new Vector3(3.4f, 2.2f, 0.3f), darkMaterial, InteractableLayer);
+        CaesarAnswerTerminal terminal = terminalObject.AddComponent<CaesarAnswerTerminal>();
+        Set(terminal, "puzzle", puzzle);
+        Set(terminal, "promptMessage", "Press E to enter the decoded phrase");
+
+        TMP_Text label = WorldText(terminalObject.transform, "TerminalLabel", "DECODED PHRASE\nTERMINAL", new Vector3(0f, 0.25f, -0.2f), Quaternion.identity, 0.22f, new Color(0.35f, 0.95f, 1f), TextAlignmentOptions.Center);
+        label.rectTransform.sizeDelta = new Vector2(10f, 4f);
+        Set(puzzle, "feedbackText", label);
+
+        GameObject canvasObject = new GameObject("CaesarAnswerEntryCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(Image));
+        canvasObject.transform.SetParent(terminalObject.transform, false);
+        Canvas canvas = canvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 950;
+        CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1280f, 720f);
+        canvasObject.GetComponent<Image>().color = new Color(0.015f, 0.025f, 0.045f, 0.97f);
+
+        TextMeshProUGUI title = OverlayText(canvasObject.transform, "TerminalTitle", new Vector2(0.15f, 0.68f), new Vector2(0.85f, 0.82f), 38f, "ENTER THE DECODED PHRASE");
+        title.fontStyle = FontStyles.Bold;
+        title.color = new Color(0.93f, 0.73f, 0.3f);
+        TextMeshProUGUI entry = OverlayText(canvasObject.transform, "TypedPhrase", new Vector2(0.2f, 0.43f), new Vector2(0.8f, 0.62f), 46f, "_");
+        entry.fontStyle = FontStyles.Bold;
+        TextMeshProUGUI status = OverlayText(canvasObject.transform, "TerminalStatus", new Vector2(0.18f, 0.2f), new Vector2(0.82f, 0.35f), 24f, "Type the decoded phrase, then press Enter. Escape cancels.");
+        status.color = new Color(0.75f, 0.8f, 0.88f);
+        Set(terminal, "entryCanvas", canvasObject);
+        Set(terminal, "entryText", entry);
+        Set(terminal, "statusText", status);
+        canvasObject.SetActive(false);
     }
 
-    static ColorKeyChoiceInteractable CreateKey(Transform parent, ColorKeyChoicePuzzle puzzle, bool blue, Vector3 position, Material material)
+    static TextMeshProUGUI OverlayText(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, float fontSize, string value)
     {
-        GameObject root = Child(parent.gameObject, blue ? "BlueKeyChoice" : "RedKeyChoice");
-        root.transform.position = position;
-        root.layer = InteractableLayer;
-        BoxCollider collider = root.AddComponent<BoxCollider>();
-        collider.size = new Vector3(1.5f, 1.5f, 0.5f);
-        Cube(root.transform, "Bow", Vector3.zero, new Vector3(0.7f, 0.7f, 0.18f), material, InteractableLayer);
-        Cube(root.transform, "Stem", new Vector3(0f, -0.58f, 0f), new Vector3(0.2f, 0.75f, 0.16f), material, InteractableLayer);
-        Cube(root.transform, "Tooth", new Vector3(0.2f, -0.86f, 0f), new Vector3(0.42f, 0.2f, 0.16f), material, InteractableLayer);
-        ColorKeyChoiceInteractable choice = root.AddComponent<ColorKeyChoiceInteractable>();
-        Set(choice, "puzzle", puzzle);
-        Set(choice, "isBlueKey", blue);
-        return choice;
+        TextMeshProUGUI text = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
+        text.transform.SetParent(parent, false);
+        text.rectTransform.anchorMin = anchorMin;
+        text.rectTransform.anchorMax = anchorMax;
+        text.rectTransform.offsetMin = text.rectTransform.offsetMax = Vector2.zero;
+        text.fontSize = fontSize;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        text.raycastTarget = false;
+        text.text = value;
+        return text;
     }
 
     static void CreateKeypad(Transform parent, PrototypeSlidingDoor finalDoor)
     {
-        GameObject root = Cube(parent, "Room3_NumericKeypad", new Vector3(0f, 1.55f, 23.8f), new Vector3(3.4f, 2.65f, 0.3f), darkMaterial, BlockerLayer);
+        GameObject root = Child(parent.gameObject, "Room3_NumericKeypad");
+        root.transform.localPosition = new Vector3(0f, 1.95f, 23.8f);
+        GameObject housing = Cube(root.transform, "TexturedHousing", Vector3.zero, new Vector3(3.4f, 3.9f, 0.32f), keypadPanelMaterial, BlockerLayer);
+        housing.GetComponent<Renderer>().sharedMaterial = keypadPanelMaterial;
+
         NumericKeypadPuzzle keypad = root.AddComponent<NumericKeypadPuzzle>();
         Set(keypad, "id", "room3_keypad");
         Set(keypad, "correctCode", "4271");
         Set(keypad, "codeLength", 4);
         Set(keypad, "finalDoor", finalDoor);
 
-        GameObject display = Cube(root.transform, "Display", new Vector3(0f, 0.86f, -0.2f), new Vector3(2.45f, 0.43f, 0.12f), displayMaterial, InteractableLayer);
-        TMP_Text displayText = WorldText(display.transform, "DisplayText", "----", new Vector3(0f, 0f, -0.08f), Quaternion.identity, 0.3f, new Color(0.35f, 0.95f, 1f), TextAlignmentOptions.Center);
-        displayText.rectTransform.sizeDelta = new Vector2(7f, 1f);
+        Cube(root.transform, "DisplayBezel", new Vector3(0f, 1.28f, -0.24f), new Vector3(2.75f, 0.68f, 0.16f), keypadPanelMaterial, BlockerLayer);
+        Cube(root.transform, "DisplayViewport", new Vector3(0f, 1.28f, -0.34f), new Vector3(2.38f, 0.38f, 0.08f), displayMaterial, BlockerLayer);
+        TMP_Text displayText = WorldText(root.transform, "DisplayText", "----", new Vector3(0f, 1.28f, -0.395f), Quaternion.identity, 0.3f, new Color(0.35f, 0.95f, 1f), TextAlignmentOptions.Center);
+        displayText.rectTransform.sizeDelta = new Vector2(2.18f, 0.32f);
+        displayText.enableAutoSizing = true;
+        displayText.fontSizeMin = 0.14f;
+        displayText.fontSizeMax = 0.3f;
+        displayText.enableWordWrapping = false;
+        displayText.overflowMode = TextOverflowModes.Truncate;
         Set(keypad, "displayText", displayText);
 
         string[] values = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", "enter" };
@@ -411,16 +458,23 @@ public static class EscapeRoomLevelBuilder
         {
             int row = index / 3;
             int column = index % 3;
-            Vector3 local = new Vector3((column - 1) * 0.82f, 0.34f - row * 0.55f, -0.25f);
-            GameObject button = Cube(root.transform, "Keypad_" + values[index], local, new Vector3(0.62f, 0.42f, 0.18f), wallMaterial, InteractableLayer);
-            NumericKeypadButton component = button.AddComponent<NumericKeypadButton>();
-            Set(component, "keypad", keypad);
-            Set(component, "value", values[index]);
-            string label = values[index] == "clear" ? "C" : values[index] == "enter" ? "E" : values[index];
-            TMP_Text buttonText = WorldText(button.transform, "Label", label, new Vector3(0f, 0f, -0.11f), Quaternion.identity, 0.2f, Color.white, TextAlignmentOptions.Center);
-            buttonText.rectTransform.sizeDelta = new Vector2(2f, 1f);
+            Vector3 local = new Vector3((column - 1) * 0.82f, 0.60f - row * 0.50f, -0.31f);
+            CreateKeypadButton(root.transform, keypad, values[index], local, new Vector3(0.64f, 0.38f, 0.18f));
         }
-        WorldText(parent, "KeypadInstruction", "ROOM 3 — REASSEMBLE THE CODE", new Vector3(0f, 2.95f, 23.65f), Quaternion.identity, 0.24f, Color.white, TextAlignmentOptions.Center);
+
+        CreateKeypadButton(root.transform, keypad, "delete", new Vector3(0f, -1.45f, -0.31f), new Vector3(2.28f, 0.38f, 0.18f));
+        WorldText(parent, "KeypadInstruction", "ROOM 3 — REASSEMBLE THE CODE", new Vector3(0f, 4.15f, 23.65f), Quaternion.identity, 0.24f, Color.white, TextAlignmentOptions.Center);
+    }
+
+    static void CreateKeypadButton(Transform parent, NumericKeypadPuzzle keypad, string value, Vector3 position, Vector3 scale)
+    {
+        GameObject button = Cube(parent, "Keypad_" + value, position, scale, keypadButtonMaterial, InteractableLayer);
+        NumericKeypadButton component = button.AddComponent<NumericKeypadButton>();
+        Set(component, "keypad", keypad);
+        Set(component, "value", value);
+        string label = value == "clear" ? "CLR" : value == "delete" ? "DEL" : value == "enter" ? "ENT" : value;
+        TMP_Text buttonText = WorldText(button.transform, "Label", label, new Vector3(0f, 0f, -0.58f), Quaternion.identity, value.Length > 1 ? 0.15f : 0.2f, Color.white, TextAlignmentOptions.Center);
+        buttonText.rectTransform.sizeDelta = new Vector2(2f, 0.8f);
     }
 
     static NoteInteractable CreateNote(Transform parent, string name, Vector3 position, Quaternion rotation, string text, string id)
@@ -515,7 +569,7 @@ public static class EscapeRoomLevelBuilder
     static void CreateSigns(Transform parent)
     {
         WorldText(parent, "WelcomeSign", "ESCAPE PROTOCOL\nSolve each mental challenge. No dexterity required.", new Vector3(0f, 2.65f, -4.75f), Quaternion.identity, 0.25f, new Color(0.65f, 0.9f, 1f), TextAlignmentOptions.Center);
-        WorldText(parent, "Room2Sign", "ROOM 2 — DECODE AND CHOOSE\nWrong answers are rejected; only one key can be taken.", new Vector3(0f, 2.75f, 6f), Quaternion.identity, 0.23f, Color.white, TextAlignmentOptions.Center);
+        WorldText(parent, "Room2Sign", "ROOM 2 — CAESAR CIPHER\nUse the note and wheel, then enter the decoded phrase.", new Vector3(0f, 2.75f, 6f), Quaternion.identity, 0.23f, Color.white, TextAlignmentOptions.Center);
         WorldText(parent, "ExitSign", "EXIT", new Vector3(0f, 2.8f, 25.15f), Quaternion.Euler(0f, 180f, 0f), 0.35f, new Color(0.3f, 1f, 0.55f), TextAlignmentOptions.Center);
     }
 
@@ -529,20 +583,6 @@ public static class EscapeRoomLevelBuilder
             Set(interact, "distance", 4f);
             Set(interact, "mask", (LayerMask)(1 << InteractableLayer));
             Set(interact, "blockerMask", (LayerMask)(1 << BlockerLayer));
-        }
-        Inventory inventory = player.GetComponent<Inventory>();
-        if (inventory != null)
-        {
-            SerializedObject serialized = new SerializedObject(inventory);
-            SerializedProperty catalog = serialized.FindProperty("itemCatalog");
-            Item blueKey = AssetDatabase.LoadAssetAtPath<Item>(BlueKeyPath);
-            Item[] current = Enumerable.Range(0, catalog.arraySize).Select(i => catalog.GetArrayElementAtIndex(i).objectReferenceValue as Item).Where(i => i != null).ToArray();
-            if (!current.Contains(blueKey))
-            {
-                catalog.InsertArrayElementAtIndex(catalog.arraySize);
-                catalog.GetArrayElementAtIndex(catalog.arraySize - 1).objectReferenceValue = blueKey;
-                serialized.ApplyModifiedPropertiesWithoutUndo();
-            }
         }
     }
 
