@@ -15,6 +15,7 @@ public static class EscapeRoomLevelBuilder
 {
     const string ScenePath = "Assets/_Project/Scenes/Level.unity";
     const string MaterialFolder = "Assets/_Project/Materials/Prototype";
+    const string PaperTexturePath = "Assets/Jovial Games/Paper_Texture_Bundle/1080/Paper_6.png";
     const string BlueKeyPath = "Assets/_Project/Scripts/Inventory/BlueKey.asset";
     const int InteractableLayer = 6;
     const int BlockerLayer = 7;
@@ -171,6 +172,8 @@ public static class EscapeRoomLevelBuilder
         greenMaterial = GetMaterial("SimonGreen", new Color(0.04f, 0.75f, 0.12f), 0.3f);
         yellowMaterial = GetMaterial("SimonYellow", new Color(1f, 0.65f, 0.03f), 0.3f);
         paperMaterial = GetMaterial("NotePaper", new Color(0.86f, 0.78f, 0.56f), 0f);
+        paperMaterial.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(PaperTexturePath);
+        if (paperMaterial.HasProperty("_Smoothness")) paperMaterial.SetFloat("_Smoothness", 0.08f);
         displayMaterial = GetMaterial("Display", new Color(0.02f, 0.12f, 0.15f), 0.25f);
 
         Item blueKey = AssetDatabase.LoadAssetAtPath<Item>(BlueKeyPath);
@@ -438,10 +441,16 @@ public static class EscapeRoomLevelBuilder
         GameObject panel = new GameObject("NotePanel", typeof(RectTransform), typeof(Image));
         panel.transform.SetParent(canvasObject.transform, false);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(0.18f, 0.12f);
-        panelRect.anchorMax = new Vector2(0.82f, 0.88f);
-        panelRect.offsetMin = panelRect.offsetMax = Vector2.zero;
-        panel.GetComponent<Image>().color = new Color(0.12f, 0.1f, 0.075f, 0.97f);
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.anchoredPosition = Vector2.zero;
+        panelRect.sizeDelta = new Vector2(860f, 484f);
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(PaperTexturePath);
+        panelImage.color = new Color(0.93f, 0.86f, 0.69f, 1f);
+        panelImage.raycastTarget = false;
+        Shadow shadow = panel.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.55f);
+        shadow.effectDistance = new Vector2(12f, -12f);
 
         GameObject textObject = new GameObject("ClueText", typeof(RectTransform), typeof(TextMeshProUGUI));
         textObject.transform.SetParent(panel.transform, false);
@@ -450,10 +459,13 @@ public static class EscapeRoomLevelBuilder
         textRect.anchorMax = new Vector2(0.92f, 0.92f);
         textRect.offsetMin = textRect.offsetMax = Vector2.zero;
         TextMeshProUGUI clue = textObject.GetComponent<TextMeshProUGUI>();
-        clue.text = text + "\n\n<color=#9FA7B5><size=55%>Press E or Escape to close</size></color>";
+        clue.text = text + "\n\n<color=#675947><size=55%>Press E or Escape to put the note down</size></color>";
         clue.fontSize = 40f;
         clue.alignment = TextAlignmentOptions.Center;
-        clue.color = new Color(0.95f, 0.9f, 0.75f);
+        clue.color = new Color(0.16f, 0.115f, 0.075f, 1f);
+        clue.fontStyle = FontStyles.Italic;
+        clue.characterSpacing = 2f;
+        clue.lineSpacing = 8f;
         clue.enableWordWrapping = true;
 
         Set(interactable, "noteCanvas", canvasObject);

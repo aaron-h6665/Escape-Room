@@ -17,6 +17,7 @@ public static class LevelPolishUtility
     const string ScenePath = "Assets/_Project/Scenes/Level.unity";
     const string DiagnosticPath = "/tmp/level-diagnostics.txt";
     const string MaterialFolder = "Assets/_Project/Materials/Prototype";
+    const string PaperTexturePath = "Assets/Jovial Games/Paper_Texture_Bundle/1080/Paper_6.png";
     const int InteractableLayer = 6;
     const int BlockerLayer = 7;
 
@@ -70,6 +71,12 @@ public static class LevelPolishUtility
             TMP_Text text = note.GetComponentsInChildren<TMP_Text>(true).FirstOrDefault(value => value.name == "ReadableNoteText");
             if (text == null || text.rectTransform.anchorMin.x < 0.05f || text.rectTransform.anchorMax.x > 0.95f)
                 throw new InvalidOperationException(note.name + " does not have a readable bounded note UI.");
+            Image panel = text.GetComponentInParent<Image>(true);
+            if (panel == null || panel.sprite == null)
+                throw new InvalidOperationException(note.name + " does not use the paper treatment in its reading view.");
+            Renderer noteRenderer = note.GetComponentInChildren<Renderer>(true);
+            if (noteRenderer == null || noteRenderer.sharedMaterial == null || noteRenderer.sharedMaterial.mainTexture == null)
+                throw new InvalidOperationException(note.name + " does not use the paper treatment in the world.");
         }
 
         ItemPickupInteractable safeKey = GameObject.Find("SafeKeypadRoom/SafeKey")?.GetComponent<ItemPickupInteractable>();
@@ -233,19 +240,24 @@ public static class LevelPolishUtility
             : new GameObject("ReadableNoteText", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
         text.transform.SetParent(panel.transform, false);
         RectTransform textRect = text.rectTransform;
-        textRect.anchorMin = new Vector2(0.08f, 0.08f);
-        textRect.anchorMax = new Vector2(0.92f, 0.92f);
+        textRect.anchorMin = new Vector2(0.09f, 0.11f);
+        textRect.anchorMax = new Vector2(0.91f, 0.89f);
         textRect.offsetMin = textRect.offsetMax = Vector2.zero;
-        text.text = clue + "\n\n<size=60%><color=#AEB6C5>Press E or Escape to close</color></size>";
+        text.text = clue + "\n\n<size=55%><color=#675947>Press E or Escape to put the note down</color></size>";
         text.fontSize = 32f;
         text.enableAutoSizing = true;
         text.fontSizeMin = 20f;
         text.fontSizeMax = 34f;
         text.enableWordWrapping = true;
         text.alignment = TextAlignmentOptions.Center;
-        text.color = new Color(0.96f, 0.91f, 0.76f);
+        text.color = new Color(0.16f, 0.115f, 0.075f, 1f);
+        text.fontStyle = FontStyles.Italic;
+        text.characterSpacing = 2f;
+        text.lineSpacing = 8f;
         text.margin = Vector4.zero;
         text.raycastTarget = false;
+
+        ApplyPaperToWorldNote(note);
 
         Set(note, "noteCanvas", canvasObject);
         Set(note, "notePanel", panel);
@@ -253,6 +265,38 @@ public static class LevelPolishUtility
         Set(note, "id", id);
         Set(note, "promptMessage", "Press E to read note");
         canvasObject.SetActive(false);
+    }
+
+    static Sprite RequirePaperSprite()
+    {
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(PaperTexturePath);
+        if (sprite == null) throw new InvalidOperationException("Missing note paper sprite at " + PaperTexturePath);
+        return sprite;
+    }
+
+    static void ApplyPaperToWorldNote(NoteInteractable note)
+    {
+        Renderer renderer = note.GetComponentInChildren<Renderer>(true);
+        if (renderer == null) throw new InvalidOperationException(note.name + " is missing its world renderer.");
+
+        string path = MaterialFolder + "/NotePaper.mat";
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (material == null)
+        {
+            Shader shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            material = new Material(shader) { name = "NotePaper" };
+            AssetDatabase.CreateAsset(material, path);
+        }
+
+        material.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(PaperTexturePath);
+        material.color = new Color(0.93f, 0.86f, 0.69f, 1f);
+        if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
+        if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.08f);
+        renderer.sharedMaterial = material;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+        renderer.receiveShadows = true;
+        EditorUtility.SetDirty(material);
+        EditorUtility.SetDirty(renderer);
     }
 
     static void RepairSimonBoundary(GameObject simonRoom)
