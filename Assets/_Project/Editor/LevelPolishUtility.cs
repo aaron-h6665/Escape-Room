@@ -34,6 +34,30 @@ public static class LevelPolishUtility
         Debug.Log("Current keypad upgraded with a recessed viewport, fitted status text, textured controls, and delete input.");
     }
 
+    [MenuItem("Tools/Escape Room/Validate Current Keypad Only")]
+    public static void ValidateCurrentKeypadOnly()
+    {
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        Transform keypadRoot = RequireRoot(scene, "SafeKeypadRoom").transform.Find("KeyPad");
+        if (keypadRoot == null) throw new InvalidOperationException("SafeKeypadRoom/KeyPad is missing.");
+
+        NumericKeypadButton[] buttons = keypadRoot.GetComponentsInChildren<NumericKeypadButton>(true);
+        HashSet<string> values = buttons.Select(button => new SerializedObject(button).FindProperty("value").stringValue).ToHashSet();
+        if (buttons.Length != 11 || Enumerable.Range(0, 10).Any(number => !values.Contains(number.ToString())) || !values.Contains("delete"))
+            throw new InvalidOperationException("The keypad must contain digits 0 through 9 and one delete button.");
+        if (keypadRoot.Find("DisplayViewport") == null)
+            throw new InvalidOperationException("The keypad display viewport is missing.");
+
+        NumericKeypadPuzzle keypad = keypadRoot.GetComponent<NumericKeypadPuzzle>();
+        TMP_Text display = keypad != null ? new SerializedObject(keypad).FindProperty("displayText").objectReferenceValue as TMP_Text : null;
+        if (display == null || !display.enableAutoSizing || display.rectTransform.sizeDelta.x > 7.2f)
+            throw new InvalidOperationException("The keypad display is not bounded and auto-sizing.");
+        if (buttons.Any(button => button.GetComponent<Renderer>()?.sharedMaterial?.mainTexture == null))
+            throw new InvalidOperationException("One or more keypad buttons are missing their texture.");
+
+        Debug.Log("Keypad validation passed: bounded viewport, fitted status text, textured digits, and delete input are configured.");
+    }
+
     [MenuItem("Tools/Escape Room/Repair Current Level In Place")]
     public static void RepairCurrentLevelInPlace()
     {
@@ -503,84 +527,51 @@ public static class LevelPolishUtility
         blocker.GetComponent<BoxCollider>().size = worldSize;
     }
 
+    static NumericKeypadPuzzle ConfigureLegacyKeypad(Transform keypadRoot)
+    {
+        NumericKeypadPuzzle keypad = keypadRoot.GetComponent<NumericKeypadPuzzle>() ?? keypadRoot.gameObject.AddComponent<NumericKeypadPuzzle>();
+        ApplyKeypadPanelMaterial(keypadRoot);
+        Set(keypad, "id", "safe_room_numeric_keypad");
+        Set(keypad, "correctCode", "4271");
+        Set(keypad, "codeLength", 4);
+        Set(keypad, "autoSubmitOnCodeLength", true);
+
+        Dictionary<int, Transform> digitMeshes = new Dictionary<int, Transform>();
+        foreach (Transform child in keypadRoot.Cast<Transform>())
+        {
+            if (!TryParseKeypadNumber(child.name, out int digit)) continue;
+            digitMeshes[digit] = child;
+        }
+        if (digitMeshes.Count != 10) throw new InvalidOperationException("Could not map all ten decorative keypad buttons.");
+
+        foreach (KeyValuePair<int, Transform> entry in digitMeshes)
+        {
+            Transform buttonTransform = entry.Value;
+            ApplyKeypadButtonMaterial(buttonTransform);
+            buttonTransform.gameObject.layer = InteractableLayer;
+            BoxCollider collider = buttonTransform.GetComponent<BoxCollider>() ?? buttonTransform.gameObject.AddComponent<BoxCollider>();
+            Vector3 scale = buttonTransform.lossyScale;
+            collider.size = new Vector3(
+                0.115f / Mathf.Max(Mathf.Abs(scale.x), 0.001f),
+                0.105f / Mathf.Max(Mathf.Abs(scale.y), 0.001f),
+                0.12f / Mathf.Max(Mathf.Abs(scale.z), 0.001f));
+            NumericKeypadButton button = buttonTransform.GetComponent<NumericKeypadButton>() ?? buttonTransform.gameObject.AddComponent<NumericKeypadButton>();
+            Set(button, "keypad", keypad);
+            Set(button, "value", entry.Key.ToString());
+            CreateDigitLabel(buttonTransform, entry.Key.ToString());
+        }
+
+        CreateDeleteButton(keypadRoot, keypad);
+        TMP_Text display = CreateKeypadDisplay(keypadRoot);
+        Set(keypad, "displayText", display);
+        return keypad;
+    }
+
     static void RepairKeypadAndExit(Scene scene, GameObject safeRoom)
     {
         Transform keypadRoot = safeRoom.transform.Find("KeyPad");
         if (keypadRoot == null) throw new InvalidOperationException("SafeKeypadRoom/KeyPad is missing.");
-        NumericKeypadPuzzle keypad = keypadRoot.GetComponent<NumericKeypadPuzzle>() ?? keypadRoot.gameObject.AddComponent<NumericKeypadPuzzle>();
-        ApplyKeypadPanelMaterial(keypadRoot);
-        Set(keypad, "id", "safe_room_numeric_keypad");
-        Set(keypad, "correctCode", "4271");
-        Set(keypad, "codeLength", 4);
-        Set(keypad, "autoSubmitOnCodeLength", true);
-
-        Dictionary<int, Transform> digitMeshes = new Dictionary<int, Transform>();
-        foreach (Transform child in keypadRoot.Cast<Transform>())
-        {
-            if (!TryParseKeypadNumber(child.name, out int digit)) continue;
-            digitMeshes[digit] = child;
-        }
-        if (digitMeshes.Count != 10) throw new InvalidOperationException("Could not map all ten decorative keypad buttons.");
-
-        foreach (KeyValuePair<int, Transform> entry in digitMeshes)
-        {
-            Transform buttonTransform = entry.Value;
-            ApplyKeypadButtonMaterial(buttonTransform);
-
-    static void ConfigureLegacyKeypad(Transform keypadRoot)
-    {
-        NumericKeypadPuzzle keypad = keypadRoot.GetComponent<NumericKeypadPuzzle>() ?? keypadRoot.gameObject.AddComponent<NumericKeypadPuzzle>();
-        ApplyKeypadPanelMaterial(keypadRoot);
-        Set(keypad, "id", "safe_room_numeric_keypad");
-        Set(keypad, "correctCode", "4271");
-        Set(keypad, "codeLength", 4);
-        Set(keypad, "autoSubmitOnCodeLength", true);
-
-        Dictionary<int, Transform> digitMeshes = new Dictionary<int, Transform>();
-        foreach (Transform child in keypadRoot.Cast<Transform>())
-        {
-            if (!TryParseKeypadNumber(child.name, out int digit)) continue;
-            digitMeshes[digit] = child;
-        }
-        if (digitMeshes.Count != 10) throw new InvalidOperationException("Could not map all ten decorative keypad buttons.");
-
-        foreach (KeyValuePair<int, Transform> entry in digitMeshes)
-        {
-            Transform buttonTransform = entry.Value;
-            ApplyKeypadButtonMaterial(buttonTransform);
-            buttonTransform.gameObject.layer = InteractableLayer;
-            BoxCollider collider = buttonTransform.GetComponent<BoxCollider>() ?? buttonTransform.gameObject.AddComponent<BoxCollider>();
-            Vector3 scale = buttonTransform.lossyScale;
-            collider.size = new Vector3(
-                0.115f / Mathf.Max(Mathf.Abs(scale.x), 0.001f),
-                0.105f / Mathf.Max(Mathf.Abs(scale.y), 0.001f),
-                0.12f / Mathf.Max(Mathf.Abs(scale.z), 0.001f));
-            NumericKeypadButton button = buttonTransform.GetComponent<NumericKeypadButton>() ?? buttonTransform.gameObject.AddComponent<NumericKeypadButton>();
-            Set(button, "keypad", keypad);
-            Set(button, "value", entry.Key.ToString());
-            CreateDigitLabel(buttonTransform, entry.Key.ToString());
-        }
-
-        CreateDeleteButton(keypadRoot, keypad);
-        TMP_Text display = CreateKeypadDisplay(keypadRoot);
-        Set(keypad, "displayText", display);
-    }
-            buttonTransform.gameObject.layer = InteractableLayer;
-            BoxCollider collider = buttonTransform.GetComponent<BoxCollider>() ?? buttonTransform.gameObject.AddComponent<BoxCollider>();
-            Vector3 scale = buttonTransform.lossyScale;
-            collider.size = new Vector3(
-                0.115f / Mathf.Max(Mathf.Abs(scale.x), 0.001f),
-                0.105f / Mathf.Max(Mathf.Abs(scale.y), 0.001f),
-                0.12f / Mathf.Max(Mathf.Abs(scale.z), 0.001f));
-            NumericKeypadButton button = buttonTransform.GetComponent<NumericKeypadButton>() ?? buttonTransform.gameObject.AddComponent<NumericKeypadButton>();
-            Set(button, "keypad", keypad);
-            Set(button, "value", entry.Key.ToString());
-            CreateDigitLabel(buttonTransform, entry.Key.ToString());
-        }
-
-        CreateDeleteButton(keypadRoot, keypad);
-        TMP_Text display = CreateKeypadDisplay(keypadRoot);
-        Set(keypad, "displayText", display);
+        NumericKeypadPuzzle keypad = ConfigureLegacyKeypad(keypadRoot);
 
         Transform slidingDoorsTransform = safeRoom.transform.Find("SlidingDoors");
         if (slidingDoorsTransform == null || slidingDoorsTransform.childCount < 2)

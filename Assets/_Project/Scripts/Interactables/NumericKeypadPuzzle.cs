@@ -48,6 +48,7 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         }
 
         if (value == "clear") enteredCode = "";
+        else if (value == "delete" && enteredCode.Length > 0) enteredCode = enteredCode.Substring(0, enteredCode.Length - 1);
         else if (enteredCode.Length < codeLength && value.Length == 1 && char.IsDigit(value[0])) enteredCode += value;
 
         feedbackRemaining = 0f;
@@ -98,7 +99,7 @@ public sealed class NumericKeypadPuzzle : MonoBehaviour, IDataPersistence, IRepl
         if (displayText == null || isSolved) return;
         if (feedbackRemaining > 0f)
         {
-            displayText.text = "TRY AGAIN"; displayText.color = new Color(1f, 0.25f, 0.2f); return;
+            displayText.text = "INCORRECT"; displayText.color = new Color(1f, 0.25f, 0.2f); return;
         }
         displayText.color = new Color(0.35f, 0.95f, 1f);
         displayText.text = string.IsNullOrEmpty(enteredCode) ? "----" : enteredCode.PadRight(codeLength, '-');
