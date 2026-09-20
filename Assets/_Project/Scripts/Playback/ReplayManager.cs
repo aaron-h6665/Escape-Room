@@ -687,6 +687,7 @@ public class ReplayManager : MonoBehaviour
         switch (e.eventKind)
         {
             case "simon_completed": return "simon_completed";
+            case "caesar_answer_submitted": return e.succeeded ? "caesar_completed" : "";
             case "key_choice_submitted": return e.succeeded ? "caesar_completed" : "";
             case "keypad_solved": return "keypad_completed";
             case "escape_room_completed": return "escape_completed";

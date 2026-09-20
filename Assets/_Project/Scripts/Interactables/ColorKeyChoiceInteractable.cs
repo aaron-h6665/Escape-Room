@@ -11,8 +11,7 @@ public sealed class ColorKeyChoiceInteractable : Interactable
     protected override bool RecordReplayInteraction => false;
     public override string GetPromptMessage()
     {
-        if (puzzle != null && !puzzle.AnswerVerified) return "Key submissions locked — verify the decoded phrase first";
-        return isBlueKey ? "Press E to submit BLUE KEY" : "Press E to submit RED KEY";
+        return "This prop is retired — use the decoded phrase terminal";
     }
     protected override void Interact(GameObject interactor) => puzzle?.Submit(isBlueKey);
 }

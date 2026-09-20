@@ -234,10 +234,10 @@ public sealed class CaesarAnswerTerminal : Interactable, IReplayObject, IReplayT
             succeeded, false, textValue: submittedAnswer);
         if (succeeded)
         {
-            if (entryText != null) entryText.text = "BLUE KEY";
-            if (statusText != null) statusText.text = "PHRASE VERIFIED — KEY SUBMISSIONS UNLOCKED";
+            if (entryText != null) entryText.text = ColorKeyChoicePuzzle.SolutionPhrase;
+            if (statusText != null) statusText.text = "PHRASE VERIFIED — PASSAGE UNLOCKED";
             successRemaining = 0.85f;
-            entered = "BLUE KEY";
+            entered = ColorKeyChoicePuzzle.SolutionPhrase;
             return;
         }
 
@@ -343,9 +343,9 @@ public sealed class CaesarAnswerTerminal : Interactable, IReplayObject, IReplayT
             case EntrySubmittedEvent:
                 if (replayEvent.succeeded)
                 {
-                    entered = "BLUE KEY";
+                    entered = ColorKeyChoicePuzzle.SolutionPhrase;
                     if (entryText != null) entryText.text = entered;
-                    if (statusText != null) statusText.text = "PHRASE VERIFIED — KEY SUBMISSIONS UNLOCKED";
+                    if (statusText != null) statusText.text = "PHRASE VERIFIED — PASSAGE UNLOCKED";
                 }
                 else
                 {

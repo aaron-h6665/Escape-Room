@@ -58,7 +58,6 @@ public static class StudyLevelUtility
         foreach (var renderer in UnityEngine.Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include))
             if (renderer.name.Contains("Stand")) renderer.sharedMaterials = Enumerable.Repeat(plinth, renderer.sharedMaterials.Length).ToArray();
         FinishDoorFrames(plinth);
-        EnsurePersistentBlueKey();
         foreach (var component in UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (!(component is IReplayEventTarget)) continue;
@@ -140,30 +139,6 @@ public static class StudyLevelUtility
                 }
             }
         }
-    }
-
-    static void EnsurePersistentBlueKey()
-    {
-        var choice = UnityEngine.Object.FindAnyObjectByType<ColorKeyChoicePuzzle>();
-        if (choice == null) return;
-        var serialized = new SerializedObject(choice);
-        var original = serialized.FindProperty("blueKey").objectReferenceValue as ColorKeyChoiceInteractable;
-        if (original == null) throw new InvalidOperationException("Blue key choice missing.");
-        Transform existing = original.transform.parent.Find("AwardedBlueKey");
-        GameObject reward = existing != null ? existing.gameObject : UnityEngine.Object.Instantiate(original.gameObject, original.transform.parent);
-        reward.name = "AwardedBlueKey";
-        var interaction = reward.GetComponent<ColorKeyChoiceInteractable>();
-        if (interaction != null) UnityEngine.Object.DestroyImmediate(interaction);
-        var identity = reward.GetComponent<StableReplayId>();
-        if (identity != null) UnityEngine.Object.DestroyImmediate(identity);
-        var pickup = reward.GetComponent<ItemPickupInteractable>() ?? reward.AddComponent<ItemPickupInteractable>();
-        var so = new SerializedObject(pickup);
-        so.FindProperty("id").stringValue = choice.ReplayTargetId + ":blue";
-        so.FindProperty("item").objectReferenceValue = serialized.FindProperty("blueKeyItem").objectReferenceValue;
-        so.FindProperty("destroyOnPickup").boolValue = false;
-        so.FindProperty("isPickedUp").boolValue = true;
-        so.FindProperty("promptMessage").stringValue = "Press E to pick up the blue key";
-        so.ApplyModifiedPropertiesWithoutUndo(); reward.SetActive(false);
     }
 
     public static void CaptureViews()

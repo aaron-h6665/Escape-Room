@@ -21,6 +21,19 @@ public static class LevelPolishUtility
     const int InteractableLayer = 6;
     const int BlockerLayer = 7;
 
+    [MenuItem("Tools/Escape Room/Upgrade Current Keypad Only")]
+    public static void UpgradeCurrentKeypadOnly()
+    {
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        Transform keypadRoot = RequireRoot(scene, "SafeKeypadRoom").transform.Find("KeyPad");
+        if (keypadRoot == null) throw new InvalidOperationException("SafeKeypadRoom/KeyPad is missing.");
+        ConfigureLegacyKeypad(keypadRoot);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log("Current keypad upgraded with a recessed viewport, fitted status text, textured controls, and delete input.");
+    }
+
     [MenuItem("Tools/Escape Room/Repair Current Level In Place")]
     public static void RepairCurrentLevelInPlace()
     {
@@ -34,7 +47,7 @@ public static class LevelPolishUtility
         RepairSafeKey(safeRoom, inventory);
         RepairNotes(scene);
         RepairSimonBoundary(simonRoom);
-        RepairCaesarKeyChoice(scene, inventory);
+        RepairCaesarPhrase(scene);
         RepairCrosshair(scene);
         RepairKeypadAndExit(scene, safeRoom);
         EnsureEventSystem();
@@ -85,27 +98,31 @@ public static class LevelPolishUtility
 
         NumericKeypadPuzzle keypad = UnityEngine.Object.FindFirstObjectByType<NumericKeypadPuzzle>();
         NumericKeypadButton[] buttons = UnityEngine.Object.FindObjectsByType<NumericKeypadButton>();
-        if (keypad == null || buttons.Length != 10)
-            throw new InvalidOperationException("The final keypad must have one puzzle and ten interactive digit buttons.");
+        if (keypad == null || buttons.Length != 11)
+            throw new InvalidOperationException("The final keypad must have one puzzle, ten digit buttons, and a delete button.");
         HashSet<string> values = buttons.Select(button => new SerializedObject(button).FindProperty("value").stringValue).ToHashSet();
         if (Enumerable.Range(0, 10).Any(number => !values.Contains(number.ToString())))
             throw new InvalidOperationException("The keypad is missing one or more digits from 0 through 9.");
+        if (!values.Contains("delete"))
+            throw new InvalidOperationException("The keypad delete button is missing.");
         if (new SerializedObject(keypad).FindProperty("displayText").objectReferenceValue == null)
             throw new InvalidOperationException("The keypad entry display is missing.");
+        if (GameObject.Find("SafeKeypadRoom/KeyPad/DisplayViewport") == null)
+            throw new InvalidOperationException("The keypad display viewport is missing.");
         if (UnityEngine.Object.FindFirstObjectByType<EscapeRoomExit>(FindObjectsInactive.Include) == null)
             throw new InvalidOperationException("The good-game exit trigger is missing.");
 
-        ColorKeyChoicePuzzle keyChoice = UnityEngine.Object.FindFirstObjectByType<ColorKeyChoicePuzzle>();
-        if (keyChoice == null || UnityEngine.Object.FindObjectsByType<ColorKeyChoiceInteractable>().Length != 2)
-            throw new InvalidOperationException("The Caesar room needs red/blue answer verification choices.");
+        ColorKeyChoicePuzzle phrasePuzzle = UnityEngine.Object.FindFirstObjectByType<ColorKeyChoicePuzzle>();
+        if (phrasePuzzle == null || UnityEngine.Object.FindObjectsByType<ColorKeyChoiceInteractable>().Length != 0)
+            throw new InvalidOperationException("The Caesar room needs one phrase puzzle and no key-choice interactables.");
         if (GameObject.Find("CaesarCipherRoom/CaesarSafeBoundaryColliders")?.GetComponentsInChildren<BoxCollider>(true).Length != 3)
             throw new InvalidOperationException("The Caesar/safe-room boundary is not sealed around its door.");
         CaesarCipherInteractable cipher = UnityEngine.Object.FindFirstObjectByType<CaesarCipherInteractable>();
         if (cipher == null || cipher.gameObject.layer != InteractableLayer || cipher.GetComponent<Collider>() == null)
             throw new InvalidOperationException("The Caesar decoder is not reachable as an interactable.");
         SerializedObject serializedCipher = new SerializedObject(cipher);
-        if (serializedCipher.FindProperty("innerIndex").intValue != 13 ||
-            serializedCipher.FindProperty("outerIndex").intValue != 14 ||
+        if (serializedCipher.FindProperty("innerIndex").intValue != 0 ||
+            serializedCipher.FindProperty("outerIndex").intValue != 26 ||
             serializedCipher.FindProperty("selectedRing").enumValueIndex != 0)
             throw new InvalidOperationException("The Caesar decoder must begin A/A with only the inner ring selected.");
         if (UnityEngine.Object.FindFirstObjectByType<CaesarAnswerTerminal>() == null)
@@ -113,7 +130,7 @@ public static class LevelPolishUtility
         if (GameObject.Find("Canvas/Crosshair") != null)
             throw new InvalidOperationException("The legacy duplicate crosshair still exists.");
 
-        Debug.Log("Current Level repair validation passed: prompt, notes, inventory pickup, boundary collision, 10-button keypad, animated doors, exit platform, and good-game UI are configured.");
+        Debug.Log("Current Level repair validation passed: prompt, notes, inventory pickup, boundary collision, textured 11-button keypad with viewport, animated doors, exit platform, and good-game UI are configured.");
     }
 
     static void RepairInteractionPrompt(Scene scene, GameObject player)
@@ -194,7 +211,7 @@ public static class LevelPolishUtility
         GameObject caesar = RequireRoot(scene, "CaesarCipherRoom");
         GameObject safe = RequireRoot(scene, "SafeKeypadRoom");
         ConfigureReadableNote(caesar.transform.Find("Note")?.GetComponent<NoteInteractable>(),
-            "CAESAR'S NOTE\n\nEOXH NHB\n\nRotate the inner ring CCW 3.", "caesar_blue_key_note");
+            "CAESAR'S NOTE\n\nDECODE THIS MESSAGE:\nVLOHQW RUELW\n\nHOW TO USE THE WHEEL\n1. Keep the outer A at the marker.\n2. Turn the inner ring 3 spaces CCW, until inner X sits under outer A.\n3. For each coded outer letter, read the matching inner letter.\n\nEnter the decoded words at the terminal.", "caesar_phrase_note");
         ConfigureReadableNote(safe.transform.Find("SafeNote")?.GetComponent<NoteInteractable>(),
             "TORN CODE — LEFT HALF\n\nThe code begins with:\n\n42", "keypad_first_digits_note");
         ConfigureReadableNote(safe.transform.Find("SafeNote (1)")?.GetComponent<NoteInteractable>(),
@@ -224,15 +241,37 @@ public static class LevelPolishUtility
         scaler.referenceResolution = new Vector2(1280f, 720f);
         scaler.matchWidthOrHeight = 0.5f;
 
+        Transform existingBackdrop = canvasObject.transform.Find("ReadableNoteBackdrop");
+        GameObject backdrop = existingBackdrop != null
+            ? existingBackdrop.gameObject
+            : new GameObject("ReadableNoteBackdrop", typeof(RectTransform), typeof(Image));
+        backdrop.transform.SetParent(canvasObject.transform, false);
+        backdrop.transform.SetAsFirstSibling();
+        RectTransform backdropRect = backdrop.GetComponent<RectTransform>();
+        backdropRect.anchorMin = Vector2.zero;
+        backdropRect.anchorMax = Vector2.one;
+        backdropRect.offsetMin = backdropRect.offsetMax = Vector2.zero;
+        Image backdropImage = backdrop.GetComponent<Image>();
+        backdropImage.color = new Color(0.015f, 0.018f, 0.022f, 0.78f);
+        backdropImage.raycastTarget = false;
+
         Transform existingPanel = canvasObject.transform.Find("ReadableNotePanel");
         GameObject panel = existingPanel != null ? existingPanel.gameObject : new GameObject("ReadableNotePanel", typeof(RectTransform), typeof(Image));
         panel.transform.SetParent(canvasObject.transform, false);
         panel.SetActive(true);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(0.23f, 0.18f);
-        panelRect.anchorMax = new Vector2(0.77f, 0.82f);
-        panelRect.offsetMin = panelRect.offsetMax = Vector2.zero;
-        panel.GetComponent<Image>().color = new Color(0.10f, 0.085f, 0.06f, 0.98f);
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.anchoredPosition = Vector2.zero;
+        panelRect.sizeDelta = new Vector2(860f, 484f);
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.sprite = RequirePaperSprite();
+        panelImage.color = new Color(0.93f, 0.86f, 0.69f, 1f);
+        panelImage.preserveAspect = false;
+        panelImage.raycastTarget = false;
+        Shadow shadow = panel.GetComponent<Shadow>() ?? panel.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.55f);
+        shadow.effectDistance = new Vector2(12f, -12f);
+        shadow.useGraphicAlpha = true;
 
         Transform existingText = panel.transform.Find("ReadableNoteText");
         TextMeshProUGUI text = existingText != null
@@ -317,31 +356,31 @@ public static class LevelPolishUtility
         CreateWorldBlocker(boundary.transform, "DoorHeaderBlocker", new Vector3(-2.29f, 8.43f, 10f), new Vector3(1.22f, 7.55f, 0.22f));
     }
 
-    static void RepairCaesarKeyChoice(Scene scene, Inventory inventory)
+    static void RepairCaesarPhrase(Scene scene)
     {
         GameObject caesarRoom = RequireRoot(scene, "CaesarCipherRoom");
         Transform doorTransform = caesarRoom.transform.Find("HingeDoor");
         if (doorTransform == null) throw new InvalidOperationException("CaesarCipherRoom/HingeDoor is missing.");
         HingeDoor exitDoor = doorTransform.GetComponent<HingeDoor>() ?? doorTransform.gameObject.AddComponent<HingeDoor>();
         Set(exitDoor, "id", "caesar_room_verified_exit");
-        Set(exitDoor, "promptMessage", "Decode the note and submit the matching key");
+        Set(exitDoor, "promptMessage", "Enter the decoded phrase at the terminal to unlock");
         Animator doorAnimator = doorTransform.GetComponentInChildren<Animator>(true);
         if (doorAnimator != null) Set(exitDoor, "myDoor", doorAnimator);
         doorTransform.gameObject.layer = InteractableLayer;
 
-        Transform puzzleTransform = caesarRoom.transform.Find("BlueKeyVerification");
-        GameObject puzzleObject = puzzleTransform != null ? puzzleTransform.gameObject : new GameObject("BlueKeyVerification");
+        Transform puzzleTransform = caesarRoom.transform.Find("CaesarPhrasePuzzle") ?? caesarRoom.transform.Find("BlueKeyVerification");
+        GameObject puzzleObject = puzzleTransform != null ? puzzleTransform.gameObject : new GameObject("CaesarPhrasePuzzle");
+        puzzleObject.name = "CaesarPhrasePuzzle";
         puzzleObject.transform.SetParent(caesarRoom.transform, false);
         ColorKeyChoicePuzzle puzzle = puzzleObject.GetComponent<ColorKeyChoicePuzzle>() ?? puzzleObject.AddComponent<ColorKeyChoicePuzzle>();
-        Set(puzzle, "id", "caesar_blue_key_verification");
-        Set(puzzle, "inventory", inventory);
-        Set(puzzle, "blueKeyItem", AssetDatabase.LoadAssetAtPath<Item>("Assets/_Project/Scripts/Inventory/BlueKey.asset"));
+        Set(puzzle, "id", "caesar_phrase_puzzle");
         Set(puzzle, "hingeExitDoor", exitDoor);
 
-        ColorKeyChoiceInteractable blueChoice = ConfigureColorKeyChoice(caesarRoom.transform.Find("HingeDoorKey"), puzzle, true);
-        ColorKeyChoiceInteractable redChoice = ConfigureColorKeyChoice(caesarRoom.transform.Find("HingeDoorKey (1)"), puzzle, false);
-        Set(puzzle, "blueKey", blueChoice);
-        Set(puzzle, "redKey", redChoice);
+        foreach (string obsoleteKey in new[] { "HingeDoorKey", "HingeDoorKey (1)", "AwardedBlueKey" })
+        {
+            Transform key = caesarRoom.transform.Find(obsoleteKey);
+            if (key != null) UnityEngine.Object.DestroyImmediate(key.gameObject);
+        }
 
         Transform oldFeedback = caesarRoom.transform.Find("KeyVerificationFeedback");
         if (oldFeedback != null) UnityEngine.Object.DestroyImmediate(oldFeedback.gameObject);
@@ -362,8 +401,8 @@ public static class LevelPolishUtility
         NoteInteractable sourceNote = caesarRoom.transform.Find("Note")?.GetComponent<NoteInteractable>();
         Set(cipher, "sourceNote", sourceNote);
         Set(cipher, "promptMessage", "Press E to inspect the Caesar decoder");
-        Set(cipher, "innerIndex", 13);
-        Set(cipher, "outerIndex", 14);
+        Set(cipher, "innerIndex", 0);
+        Set(cipher, "outerIndex", 26);
         Set(cipher, "selectedRing", 0);
 
         Transform existingTerminal = caesarRoom.transform.Find("DecodedPhraseTerminal");
@@ -444,29 +483,6 @@ public static class LevelPolishUtility
         if (legacy != null) UnityEngine.Object.DestroyImmediate(legacy);
     }
 
-    static ColorKeyChoiceInteractable ConfigureColorKeyChoice(Transform keyTransform, ColorKeyChoicePuzzle puzzle, bool blue)
-    {
-        if (keyTransform == null) throw new InvalidOperationException("A Caesar-room key is missing.");
-        ItemPickupInteractable pickup = keyTransform.GetComponent<ItemPickupInteractable>();
-        if (pickup != null) UnityEngine.Object.DestroyImmediate(pickup);
-        keyTransform.gameObject.layer = InteractableLayer;
-        ColorKeyChoiceInteractable choice = keyTransform.GetComponent<ColorKeyChoiceInteractable>() ?? keyTransform.gameObject.AddComponent<ColorKeyChoiceInteractable>();
-        Set(choice, "puzzle", puzzle);
-        Set(choice, "isBlueKey", blue);
-        Set(choice, "promptMessage", blue ? "Press E to verify BLUE KEY" : "Press E to verify RED KEY");
-        BoxCollider collider = keyTransform.GetComponent<BoxCollider>() ?? keyTransform.gameObject.AddComponent<BoxCollider>();
-        Vector3 scale = keyTransform.lossyScale;
-        collider.size = new Vector3(0.55f / Mathf.Max(Mathf.Abs(scale.x), 0.001f), 0.4f / Mathf.Max(Mathf.Abs(scale.y), 0.001f), 0.55f / Mathf.Max(Mathf.Abs(scale.z), 0.001f));
-        Material colorMaterial = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + (blue ? "/BlueKey.mat" : "/RedKey.mat"));
-        Renderer renderer = keyTransform.GetComponentInChildren<Renderer>();
-        if (renderer != null && colorMaterial != null)
-        {
-            renderer.sharedMaterial = colorMaterial;
-            collider.center = keyTransform.InverseTransformPoint(renderer.bounds.center);
-        }
-        return choice;
-    }
-
     static void CreateDoorwayBoundary(Transform room, string name, float z, float doorCenterX)
     {
         Transform existing = room.Find(name);
@@ -492,6 +508,7 @@ public static class LevelPolishUtility
         Transform keypadRoot = safeRoom.transform.Find("KeyPad");
         if (keypadRoot == null) throw new InvalidOperationException("SafeKeypadRoom/KeyPad is missing.");
         NumericKeypadPuzzle keypad = keypadRoot.GetComponent<NumericKeypadPuzzle>() ?? keypadRoot.gameObject.AddComponent<NumericKeypadPuzzle>();
+        ApplyKeypadPanelMaterial(keypadRoot);
         Set(keypad, "id", "safe_room_numeric_keypad");
         Set(keypad, "correctCode", "4271");
         Set(keypad, "codeLength", 4);
@@ -508,6 +525,29 @@ public static class LevelPolishUtility
         foreach (KeyValuePair<int, Transform> entry in digitMeshes)
         {
             Transform buttonTransform = entry.Value;
+            ApplyKeypadButtonMaterial(buttonTransform);
+
+    static void ConfigureLegacyKeypad(Transform keypadRoot)
+    {
+        NumericKeypadPuzzle keypad = keypadRoot.GetComponent<NumericKeypadPuzzle>() ?? keypadRoot.gameObject.AddComponent<NumericKeypadPuzzle>();
+        ApplyKeypadPanelMaterial(keypadRoot);
+        Set(keypad, "id", "safe_room_numeric_keypad");
+        Set(keypad, "correctCode", "4271");
+        Set(keypad, "codeLength", 4);
+        Set(keypad, "autoSubmitOnCodeLength", true);
+
+        Dictionary<int, Transform> digitMeshes = new Dictionary<int, Transform>();
+        foreach (Transform child in keypadRoot.Cast<Transform>())
+        {
+            if (!TryParseKeypadNumber(child.name, out int digit)) continue;
+            digitMeshes[digit] = child;
+        }
+        if (digitMeshes.Count != 10) throw new InvalidOperationException("Could not map all ten decorative keypad buttons.");
+
+        foreach (KeyValuePair<int, Transform> entry in digitMeshes)
+        {
+            Transform buttonTransform = entry.Value;
+            ApplyKeypadButtonMaterial(buttonTransform);
             buttonTransform.gameObject.layer = InteractableLayer;
             BoxCollider collider = buttonTransform.GetComponent<BoxCollider>() ?? buttonTransform.gameObject.AddComponent<BoxCollider>();
             Vector3 scale = buttonTransform.lossyScale;
@@ -521,6 +561,24 @@ public static class LevelPolishUtility
             CreateDigitLabel(buttonTransform, entry.Key.ToString());
         }
 
+        CreateDeleteButton(keypadRoot, keypad);
+        TMP_Text display = CreateKeypadDisplay(keypadRoot);
+        Set(keypad, "displayText", display);
+    }
+            buttonTransform.gameObject.layer = InteractableLayer;
+            BoxCollider collider = buttonTransform.GetComponent<BoxCollider>() ?? buttonTransform.gameObject.AddComponent<BoxCollider>();
+            Vector3 scale = buttonTransform.lossyScale;
+            collider.size = new Vector3(
+                0.115f / Mathf.Max(Mathf.Abs(scale.x), 0.001f),
+                0.105f / Mathf.Max(Mathf.Abs(scale.y), 0.001f),
+                0.12f / Mathf.Max(Mathf.Abs(scale.z), 0.001f));
+            NumericKeypadButton button = buttonTransform.GetComponent<NumericKeypadButton>() ?? buttonTransform.gameObject.AddComponent<NumericKeypadButton>();
+            Set(button, "keypad", keypad);
+            Set(button, "value", entry.Key.ToString());
+            CreateDigitLabel(buttonTransform, entry.Key.ToString());
+        }
+
+        CreateDeleteButton(keypadRoot, keypad);
         TMP_Text display = CreateKeypadDisplay(keypadRoot);
         Set(keypad, "displayText", display);
 
@@ -569,23 +627,97 @@ public static class LevelPolishUtility
         label.raycastTarget = false;
     }
 
+    static void ApplyKeypadPanelMaterial(Transform keypadRoot)
+    {
+        Material panelMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_panelmaterial_standard.mat");
+        Renderer renderer = keypadRoot.GetComponent<Renderer>();
+        if (renderer != null && panelMaterial != null) renderer.sharedMaterial = panelMaterial;
+    }
+
+    static void ApplyKeypadButtonMaterial(Transform button)
+    {
+        Material buttonMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_buttonMaterial_standard.mat");
+        Renderer renderer = button.GetComponent<Renderer>();
+        if (renderer != null && buttonMaterial != null) renderer.sharedMaterial = buttonMaterial;
+    }
+
+    static void CreateDeleteButton(Transform keypadRoot, NumericKeypadPuzzle keypad)
+    {
+        Transform existing = keypadRoot.Find("DeleteButton");
+        GameObject button = existing != null ? existing.gameObject : GameObject.CreatePrimitive(PrimitiveType.Cube);
+        button.name = "DeleteButton";
+        button.layer = InteractableLayer;
+        button.transform.SetParent(keypadRoot, false);
+        button.transform.localPosition = new Vector3(-2.976f, -3.764f, -9.92f);
+        button.transform.localRotation = Quaternion.identity;
+        button.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        ApplyKeypadButtonMaterial(button.transform);
+
+        NumericKeypadButton component = button.GetComponent<NumericKeypadButton>() ?? button.AddComponent<NumericKeypadButton>();
+        Set(component, "keypad", keypad);
+        Set(component, "value", "delete");
+        CreateDigitLabel(button.transform, "DEL");
+        TextMeshPro label = button.transform.Find("DigitLabel").GetComponent<TextMeshPro>();
+        label.fontSize = 2.35f;
+        label.transform.localScale = Vector3.one * 0.22f;
+    }
+
     static TMP_Text CreateKeypadDisplay(Transform keypadRoot)
     {
+        CreateKeypadViewport(keypadRoot);
         Transform existing = keypadRoot.Find("TypedNumberDisplay");
         TextMeshPro display = existing != null ? existing.GetComponent<TextMeshPro>() : new GameObject("TypedNumberDisplay", typeof(TextMeshPro)).GetComponent<TextMeshPro>();
         display.transform.SetParent(keypadRoot, false);
         display.transform.position = new Vector3(-5.05f, 4.05f, -9.84f);
         display.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
         display.transform.localScale = Vector3.one * 0.075f;
-        display.rectTransform.sizeDelta = new Vector2(14f, 3f);
+        display.rectTransform.sizeDelta = new Vector2(7.1f, 1.45f);
         display.text = "----";
-        display.fontSize = 4f;
+        display.fontSize = 2.75f;
+        display.enableAutoSizing = true;
+        display.fontSizeMin = 1.55f;
+        display.fontSizeMax = 2.75f;
+        display.enableWordWrapping = false;
+        display.overflowMode = TextOverflowModes.Truncate;
         display.fontStyle = FontStyles.Bold;
         display.alignment = TextAlignmentOptions.Center;
         display.color = new Color(0.35f, 0.95f, 1f);
         display.sortingOrder = 20;
         display.raycastTarget = false;
         return display;
+    }
+
+    static void CreateKeypadViewport(Transform keypadRoot)
+    {
+        Transform existing = keypadRoot.Find("DisplayViewport");
+        GameObject viewport = existing != null ? existing.gameObject : new GameObject("DisplayViewport");
+        viewport.transform.SetParent(keypadRoot, false);
+        viewport.transform.position = new Vector3(-5.05f, 4.05f, -9.91f);
+        viewport.transform.rotation = Quaternion.identity;
+        viewport.transform.localScale = Vector3.one;
+
+        Material panelMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_panelmaterial_standard.mat");
+        Material displayMaterial = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Display.mat");
+        CreateViewportPart(viewport.transform, "TopBezel", new Vector3(0f, 0.095f, 0f), new Vector3(0.72f, 0.06f, 0.09f), panelMaterial);
+        CreateViewportPart(viewport.transform, "BottomBezel", new Vector3(0f, -0.095f, 0f), new Vector3(0.72f, 0.06f, 0.09f), panelMaterial);
+        CreateViewportPart(viewport.transform, "LeftBezel", new Vector3(-0.33f, 0f, 0f), new Vector3(0.06f, 0.13f, 0.09f), panelMaterial);
+        CreateViewportPart(viewport.transform, "RightBezel", new Vector3(0.33f, 0f, 0f), new Vector3(0.06f, 0.13f, 0.09f), panelMaterial);
+        CreateViewportPart(viewport.transform, "Glass", new Vector3(0f, 0f, 0.01f), new Vector3(0.60f, 0.13f, 0.018f), displayMaterial);
+    }
+
+    static void CreateViewportPart(Transform parent, string name, Vector3 localPosition, Vector3 localScale, Material material)
+    {
+        Transform existing = parent.Find(name);
+        GameObject part = existing != null ? existing.gameObject : GameObject.CreatePrimitive(PrimitiveType.Cube);
+        part.name = name;
+        part.layer = BlockerLayer;
+        part.transform.SetParent(parent, false);
+        part.transform.localPosition = localPosition;
+        part.transform.localRotation = Quaternion.identity;
+        part.transform.localScale = localScale;
+        if (material != null) part.GetComponent<Renderer>().sharedMaterial = material;
+        Collider collider = part.GetComponent<Collider>();
+        if (collider != null) UnityEngine.Object.DestroyImmediate(collider);
     }
 
     static void CreateExitPlatformAndVictory(Scene scene, Transform safeRoom)

@@ -60,7 +60,7 @@ public static class StudyExports
             ReplayEventData done = events.FirstOrDefault(e => e.milestoneId == puzzle + "_completed");
             bool inherited = data.recordingKind == "takeover" && source != null && source.events.Any(e => e.sequence <= data.takeoverAfterSequence && e.milestoneId == puzzle + "_completed");
             string room = puzzle == "simon" ? "room_1" : puzzle == "caesar" ? "room_2" : "room_3";
-            Row(csv, data.attemptId, room, puzzle, puzzle == "simon" ? "Simon Says" : puzzle == "caesar" ? "Caesar and key choice" : "Exit keypad",
+            Row(csv, data.attemptId, room, puzzle, puzzle == "simon" ? "Simon Says" : puzzle == "caesar" ? "Caesar phrase" : "Exit keypad",
                 firstAction != null ? Number(firstAction.recordingTime) : "", done != null ? Number(done.recordingTime) : "",
                 events.Count(e => !e.succeeded && (e.eventKind == "simon_failed" || e.eventKind == "caesar_answer_submitted" || e.eventKind == "key_choice_submitted" || e.eventKind == "keypad_denied")).ToString(CultureInfo.InvariantCulture),
                 inherited ? "inherited_completed" : done != null ? "completed" : events.Count == 0 ? "not_observed" : "not_completed_in_this_segment");

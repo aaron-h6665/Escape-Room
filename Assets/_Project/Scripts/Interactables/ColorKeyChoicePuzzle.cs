@@ -5,13 +5,12 @@ using UnityEngine;
 
 public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget
 {
+    public const string SolutionPhrase = "SILENT ORBIT";
+    const string ClueText = "CAESAR'S NOTE\n\nDECODE THIS MESSAGE:\nVLOHQW RUELW\n\nHOW TO USE THE WHEEL\n1. Keep the outer A at the marker.\n2. Turn the inner ring 3 spaces CCW, until inner X sits under outer A.\n3. For each coded outer letter, read the matching inner letter.\n\nEnter the decoded words at the terminal.";
+
     [SerializeField] string id;
-    [SerializeField] Item blueKeyItem;
-    [SerializeField] Inventory inventory;
     [SerializeField] PrototypeSlidingDoor exitDoor;
     [SerializeField] HingeDoor hingeExitDoor;
-    [SerializeField] ColorKeyChoiceInteractable redKey;
-    [SerializeField] ColorKeyChoiceInteractable blueKey;
     [SerializeField] TMP_Text feedbackText;
     [SerializeField] bool answerVerified;
     [SerializeField] bool isSolved;
@@ -20,7 +19,7 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
 
     public string ReplayTargetId => ReplayIdentity.Resolve(this, id);
     public string ReplayTargetName => gameObject.name;
-    public string ReplayTargetCategory => "KeyChoice";
+    public string ReplayTargetCategory => "CaesarPhrase";
     public ReplayObjectState ReplayState => isSolved ? ReplayObjectState.Completed : ReplayObjectState.Idle;
     public bool IsSolved => isSolved;
     public bool AnswerVerified => answerVerified;
@@ -30,7 +29,7 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
         if (isSolved || ReplayManager.IsPlaybackActive()) return answerVerified;
         answerAttempts++;
         string normalized = string.Concat((answer ?? string.Empty).ToUpperInvariant().Where(char.IsLetter));
-        if (normalized != "BLUEKEY")
+        if (normalized != "SILENTORBIT")
         {
             SetFeedback("That decoding is not correct yet. Recheck the Caesar shift.", new Color(1f, 0.55f, 0.25f));
             ReplayEventBus.Publish(this, "caesar_answer_submitted", ReplayObjectState.Attempted, false, false,
@@ -39,47 +38,54 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
         }
 
         answerVerified = true;
-        SetFeedback("Decoded phrase verified. Key submissions are now unlocked.", new Color(0.3f, 0.9f, 1f));
-        ReplayEventBus.Publish(this, "caesar_answer_submitted", ReplayObjectState.Activated, true, true,
-            textValue: "BLUE KEY", numberValue: answerAttempts);
+        isSolved = true;
+        SetFeedback("PHRASE VERIFIED — PASSAGE UNLOCKED", new Color(0.3f, 0.9f, 1f));
+        ApplyState();
+        OpenExitDoor();
+        ReplayEventBus.Publish(this, "caesar_answer_submitted", ReplayObjectState.Completed, true, true,
+            textValue: SolutionPhrase, numberValue: answerAttempts);
         return true;
     }
 
     void Awake()
     {
-        if (inventory == null) inventory = FindAnyObjectByType<Inventory>();
+        RemoveObsoleteKeyChoices();
+        ApplyClueText();
         ApplyState();
         ReplayManager.instance?.Register(this);
     }
 
+    void RemoveObsoleteKeyChoices()
+    {
+        foreach (ColorKeyChoiceInteractable choice in FindObjectsByType<ColorKeyChoiceInteractable>(FindObjectsInactive.Include))
+        {
+            if (choice != null && choice.gameObject.scene == gameObject.scene)
+            {
+                Destroy(choice.gameObject);
+            }
+        }
+
+        Transform oldAward = transform.parent != null ? transform.parent.Find("AwardedBlueKey") : null;
+        if (oldAward != null) Destroy(oldAward.gameObject);
+    }
+
+    void ApplyClueText()
+    {
+        NoteInteractable note = transform.parent != null ? transform.parent.GetComponentInChildren<NoteInteractable>(true) : null;
+        TMP_Text text = note != null ? note.GetComponentsInChildren<TMP_Text>(true).FirstOrDefault(value => value.name == "ReadableNoteText") : null;
+        if (text != null)
+        {
+            text.text = ClueText + "\n\n<size=60%><color=#AEB6C5>Press E or Escape to close</color></size>";
+        }
+    }
+
+    // Legacy scene components call this until the editor migration permanently deletes them.
     public void Submit(bool choseBlue)
     {
-        if (isSolved || ReplayManager.IsPlaybackActive()) return;
-        if (!answerVerified)
+        if (!isSolved)
         {
-            SetFeedback("Decode the cipher and verify the phrase at the terminal first.", new Color(1f, 0.75f, 0.2f));
-            return;
+            SetFeedback("Enter the decoded phrase at the terminal.", new Color(1f, 0.75f, 0.2f));
         }
-
-        if (!choseBlue)
-        {
-            failedAttempts++;
-            SetFeedback("The red key does not match the decoded answer. Try again.", new Color(1f, 0.35f, 0.3f));
-            ReplayEventBus.Publish(this, "key_choice_submitted", ReplayObjectState.Attempted, false, false, textValue: "red", numberValue: failedAttempts);
-            return;
-        }
-
-        if (!EnsureBlueKeyAwarded())
-        {
-            SetFeedback("Your inventory is full.", new Color(1f, 0.75f, 0.2f));
-            return;
-        }
-
-        isSolved = true;
-        SetFeedback("BLUE KEY verified — passage unlocked.", new Color(0.25f, 0.85f, 1f));
-        ApplyState();
-        OpenExitDoor();
-        ReplayEventBus.Publish(this, "key_choice_submitted", ReplayObjectState.Completed, true, true, blueKeyItem.Id, textValue: "blue", numberValue: failedAttempts);
     }
 
     void SetFeedback(string message, Color color)
@@ -91,8 +97,6 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
 
     void ApplyState()
     {
-        if (redKey != null) redKey.gameObject.SetActive(!isSolved);
-        if (blueKey != null) blueKey.gameObject.SetActive(!isSolved);
         if (isSolved && !(ReplayManager.instance?.IsRestoring ?? false))
         {
             exitDoor?.SetOpen(true, false);
@@ -112,35 +116,29 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
         if (replayEvent.eventKind == "caesar_answer_submitted")
         {
             answerAttempts = Mathf.Max(answerAttempts, Mathf.RoundToInt(replayEvent.numberValue));
-            if (replayEvent.succeeded) answerVerified = true;
-            SetFeedback(answerVerified
-                ? "Decoded phrase verified. Key submissions are now unlocked."
+            if (replayEvent.succeeded)
+            {
+                answerVerified = true;
+                isSolved = true;
+                ApplyState();
+            }
+            SetFeedback(isSolved
+                ? "PHRASE VERIFIED — PASSAGE UNLOCKED"
                 : "That decoding is not correct yet. Recheck the Caesar shift.",
-                answerVerified ? new Color(0.3f, 0.9f, 1f) : new Color(1f, 0.55f, 0.25f));
+                isSolved ? new Color(0.3f, 0.9f, 1f) : new Color(1f, 0.55f, 0.25f));
             return true;
         }
+        // Retained only so an explicitly allowed legacy preview can finish an old recording.
         if (replayEvent.eventKind != "key_choice_submitted") return false;
         failedAttempts = Mathf.Max(failedAttempts, Mathf.RoundToInt(replayEvent.numberValue));
         if (replayEvent.succeeded)
         {
+            answerVerified = true;
             isSolved = true;
-            EnsureBlueKeyAwarded();
-            SetFeedback("BLUE KEY verified — passage unlocked.", new Color(0.25f, 0.85f, 1f));
+            SetFeedback("PHRASE VERIFIED — PASSAGE UNLOCKED", new Color(0.3f, 0.9f, 1f));
             ApplyState();
         }
-        else
-        {
-            SetFeedback("The red key does not match the decoded answer. Try again.", new Color(1f, 0.35f, 0.3f));
-        }
         return true;
-    }
-
-    bool EnsureBlueKeyAwarded()
-    {
-        if (inventory == null) inventory = FindAnyObjectByType<Inventory>();
-        if (inventory == null || blueKeyItem == null) return false;
-        return inventory.HasItem(blueKeyItem.Id)
-            || inventory.AddItem(blueKeyItem, ReplayTargetId + ":blue");
     }
 
     public void LoadData(GameData data) => LoadState(data);
