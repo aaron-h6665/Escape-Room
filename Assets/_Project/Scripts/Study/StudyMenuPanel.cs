@@ -36,8 +36,7 @@ public sealed class StudyMenuPanel : MonoBehaviour
         canvas = gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 3000;
         var scale = gameObject.AddComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; scale.referenceResolution = new Vector2(1280, 720); scale.matchWidthOrHeight = 0.5f;
         gameObject.AddComponent<GraphicRaycaster>();
-        shortcuts = new GameObject("Controls and Options", typeof(RectTransform)); shortcuts.transform.SetParent(transform, false);
-        ButtonAt(shortcuts.transform, "Controls", new Vector2(-280, 40), new Vector2(165, 44), OpenControls, new Vector2(1, 0));
+        shortcuts = new GameObject("Options Shortcut", typeof(RectTransform)); shortcuts.transform.SetParent(transform, false);
         ButtonAt(shortcuts.transform, "Options", new Vector2(-95, 40), new Vector2(165, 44), OpenOptions, new Vector2(1, 0));
         errorText = Label(transform, "", new Vector2(0, 95), new Vector2(800, 35), 20, new Vector2(0.5f, 0));
         SceneManager.sceneLoaded += SceneLoaded;
@@ -87,6 +86,7 @@ public sealed class StudyMenuPanel : MonoBehaviour
         controlsText.alignment = TextAlignmentOptions.TopLeft;
         ButtonAt(panel.transform, "Keyboard / mouse", new Vector2(-160, -245), new Vector2(245, 42), () => { controllerOverride = false; UpdateControls(); });
         ButtonAt(panel.transform, "Controller", new Vector2(150, -245), new Vector2(245, 42), () => { controllerOverride = true; UpdateControls(); });
+        ButtonAt(panel.transform, "Back to options", new Vector2(0, -300), new Vector2(245, 42), OpenOptions);
         UpdateControls();
     }
     void UpdateControls()
@@ -113,6 +113,7 @@ public sealed class StudyMenuPanel : MonoBehaviour
             StudyOptions.Current.width = widths[index]; StudyOptions.Current.height = heights[index];
             StudyOptions.Current.Apply(true); OpenOptions();
         });
+        ButtonAt(panel.transform, "Controls", new Vector2(0, -270), new Vector2(245, 45), OpenControls);
     }
     void OptionRow(string name, float y, Func<string> value, Action<int> change)
     {

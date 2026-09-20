@@ -26,7 +26,7 @@ Keep sequence order when timestamps tie. Events before takeover belong to the so
 
 `AttemptId`, `RoomId`, `PuzzleId`, `PuzzleName`, `FirstInteractionSeconds`, `CompletionSeconds`, `FailedAttempts`, `Outcome`.
 
-Rows aggregate Simon, Caesar/key choice, and keypad events under three stable puzzle IDs. `FirstInteractionSeconds` is the first qualifying participant action, not room onset or an automatically played cue. `FailedAttempts` counts only simon_failed, caesar_answer_submitted, key_choice_submitted, and keypad_denied events with succeeded=false; duplicate terminal presentation events do not double-count an answer. Outcomes distinguish inherited_completed, completed, not_observed, and not_completed_in_this_segment. The last outcome does not establish inability or failure.
+Rows aggregate Simon, Caesar phrase, and keypad events under three stable puzzle IDs. `FirstInteractionSeconds` is the first qualifying participant action, not room onset or an automatically played cue. `FailedAttempts` counts only simon_failed, caesar_answer_submitted, legacy key_choice_submitted, and keypad_denied events with succeeded=false; duplicate terminal presentation events do not double-count an answer. Outcomes distinguish inherited_completed, completed, not_observed, and not_completed_in_this_segment. The last outcome does not establish inability or failure.
 
 ## comparison.csv — one row per remaining authored milestone
 

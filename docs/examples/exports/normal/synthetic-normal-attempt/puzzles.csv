@@ -1,4 +1,4 @@
 AttemptId,RoomId,PuzzleId,PuzzleName,FirstInteractionSeconds,CompletionSeconds,FailedAttempts,Outcome
 "synthetic-normal-attempt","room_1","simon","Simon Says","","10","0","completed"
-"synthetic-normal-attempt","room_2","caesar","Caesar and key choice","","","0","not_observed"
+"synthetic-normal-attempt","room_2","caesar","Caesar phrase","","","0","not_observed"
 "synthetic-normal-attempt","room_3","keypad","Exit keypad","","20","0","completed"

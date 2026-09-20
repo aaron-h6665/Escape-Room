@@ -59,6 +59,29 @@ public sealed class CaesarCipherRuntimeSmokeTests
     }
 
     [UnityTest]
+    public IEnumerator OpeningInspection_KeepsInitialAAAlignment()
+    {
+        CreateMainCamera();
+        Component cipher = CreateCipher(out _, out _, out _);
+        yield return null;
+
+        Transform innerRing = GetField<Transform>(cipher, "innerRing");
+        Transform outerRing = GetField<Transform>(cipher, "outerRing");
+        Quaternion innerBeforeInspection = innerRing.localRotation;
+        Quaternion outerBeforeInspection = outerRing.localRotation;
+
+        Assert.That(GetProperty<char>(cipher, "InnerTopSymbol"), Is.EqualTo('A'));
+        Assert.That(GetProperty<char>(cipher, "OuterTopSymbol"), Is.EqualTo('A'));
+
+        Assert.That(ApplyReplayEvent(cipher, CreateReplayEvent("caesar_inspection_opened")), Is.True);
+
+        Assert.That(innerRing.localRotation, Is.EqualTo(innerBeforeInspection));
+        Assert.That(outerRing.localRotation, Is.EqualTo(outerBeforeInspection));
+        Assert.That(GetProperty<char>(cipher, "InnerTopSymbol"), Is.EqualTo('A'));
+        Assert.That(GetProperty<char>(cipher, "OuterTopSymbol"), Is.EqualTo('A'));
+    }
+
+    [UnityTest]
     public IEnumerator ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA()
     {
         Component cipher = CreateCipher(out _, out _, out _);

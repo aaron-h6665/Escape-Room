@@ -1,4 +1,4 @@
 AttemptId,RoomId,PuzzleId,PuzzleName,FirstInteractionSeconds,CompletionSeconds,FailedAttempts,Outcome
 "synthetic-takeover-attempt","room_1","simon","Simon Says","","","0","inherited_completed"
-"synthetic-takeover-attempt","room_2","caesar","Caesar and key choice","","","0","not_observed"
+"synthetic-takeover-attempt","room_2","caesar","Caesar phrase","","","0","not_observed"
 "synthetic-takeover-attempt","room_3","keypad","Exit keypad","1","3","0","completed"

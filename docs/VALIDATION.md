@@ -4,10 +4,12 @@
 
 Unity 6000.5.0f1 on macOS ARM64. Runtime, editor, and test assemblies compile against installed Unity references. The Mac development build `/tmp/EscapeRoomStudy-Polish.app` succeeded before the final modal-cleanup fixes and explicit build-version metadata were added. The earlier `/tmp/EscapeRoomStudy.app` was launched and its Controls panel and room rendering inspected. Neither binary is a release certification of later source edits.
 
-Scene validation passed: three rooms, one player, stable unique replay targets, required answer terminal and exit. All three camera renders were produced; room two was visually inspected after the masonry, stand and terminal-label corrections. No vendor assets were edited. The polish scene retains its existing single-round Simon override, BLUE KEY verification/choice, separate safe key, and 4271 exit code.
+Scene validation passed before the Caesar redesign: three rooms, one player, stable unique replay targets, required answer terminal and exit. All three camera renders were produced; room two was visually inspected after the masonry, stand and terminal-label corrections. No vendor assets were edited. The current scene uses a typed Caesar phrase to unlock the passage directly, retains the separate safe key, and keeps the 4271 exit code. Current post-redesign verification is recorded below.
 
 ## Automated results
 
+- After the Caesar phrase redesign, the runtime, editor, and PlayMode test assemblies compiled successfully with Unity's generated Roslyn response files. Only pre-existing Unity API deprecation warnings remain.
+- The open Unity editor prevented a second batch-mode instance from saving the scene migration. Runtime startup removes the obsolete key choices before rendering and replaces the old clue text; the in-editor repair command now permanently removes those scene objects when next run. PlayMode execution and a current room-two visual pass remain pending.
 - The initial 21-test PlayMode run found a null-source playback guard issue; corrected.
 - A subsequent 23-test PlayMode run passed all 23, including recovery-write failure/retry, synthetic export calculations, one complete source run, fresh-scene replay, exact takeover state, and source-byte preservation.
 - The full-level test was then expanded to six handoff points: Simon cue, movement/stance, open note, decoder inspection, partial answer and keypad draft, followed by no-takeover completion. It found scene-unload cleanup problems in decoder and answer UI. The current fixes compile, but the latest Unity rerun was declined and therefore has not verified those fixes.

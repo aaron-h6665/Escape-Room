@@ -65,12 +65,8 @@ public sealed class ZZStudyLevelFlowTests
         yield return null; handoffs.Add((float)Prop(manager, "CurrentRecordingTime"));
         Call(terminal, "Close", true);
         var choice = Find("ColorKeyChoicePuzzle");
-        Assert.That(Call(choice, "VerifyDecodedAnswer", "BLUE KEY"), Is.True);
-        Call(choice, "Submit", true); Assert.That(Prop(choice, "IsSolved"), Is.True);
-        var inventory = Find("Inventory");
-        Assert.That(Call(inventory, "DropSelectedItem"), Is.True);
-        yield return null;
-        Assert.That(GameObject.Find("AwardedBlueKey"), Is.Not.Null, "Awarded keys must have a persistent world pickup for replay.");
+        Assert.That(Call(choice, "VerifyDecodedAnswer", "SILENT ORBIT"), Is.True);
+        Assert.That(Prop(choice, "IsSolved"), Is.True);
         var keypad = Find("NumericKeypadPuzzle"); Call(keypad, "Press", "4"); Call(keypad, "Press", "2");
         yield return null;
         handoffs.Add((float)Prop(manager, "CurrentRecordingTime"));

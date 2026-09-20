@@ -26,49 +26,29 @@ public sealed class EscapeRoomPrototypeRuntimeTests
     }
 
     [UnityTest]
-    public IEnumerator KeyChoice_RejectsRedAndAwardsOnlyTheVerifiedBlueKey()
+    public IEnumerator CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly()
     {
         Component door = CreateDoor("Room 2 Door");
-        GameObject inventoryObject = Track(new GameObject("Player Inventory"));
-        inventoryObject.AddComponent<BoxCollider>();
-        Component inventory = inventoryObject.AddComponent(RuntimeType("Inventory"));
-        ScriptableObject blueKey = Track(ScriptableObject.CreateInstance(RuntimeType("Item")));
-        blueKey.name = "Blue Key";
-        SetField(blueKey, "id", "blue_key");
-
-        GameObject puzzleObject = Track(new GameObject("Key Choice"));
+        GameObject puzzleObject = Track(new GameObject("Caesar Phrase"));
         Component puzzle = puzzleObject.AddComponent(RuntimeType("ColorKeyChoicePuzzle"));
-        SetField(puzzle, "id", "test-key-choice");
-        SetField(puzzle, "inventory", inventory);
-        SetField(puzzle, "blueKeyItem", blueKey);
+        SetField(puzzle, "id", "test-caesar-phrase");
         SetField(puzzle, "exitDoor", door);
         yield return null;
 
-        Invoke(puzzle, "Submit", true);
-        Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.False, "Key submissions must remain locked until the decoded phrase is verified.");
-        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.Zero);
-
-        bool wrongPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "RED KEY" });
+        bool wrongPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "OPEN THE DOOR" });
         Assert.That(wrongPhrase, Is.False);
         Assert.That(GetProperty<bool>(puzzle, "AnswerVerified"), Is.False);
-        bool correctPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "blue key" });
-        Assert.That(correctPhrase, Is.True);
-        Assert.That(GetProperty<bool>(puzzle, "AnswerVerified"), Is.True);
-
-        Invoke(puzzle, "Submit", false);
         Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.False);
-        Assert.That(GetField<int>(puzzle, "failedAttempts"), Is.EqualTo(1));
-        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.Zero);
         Assert.That(GetProperty<bool>(door, "IsOpen"), Is.False);
 
-        Invoke(puzzle, "Submit", true);
+        bool correctPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "silent orbit" });
+        Assert.That(correctPhrase, Is.True);
+        Assert.That(GetProperty<bool>(puzzle, "AnswerVerified"), Is.True);
         Assert.That(GetProperty<bool>(puzzle, "IsSolved"), Is.True);
-        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.EqualTo(1));
-        Assert.That((bool)inventory.GetType().GetMethod("HasItem", new[] { typeof(string) }).Invoke(inventory, new object[] { "blue_key" }), Is.True);
         Assert.That(GetProperty<bool>(door, "IsOpen"), Is.True);
 
-        Invoke(puzzle, "Submit", true);
-        Assert.That(GetProperty<int>(inventory, "OccupiedSlotCount"), Is.EqualTo(1), "A replayed or repeated success must not duplicate the key.");
+        bool repeatedPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "SILENT ORBIT" });
+        Assert.That(repeatedPhrase, Is.True, "A repeated correct phrase must remain idempotently solved.");
     }
 
     [UnityTest]
@@ -122,6 +102,12 @@ public sealed class EscapeRoomPrototypeRuntimeTests
         SetField(keypad, "autoSubmitOnCodeLength", true);
         SetField(keypad, "finalDoor", door);
         yield return null;
+
+        Invoke(keypad, "Press", "4");
+        Invoke(keypad, "Press", "2");
+        Invoke(keypad, "Press", "delete");
+        Assert.That(GetProperty<string>(keypad, "EnteredCode"), Is.EqualTo("4"));
+        Invoke(keypad, "Press", "clear");
 
         foreach (string value in new[] { "4", "2", "7", "0" }) Invoke(keypad, "Press", value);
         Assert.That(GetProperty<bool>(keypad, "IsSolved"), Is.False);
