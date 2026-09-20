@@ -45,19 +45,27 @@ Shader "EscapeRoom/World Stone"
                 float2 grid = uv / float2(0.95, 0.44);
                 grid.x += fmod(floor(grid.y), 2) * 0.5;
                 float2 edge = min(frac(grid), 1 - frac(grid));
-                float joint = smoothstep(0.012, 0.035, min(edge.x, edge.y));
+                float nearestJoint = min(edge.x, edge.y);
+                float antialiasWidth = max(fwidth(nearestJoint), 0.002);
+                float joint = smoothstep(0.012 - antialiasWidth, 0.035 + antialiasWidth, nearestJoint);
                 half stone = dot(textureColor, half3(0.3, 0.59, 0.11));
                 return lerp(half3(0.12, 0.13, 0.14), half3(0.50, 0.49, 0.46) * (0.7 + stone), joint);
             }
             half4 Frag(Varyings input) : SV_Target
             {
-                float3 normal = normalize(input.normalWS);
-                float3 weight = pow(abs(normal), 8);
-                weight /= max(dot(weight, 1), 0.0001);
                 float3 p = input.positionWS;
+                // Some legacy ProBuilder walls contain smoothed or malformed vertex
+                // normals on otherwise flat faces. Derive the mapping normal from the
+                // rendered triangle so adjacent coplanar pieces use the same projection.
+                float3 interpolatedNormal = normalize(input.normalWS);
+                float3 faceNormal = normalize(cross(ddy(p), ddx(p)));
+                faceNormal *= dot(faceNormal, interpolatedNormal) < 0 ? -1 : 1;
+                float3 weight = pow(abs(faceNormal), 16);
+                weight /= max(dot(weight, 1), 0.0001);
                 half3 albedo = Stone(p.zy) * weight.x
                     + Stone(p.xz) * weight.y
                     + Stone(p.xy) * weight.z;
+                float3 normal = faceNormal;
                 Light main = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half3 light = max(SampleSH(normal), half3(0.32,0.32,0.32));
                 light += main.color * saturate(dot(normal, main.direction)) * main.shadowAttenuation;
