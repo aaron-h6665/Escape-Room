@@ -436,9 +436,9 @@ MonoBehaviour:
   parentLocalRotationAxis: {x: 0, y: 1, z: 0}
   innerRotationDirection: 1
   outerRotationDirection: 1
-  innerIndex: 0
-  outerIndex: 0
-  selectedRing: 1
+  innerIndex: 13
+  outerIndex: 14
+  selectedRing: 0
   innerTopSymbolAtZero: 14
   outerTopSymbolAtZero: 13
   worldInteractionCollider: {fileID: 2347321928382504918}
