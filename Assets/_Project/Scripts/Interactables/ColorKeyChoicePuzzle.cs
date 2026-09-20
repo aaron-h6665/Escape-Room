@@ -5,8 +5,9 @@ using UnityEngine;
 
 public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IReplayObject, IReplayEventTarget
 {
-    public const string SolutionPhrase = "SILENT ORBIT";
-    const string ClueText = "CAESAR'S NOTE\n\nDECODE THIS MESSAGE:\nVLOHQW RUELW\n\nHOW TO USE THE WHEEL\n1. Keep the outer A at the marker.\n2. Turn the inner ring 3 spaces CCW, until inner X sits under outer A.\n3. For each coded outer letter, read the matching inner letter.\n\nEnter the decoded words at the terminal.";
+    public const string SolutionPhrase = CaesarPuzzleClue.Solution;
+    [SerializeField] SimonSaysController clueSimon;
+    [SerializeField] NoteInteractable clueNote;
 
     [SerializeField] string id;
     [SerializeField] PrototypeSlidingDoor exitDoor;
@@ -50,7 +51,6 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
     void Awake()
     {
         RemoveObsoleteKeyChoices();
-        ApplyClueText();
         ApplyState();
         ReplayManager.instance?.Register(this);
     }
@@ -69,14 +69,20 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
         if (oldAward != null) Destroy(oldAward.gameObject);
     }
 
-    void ApplyClueText()
+    void Start()
     {
-        NoteInteractable note = transform.parent != null ? transform.parent.GetComponentInChildren<NoteInteractable>(true) : null;
-        TMP_Text text = note != null ? note.GetComponentsInChildren<TMP_Text>(true).FirstOrDefault(value => value.name == "ReadableNoteText") : null;
-        if (text != null)
+        if (clueSimon == null)
+            clueSimon = FindObjectsByType<SimonSaysController>(FindObjectsInactive.Include)
+                .FirstOrDefault(value => value.gameObject.scene == gameObject.scene);
+        if (clueNote == null && transform.parent != null)
+            clueNote = transform.parent.GetComponentsInChildren<NoteInteractable>(true)
+                .FirstOrDefault(value => value.ClueText.Contains("CAESAR"));
+        if (clueSimon == null || clueNote == null)
         {
-            text.text = ClueText + "\n\n<size=60%><color=#AEB6C5>Press E or Escape to close</color></size>";
+            Debug.LogError("The Caesar clue requires its Simon puzzle and paper note.", this);
+            return;
         }
+        clueNote.SetClueText(CaesarPuzzleClue.ForSimon(clueSimon));
     }
 
     // Legacy scene components call this until the editor migration permanently deletes them.

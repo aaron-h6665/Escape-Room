@@ -6,6 +6,19 @@ Unity 6000.5.0f1 on macOS ARM64. Runtime, editor, and test assemblies compile ag
 
 Scene validation passed before the Caesar redesign: three rooms, one player, stable unique replay targets, required answer terminal and exit. All three camera renders were produced; room two was visually inspected after the masonry, stand and terminal-label corrections. No vendor assets were edited. The current scene uses a typed Caesar phrase to unlock the passage directly, retains the separate safe key, and keeps the 4271 exit code. Current post-redesign verification is recorded below.
 
+## Simon-linked cipher and backtracking — 2026-09-20
+
+Current build `2026.09.20-polish-v3`, level `three-rooms-polish-v3`, configuration `simon-caesar-phrase-v3`:
+
+- **28/28 PlayMode tests passed**: [results](results/simon-cipher-playmode.xml). Includes the full escape and eight replay/takeover handoffs, solved Simon rewatch, mid-cue restoration, repeated bidirectional CharacterController traversal, and synthetic keyboard/gamepad input plus mouse hit-testing and dragging.
+- **15/15 EditMode tests passed**: [results](results/simon-cipher-editmode.xml), including every-letter outer-to-inner decoding and 27-symbol wraparound.
+- Rendered the actual wheel at A/A and at two clockwise notches: outer U aligns with inner S, and `UKNGPV QTDKV` decodes to `SILENT ORBIT`. The live scene now inherits the five-color Simon prefab pattern rather than the previous one-round override.
+- Rendered the paper reading view and physical paper text; both contain the shared clue without text overflow. The pinned clue uses that same text, suppresses legacy images, and passes its overflow check.
+- Rendered both sides of the open room-one passage. The old full-width boundary and stray pivot collider are disabled; three visible wall sections preserve an opening around the animated door.
+- These checks ran in the Unity editor. They do not certify a packaged build, a manual end-to-end input playthrough, or physical controller hardware. Fresh recordings are required for this configuration.
+
+The results below describe earlier revisions and are retained as history.
+
 ## Automated results
 
 - After the Caesar phrase redesign, the runtime, editor, and PlayMode test assemblies compiled successfully with Unity's generated Roslyn response files. Only pre-existing Unity API deprecation warnings remain.
@@ -20,7 +33,7 @@ The full-level test drives real scene components programmatically; it is not a p
 
 ## Outstanding acceptance checks
 
-- Rerun all EditMode/PlayMode suites after the latest cleanup fixes; verify expanded handoffs and no-takeover outcome.
+- Rerun the suites after subsequent source changes; the current editor results above include expanded handoffs and the no-takeover outcome.
 - Inspect all room viewpoints in a current packaged build, complete both variants using actual movement/interactions, replay each, and take over in every room.
 - Exercise held T/RT/click consumption, repeated input, pause/focus loss, nested UI, keypad and decoder animation transitions, collisions, recovery, incompatible files and export retry on the study machine.
 - Verify controls/options, main-menu Options binding, controller focus containment, 4:3/16:9 scaling and live device switching.

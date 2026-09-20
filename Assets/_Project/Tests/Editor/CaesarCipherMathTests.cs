@@ -3,6 +3,26 @@ using UnityEngine;
 
 public sealed class CaesarCipherMathTests
 {
+    [Test]
+    public void SimonShift_DecodesEveryOuterLetterToTheInnerAnswer()
+    {
+        const string encoded = "UKNGPV QTDKV";
+        Assert.That(CaesarCipherMath.ShiftSymbols("SILENT ORBIT", 2), Is.EqualTo(encoded));
+        string decoded = string.Concat(System.Linq.Enumerable.Select(encoded,
+            letter => CaesarCipherMath.ReadOuterToInner(letter, 2)));
+        Assert.That(decoded, Is.EqualTo("SILENT ORBIT"));
+        Assert.That(CaesarCipherMath.ReadOuterToInner('U', 2), Is.EqualTo('S'));
+    }
+
+    [Test]
+    public void CipherShift_IncludesQuestionMarkWhenWrapping()
+    {
+        Assert.That(CaesarCipherMath.ShiftSymbols("Z?A", 2), Is.EqualTo("ABC"));
+        Assert.That(CaesarCipherMath.ReadOuterToInner('A', 2), Is.EqualTo('Z'));
+        Assert.That(CaesarCipherMath.ShiftSymbols("SILENT ORBIT", 29),
+            Is.EqualTo(CaesarCipherMath.ShiftSymbols("SILENT ORBIT", 2)));
+    }
+
     [TestCase(-1, 26)]
     [TestCase(27, 0)]
     [TestCase(55, 1)]
@@ -38,9 +58,9 @@ public sealed class CaesarCipherMathTests
     public void TopSymbol_UsesPhysicalBaselineAndRotationDirection()
     {
         Assert.That(CaesarCipherMath.TopSymbol(13, 0f), Is.EqualTo('N'));
-        Assert.That(CaesarCipherMath.TopSymbol(13, 1f), Is.EqualTo('O'));
-        Assert.That(CaesarCipherMath.TopSymbol(13, -1f), Is.EqualTo('M'));
-        Assert.That(CaesarCipherMath.TopSymbol(13, 1f, -1f), Is.EqualTo('M'));
+        Assert.That(CaesarCipherMath.TopSymbol(13, 1f), Is.EqualTo('M'));
+        Assert.That(CaesarCipherMath.TopSymbol(13, -1f), Is.EqualTo('O'));
+        Assert.That(CaesarCipherMath.TopSymbol(13, 1f, -1f), Is.EqualTo('O'));
     }
 
     [Test]

@@ -110,7 +110,7 @@ public static class EscapeRoomLevelBuilder
                 throw new InvalidOperationException("Missing script on " + gameObject.name + ".");
         }
         string[] clueTexts = root.GetComponentsInChildren<NoteInteractable>(true).Select(note => note.ClueText).ToArray();
-        if (!clueTexts.Any(text => text.Contains("VLOHQW RUELW"))) throw new InvalidOperationException("The Caesar phrase clue is missing.");
+        if (!clueTexts.Any(text => text.Contains(CaesarCipherMath.ShiftSymbols(CaesarPuzzleClue.Solution, root.GetComponentInChildren<SimonSaysController>().FinalGreenCount)))) throw new InvalidOperationException("The Caesar phrase clue is missing.");
         if (!clueTexts.Any(text => text.Contains("42")) || !clueTexts.Any(text => text.Contains("71"))) throw new InvalidOperationException("The split keypad clues are missing.");
         Debug.Log("Level validation passed: continuous three-room flow, 3 persisted doors, 3 replayable notes, Caesar phrase terminal, 13-button keypad, exit trigger, and victory UI are present.");
     }
@@ -155,7 +155,7 @@ public static class EscapeRoomLevelBuilder
         EditorUtility.SetDirty(simon);
 
         CreateNote(gameplay.transform, "Room2_CaesarNote", new Vector3(-3.8f, 1.4f, 8.2f), Quaternion.Euler(0f, 90f, 0f),
-            "CAESAR'S NOTE\n\nDECODE THIS MESSAGE:\nVLOHQW RUELW\n\nKeep outer A at the marker. Turn the inner ring 3 spaces CCW until inner X sits under outer A. Read each coded outer letter as the matching inner letter, then enter the decoded words at the terminal.", "room2_caesar_note");
+            CaesarPuzzleClue.ForSimon(UnityEngine.Object.FindFirstObjectByType<SimonSaysController>()), "room2_caesar_note");
         CreatePhraseTerminal(gameplay.transform, roomTwoDoor);
 
         CreateNote(gameplay.transform, "Room3_FirstDigitsNote", new Vector3(-3.8f, 1.4f, 18.1f), Quaternion.Euler(0f, 90f, 0f),

@@ -49,7 +49,16 @@ public sealed class ZZStudyLevelFlowTests
         }
         Call(simon, "AdvanceTimeline", 4f);
         Assert.That(Prop(simon, "IsSolved"), Is.True);
-        yield return null;
+        Call(simon, "AdvanceTimeline", 10f); // Finish the completion celebration before rewatching.
+        Call(simon, "WatchFinalSequence");
+        Call(simon, "AdvanceTimeline", 0.7f);
+        Assert.That(Prop(simon, "IsRewatching"), Is.True);
+        yield return null; handoffs.Add((float)Prop(manager, "CurrentRecordingTime"));
+        Call(simon, "AdvanceTimeline", 10f);
+        Assert.That(Prop(simon, "IsSolved"), Is.True);
+        var simonDoor = GameObject.Find("SimonSaysRoom/HingeDoor").GetComponent(T("HingeDoor"));
+        Call(simonDoor, "Open"); Call(simonDoor, "AdvanceReplayPresentation", 2f);
+        yield return null; handoffs.Add((float)Prop(manager, "CurrentRecordingTime"));
         var player = Find("PlayerMotor");
         Call(player, "ToggleCrouch"); Call(player, "Jump");
         yield return null; handoffs.Add((float)Prop(manager, "CurrentRecordingTime"));

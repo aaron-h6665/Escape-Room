@@ -33,6 +33,10 @@ public sealed class EscapeRoomPrototypeRuntimeTests
         Component puzzle = puzzleObject.AddComponent(RuntimeType("ColorKeyChoicePuzzle"));
         SetField(puzzle, "id", "test-caesar-phrase");
         SetField(puzzle, "exitDoor", door);
+        Component simon = Track(new GameObject("Clue Simon")).AddComponent(RuntimeType("SimonSaysController"));
+        Component note = Track(new GameObject("Clue Note")).AddComponent(RuntimeType("NoteInteractable"));
+        SetField(puzzle, "clueSimon", simon);
+        SetField(puzzle, "clueNote", note);
         yield return null;
 
         bool wrongPhrase = (bool)puzzle.GetType().GetMethod("VerifyDecodedAnswer").Invoke(puzzle, new object[] { "OPEN THE DOOR" });

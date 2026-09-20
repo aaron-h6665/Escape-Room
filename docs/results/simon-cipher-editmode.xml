@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="15" result="Passed" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.0314484">
+  <test-suite type="TestSuite" id="1000" name="My project" fullname="My project" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.031448" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1014" name="CaesarCipher.Tests.Editor.dll" fullname="/Users/aaronhuang/Documents/Escape Room/Library/ScriptAssemblies/CaesarCipher.Tests.Editor.dll" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.023368" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="87360" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1001" name="CaesarCipherMathTests" fullname="CaesarCipherMathTests" classname="CaesarCipherMathTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.022676" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1003" name="CipherShift_IncludesQuestionMarkWhenWrapping" fullname="CaesarCipherMathTests.CipherShift_IncludesQuestionMarkWhenWrapping" methodname="CipherShift_IncludesQuestionMarkWhenWrapping" classname="CaesarCipherMathTests" runstate="Runnable" seed="1012233814" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.007220" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1009" name="DegreesPerNotch_IsThirteenAndOneThirdDegrees" fullname="CaesarCipherMathTests.DegreesPerNotch_IsThirteenAndOneThirdDegrees" methodname="DegreesPerNotch_IsThirteenAndOneThirdDegrees" classname="CaesarCipherMathTests" runstate="Runnable" seed="219078262" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000822" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1011" name="IndexToSymbol_MapsFinalNotchToQuestionMark" fullname="CaesarCipherMathTests.IndexToSymbol_MapsFinalNotchToQuestionMark" methodname="IndexToSymbol_MapsFinalNotchToQuestionMark" classname="CaesarCipherMathTests" runstate="Runnable" seed="111391765" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000241" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1008" name="NormalizeIndex_WrapsAcrossAllTwentySevenNotches" fullname="CaesarCipherMathTests.NormalizeIndex_WrapsAcrossAllTwentySevenNotches" classname="CaesarCipherMathTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.001577" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1004" name="NormalizeIndex_WrapsAcrossAllTwentySevenNotches(-1,26)" fullname="CaesarCipherMathTests.NormalizeIndex_WrapsAcrossAllTwentySevenNotches(-1,26)" methodname="NormalizeIndex_WrapsAcrossAllTwentySevenNotches" classname="CaesarCipherMathTests" runstate="Runnable" seed="1283650027" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000306" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1005" name="NormalizeIndex_WrapsAcrossAllTwentySevenNotches(27,0)" fullname="CaesarCipherMathTests.NormalizeIndex_WrapsAcrossAllTwentySevenNotches(27,0)" methodname="NormalizeIndex_WrapsAcrossAllTwentySevenNotches" classname="CaesarCipherMathTests" runstate="Runnable" seed="2146639739" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000029" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1006" name="NormalizeIndex_WrapsAcrossAllTwentySevenNotches(55,1)" fullname="CaesarCipherMathTests.NormalizeIndex_WrapsAcrossAllTwentySevenNotches(55,1)" methodname="NormalizeIndex_WrapsAcrossAllTwentySevenNotches" classname="CaesarCipherMathTests" runstate="Runnable" seed="713946837" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000024" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1007" name="NormalizeIndex_WrapsAcrossAllTwentySevenNotches(-55,26)" fullname="CaesarCipherMathTests.NormalizeIndex_WrapsAcrossAllTwentySevenNotches(-55,26)" methodname="NormalizeIndex_WrapsAcrossAllTwentySevenNotches" classname="CaesarCipherMathTests" runstate="Runnable" seed="421835657" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000024" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1013" name="RotationForIndex_IsCalculatedFromBaselineInsteadOfAccumulating" fullname="CaesarCipherMathTests.RotationForIndex_IsCalculatedFromBaselineInsteadOfAccumulating" methodname="RotationForIndex_IsCalculatedFromBaselineInsteadOfAccumulating" classname="CaesarCipherMathTests" runstate="Runnable" seed="1841926326" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.003577" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1002" name="SimonShift_DecodesEveryOuterLetterToTheInnerAnswer" fullname="CaesarCipherMathTests.SimonShift_DecodesEveryOuterLetterToTheInnerAnswer" methodname="SimonShift_DecodesEveryOuterLetterToTheInnerAnswer" classname="CaesarCipherMathTests" runstate="Runnable" seed="1922353800" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.001142" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1010" name="SnapDegreesToIndex_RoundsAtTheHalfNotchBoundary" fullname="CaesarCipherMathTests.SnapDegreesToIndex_RoundsAtTheHalfNotchBoundary" methodname="SnapDegreesToIndex_RoundsAtTheHalfNotchBoundary" classname="CaesarCipherMathTests" runstate="Runnable" seed="502511177" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000227" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="TopSymbol_UsesPhysicalBaselineAndRotationDirection" fullname="CaesarCipherMathTests.TopSymbol_UsesPhysicalBaselineAndRotationDirection" methodname="TopSymbol_UsesPhysicalBaselineAndRotationDirection" classname="CaesarCipherMathTests" runstate="Runnable" seed="536215428" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000176" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1020" name="MazeWallCleanup.Tests.Editor.dll" fullname="/Users/aaronhuang/Documents/Escape Room/Library/ScriptAssemblies/MazeWallCleanup.Tests.Editor.dll" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.004253" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="87360" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1021" name="MazeWallCleanup" fullname="MazeWallCleanup" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.003848" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1022" name="Tests" fullname="MazeWallCleanup.Tests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.003558" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1015" name="MazeWallCoordinateMathTests" fullname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests" classname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.003239" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1016" name="BuildTargets_AlignsPerpendicularWallEndpointAndCenterline" fullname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests.BuildTargets_AlignsPerpendicularWallEndpointAndCenterline" methodname="BuildTargets_AlignsPerpendicularWallEndpointAndCenterline" classname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests" runstate="Runnable" seed="1160894315" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.001530" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1017" name="BuildTargets_LeavesCoordinatesOutsideToleranceUnchanged" fullname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests.BuildTargets_LeavesCoordinatesOutsideToleranceUnchanged" methodname="BuildTargets_LeavesCoordinatesOutsideToleranceUnchanged" classname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests" runstate="Runnable" seed="1731033874" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000189" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1019" name="BuildTargets_RejectsNegativeTolerance" fullname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests.BuildTargets_RejectsNegativeTolerance" methodname="BuildTargets_RejectsNegativeTolerance" classname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests" runstate="Runnable" seed="2079853059" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000548" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1018" name="BuildTargets_UsesMedianForAClusterConnectedByTolerance" fullname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests.BuildTargets_UsesMedianForAClusterConnectedByTolerance" methodname="BuildTargets_UsesMedianForAClusterConnectedByTolerance" classname="MazeWallCleanup.Tests.MazeWallCoordinateMathTests" runstate="Runnable" seed="869043194" result="Passed" start-time="2026-09-20 13:13:36Z" end-time="2026-09-20 13:13:36Z" duration="0.000164" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: /Users/aaronhuang/Library/Application Support/DefaultCompany/My project/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

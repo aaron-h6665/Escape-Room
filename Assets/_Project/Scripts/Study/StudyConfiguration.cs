@@ -6,9 +6,9 @@ using UnityEngine;
 [Serializable]
 public sealed class StudyConfiguration
 {
-    public const string BuildVersion = "2026.09.20-polish-v2";
-    public const string LevelVersion = "three-rooms-polish-v2";
-    public const string ConfigurationId = "caesar-phrase-v2";
+    public const string BuildVersion = "2026.09.20-polish-v3";
+    public const string LevelVersion = "three-rooms-polish-v3";
+    public const string ConfigurationId = "simon-caesar-phrase-v3";
     public string participantCode = "";
     public string playbackSelection = "random";
     public string recordingFile = "";

@@ -22,6 +22,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
     const string RoundSucceededEvent = "simon_round_succeeded";
     const string FailedEvent = "simon_failed";
     const string CompletedEvent = "simon_completed";
+    const string RewatchEvent = "simon_rewatch_started";
 
     [Header("Puzzle")]
     [SerializeField] string id;
@@ -69,7 +70,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
     bool inputCuePlaying;
     Coroutine activeRoutine;
     // Explicit resumable phases replace coroutine-local timing.
-    enum CueStage { None, StartDelay, SequenceOn, SequenceGap, InputCue, ResultOn, ResultOff, NextDelay, Completion }
+    enum CueStage { None, StartDelay, SequenceOn, SequenceGap, InputCue, ResultOn, ResultOff, NextDelay, Completion, RewatchDelay, RewatchOn, RewatchGap }
     CueStage stage;
     float remaining;
     int cueIndex;
@@ -84,6 +85,8 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
     public string StateId => ReplayIdentity.Resolve(this, id);
     public bool IsSolved => phase == SimonSaysPhase.Solved;
     public SimonSaysPhase CurrentPhase => phase;
+    public int FinalGreenCount => fixedPattern.Count(color => color == SimonButtonColor.Green);
+    public bool IsRewatching => stage == CueStage.RewatchDelay || stage == CueStage.RewatchOn || stage == CueStage.RewatchGap;
     public UnityEvent OnRoundSucceeded => onRoundSucceeded;
     public UnityEvent OnPuzzleFailed => onPuzzleFailed;
     public UnityEvent OnPuzzleCompleted => onPuzzleCompleted;
@@ -164,6 +167,13 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
             float overflow = -remaining;
             switch (stage)
             {
+                case CueStage.RewatchDelay: Enter(CueStage.RewatchOn, buttonCueDuration); break;
+                case CueStage.RewatchOn: Enter(CueStage.RewatchGap, sequenceGap); break;
+                case CueStage.RewatchGap:
+                    cueIndex++;
+                    Enter(cueIndex < activeSequence.Count ? CueStage.RewatchOn : CueStage.None,
+                        cueIndex < activeSequence.Count ? buttonCueDuration : 0f);
+                    break;
                 case CueStage.StartDelay: case CueStage.NextDelay: BeginRound(); break;
                 case CueStage.SequenceOn: Enter(CueStage.SequenceGap, sequenceGap); break;
                 case CueStage.SequenceGap:
@@ -206,7 +216,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
         string key = currentRound + ":" + stage + ":" + cueIndex + ":" + pressedColor + ":" + phase;
         bool sound = key != renderedCue;
         renderedCue = key;
-        if (stage == CueStage.SequenceOn && cueIndex < activeSequence.Count)
+        if ((stage == CueStage.SequenceOn || stage == CueStage.RewatchOn) && cueIndex < activeSequence.Count)
         {
             SimonSaysButton button = FindButton(activeSequence[cueIndex]);
             button?.SetFeedback(SimonSaysButton.GetDisplayColor(activeSequence[cueIndex]), resultBrightness, true);
@@ -232,7 +242,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
             var clips = GetCompletionClips();
             if (sound && clips.Length > 0) PlayResultClip(clips[cueIndex % clips.Length]);
         }
-        else if (IsSolved) ApplySolvedVisuals();
+        else if (IsSolved && !IsRewatching) ApplySolvedVisuals();
     }
 
     public void AdvanceReplayPresentation(float seconds)
@@ -300,7 +310,8 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
             case SimonSaysPhase.Failed:
                 return "Try again";
             case SimonSaysPhase.Solved:
-                return "Simon Says complete";
+                return IsRewatching ? "Watch the final sequence"
+                    : stage == CueStage.None ? "Press E to watch the final sequence again" : "Simon Says complete";
             default:
                 return promptMessage;
         }
@@ -310,11 +321,25 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
 
     public void StartPuzzle()
     {
-        if (phase != SimonSaysPhase.Idle || ReplayManager.IsPlaybackActive()) return;
+        if (ReplayManager.IsPlaybackActive()) return;
+        if (IsSolved) { WatchFinalSequence(); return; }
+        if (phase != SimonSaysPhase.Idle) return;
         activeSequence.Clear(); currentRound = playerInputIndex = cueIndex = 0;
         phase = SimonSaysPhase.ShowingSequence;
         Enter(CueStage.StartDelay, startDelay);
         ReplayEventBus.Publish(this, StartedEvent, ReplayState, true, true);
+    }
+
+    public void WatchFinalSequence()
+    {
+        if (!IsSolved || stage != CueStage.None || ReplayManager.IsPlaybackActive()) return;
+        activeSequence.Clear();
+        activeSequence.AddRange(fixedPattern);
+        cueIndex = 0;
+        inputCuePlaying = false;
+        Enter(CueStage.RewatchDelay, startDelay);
+        ReplayEventBus.Publish(this, RewatchEvent, ReplayState, true, true,
+            customPayload: SerializeSequence(activeSequence));
     }
 
     public void ResetPuzzle()
@@ -336,7 +361,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
     public void HandleButtonInteraction(SimonSaysButton button)
     {
         if (ReplayManager.IsPlaybackActive()) return;
-        if (phase == SimonSaysPhase.Idle) { StartPuzzle(); return; }
+        if (phase == SimonSaysPhase.Idle || IsSolved) { StartPuzzle(); return; }
         if (phase != SimonSaysPhase.AwaitingInput || inputCuePlaying || button == null || playerInputIndex >= activeSequence.Count) return;
         button.RecordAcceptedPress(); pressedColor = button.ButtonColor; inputCuePlaying = true;
         if (pressedColor != activeSequence[playerInputIndex])
@@ -378,6 +403,11 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
         SimonSaysSaveData saved = FindSavedState(data, StateId);
         if (saved != null && saved.isSolved)
         {
+            if (saved.hasTimeline && saved.timelineStage >= (int)CueStage.RewatchDelay)
+            {
+                LoadSnapshot(data);
+                return;
+            }
             RestoreSolvedState();
         }
         else
@@ -388,6 +418,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
 
     public void SaveData(ref GameData data)
     {
+        if (IsRewatching) { SaveSnapshot(ref data); return; }
         SimonSaysSaveData saved = GetOrCreateSavedState(
             ref data,
             StateId);
@@ -396,6 +427,9 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
             return;
         }
 
+        saved.hasTimeline = false;
+        saved.timelineStage = saved.cueIndex = 0;
+        saved.stageRemaining = 0f;
         saved.isSolved = IsSolved;
         saved.phase = (int)(IsSolved
             ? SimonSaysPhase.Solved
@@ -481,8 +515,8 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
         currentRound = fixedPattern.Length;
         playerInputIndex = fixedPattern.Length;
         phase = SimonSaysPhase.Solved;
-        UpdateStartInteractionSurface();
-        ApplySolvedVisuals();
+        cueIndex = 0;
+        Enter(CueStage.None, 0f);
     }
 
     SimonSaysPhase SanitizePhase(int value)
@@ -581,7 +615,7 @@ public class SimonSaysController : Interactable, IDataPersistence, IReplayObject
     {
         if (startInteractionCollider != null)
         {
-            startInteractionCollider.enabled = phase == SimonSaysPhase.Idle;
+            startInteractionCollider.enabled = phase == SimonSaysPhase.Idle || (IsSolved && stage == CueStage.None);
         }
     }
 

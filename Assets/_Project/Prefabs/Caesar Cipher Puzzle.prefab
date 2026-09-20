@@ -436,11 +436,11 @@ MonoBehaviour:
   parentLocalRotationAxis: {x: 0, y: 1, z: 0}
   innerRotationDirection: 1
   outerRotationDirection: 1
-  innerIndex: 13
-  outerIndex: 14
+  innerIndex: 0
+  outerIndex: 26
   selectedRing: 0
-  innerTopSymbolAtZero: 14
-  outerTopSymbolAtZero: 13
+  innerTopSymbolAtZero: 0
+  outerTopSymbolAtZero: 26
   worldInteractionCollider: {fileID: 2347321928382504918}
   innerRingCollider: {fileID: 5745290953323294322}
   outerRingCollider: {fileID: 1619129385825340981}
@@ -451,6 +451,7 @@ MonoBehaviour:
   inspectionCamera: {fileID: 0}
   inspectionLayerName: CipherInspection
   inspectionLocalViewNormal: {x: 0, y: 1, z: 0}
+  inspectionLocalUp: {x: 0, y: 0, z: -1}
   inspectionPadding: 1.2
   snapDuration: 0.12
   inspectionHud: {fileID: 0}

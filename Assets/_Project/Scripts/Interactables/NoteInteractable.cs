@@ -58,10 +58,19 @@ public class NoteInteractable : Interactable, IDataPersistence, IReplayObject, I
             return text != null ? text.text : string.Empty;
         }
     }
+    public void SetClueText(string clue)
+    {
+        // Update every authored text surface, including the world paper and old hidden overlays.
+        foreach (TMP_Text text in GetComponentsInChildren<TMP_Text>(true))
+            text.text = clue;
+    }
+
     public Sprite ClueSprite
     {
         get
         {
+            // A textual clue is authoritative; do not pin a stale legacy image beside it.
+            if (!string.IsNullOrWhiteSpace(ClueText)) return null;
             Image image = ResolveClueImage();
             return image != null ? image.sprite : null;
         }

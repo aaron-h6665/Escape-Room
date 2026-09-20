@@ -11,6 +11,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject, IReplayT
     [SerializeField] private string id;
     [SerializeField] private bool isOpen;
     float animationProgress;
+    AnimationClip openClip;
 
     [Header("Puzzle Lock")]
     [Tooltip("When assigned, the door cannot be opened until this Simon Says puzzle is solved.")]
@@ -66,7 +67,7 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject, IReplayT
 
     bool OpenDoor()
     {
-        if (isOpen) return false;
+        if (isOpen || IsLocked) return false;
 
         ResolveDoorAnimator();
         if (myDoor == null)
@@ -174,10 +175,14 @@ public class HingeDoor : Interactable, IDataPersistence, IReplayObject, IReplayT
             return;
         }
 
+        // Sample the opening clip directly so controller exit transitions and offscreen
+        // animator culling cannot visually close a logically open passage.
+        if (openClip == null && myDoor.runtimeAnimatorController != null)
+            openClip = System.Array.Find(myDoor.runtimeAnimatorController.animationClips, clip => clip.name == doorOpen);
+        if (openClip == null) return;
         myDoor.fireEvents = false;
-        myDoor.Play(doorOpen, 0, animationProgress);
-        myDoor.Update(0f);
-        myDoor.speed = 0f;
+        myDoor.enabled = false;
+        openClip.SampleAnimation(myDoor.gameObject, animationProgress * openClip.length);
     }
 
     void ResolveDoorAnimator()
