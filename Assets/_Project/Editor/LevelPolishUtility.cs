@@ -109,8 +109,9 @@ public static class LevelPolishUtility
             if (text == null || text.rectTransform.anchorMin.x < 0.05f || text.rectTransform.anchorMax.x > 0.95f)
                 throw new InvalidOperationException(note.name + " does not have a readable bounded note UI.");
             Image panel = text.GetComponentInParent<Image>(true);
-            if (panel == null || panel.sprite == null)
-                throw new InvalidOperationException(note.name + " does not use the paper treatment in its reading view.");
+            if (panel == null || panel.sprite != null || panel.color.r < 0.95f
+                || Mathf.Abs(panel.rectTransform.sizeDelta.x / panel.rectTransform.sizeDelta.y - 210f / 297f) > 0.01f)
+                throw new InvalidOperationException(note.name + " does not use the clean portrait paper treatment in its reading view.");
             Renderer noteRenderer = note.GetComponentInChildren<Renderer>(true);
             if (noteRenderer == null || noteRenderer.sharedMaterial == null || noteRenderer.sharedMaterial.mainTexture == null)
                 throw new InvalidOperationException(note.name + " does not use the paper treatment in the world.");
@@ -286,10 +287,11 @@ public static class LevelPolishUtility
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.anchoredPosition = Vector2.zero;
-        panelRect.sizeDelta = new Vector2(860f, 484f);
+        panelRect.sizeDelta = new Vector2(440f, 440f * 297f / 210f);
         Image panelImage = panel.GetComponent<Image>();
-        panelImage.sprite = RequirePaperSprite();
-        panelImage.color = new Color(0.93f, 0.86f, 0.69f, 1f);
+        // Keep the reading surface uniform so texture cannot obscure the clue.
+        panelImage.sprite = null;
+        panelImage.color = new Color(0.98f, 0.97f, 0.94f, 1f);
         panelImage.preserveAspect = false;
         panelImage.raycastTarget = false;
         Shadow shadow = panel.GetComponent<Shadow>() ?? panel.AddComponent<Shadow>();
@@ -303,20 +305,20 @@ public static class LevelPolishUtility
             : new GameObject("ReadableNoteText", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
         text.transform.SetParent(panel.transform, false);
         RectTransform textRect = text.rectTransform;
-        textRect.anchorMin = new Vector2(0.09f, 0.11f);
-        textRect.anchorMax = new Vector2(0.91f, 0.89f);
+        textRect.anchorMin = new Vector2(0.09f, 0.07f);
+        textRect.anchorMax = new Vector2(0.91f, 0.93f);
         textRect.offsetMin = textRect.offsetMax = Vector2.zero;
-        text.text = clue + "\n\n<size=55%><color=#675947>Press E or Escape to put the note down</color></size>";
+        text.text = clue + "\n\n<size=75%><color=#444444>Press E or Escape to put the note down</color></size>";
         text.fontSize = 32f;
         text.enableAutoSizing = true;
         text.fontSizeMin = 20f;
-        text.fontSizeMax = 34f;
+        text.fontSizeMax = 28f;
         text.enableWordWrapping = true;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = new Color(0.16f, 0.115f, 0.075f, 1f);
-        text.fontStyle = FontStyles.Italic;
-        text.characterSpacing = 2f;
-        text.lineSpacing = 8f;
+        text.alignment = TextAlignmentOptions.TopLeft;
+        text.color = new Color(0.08f, 0.08f, 0.08f, 1f);
+        text.fontStyle = FontStyles.Normal;
+        text.characterSpacing = 0f;
+        text.lineSpacing = 4f;
         text.margin = Vector4.zero;
         text.raycastTarget = false;
 
