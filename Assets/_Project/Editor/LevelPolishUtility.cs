@@ -93,11 +93,41 @@ public static class LevelPolishUtility
         Debug.Log("Simon-linked cipher clue and two-way passage saved.");
     }
 
+    [MenuItem("Tools/Escape Room/Use One Green Simon Test Pattern")]
+    public static void UseOneGreenSimonTestPattern()
+    {
+        ConfigureSimonPattern(true);
+    }
+
+    [MenuItem("Tools/Escape Room/Restore Full Simon Pattern")]
+    public static void RestoreFullSimonPattern()
+    {
+        ConfigureSimonPattern(false);
+    }
+
+    static void ConfigureSimonPattern(bool oneGreen)
+    {
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        var simon = RequireRoot(scene, "SimonSaysRoom").GetComponentInChildren<SimonSaysController>(true);
+        var serialized = new SerializedObject(simon);
+        var pattern = serialized.FindProperty("fixedPattern");
+        if (oneGreen)
+        {
+            pattern.arraySize = 1;
+            pattern.GetArrayElementAtIndex(0).enumValueIndex = (int)SimonButtonColor.Green;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+        else PrefabUtility.RevertPropertyOverride(pattern, InteractionMode.AutomatedAction);
+        RepairSimonBoundary(RequireRoot(scene, "SimonSaysRoom"));
+        ConfigureSimonCipherClue(scene);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+    }
+
     static void ConfigureSimonCipherClue(Scene scene)
     {
         var simon = RequireRoot(scene, "SimonSaysRoom").GetComponentInChildren<SimonSaysController>(true);
-        // Remove the one-round scene override and use the authored five-color prefab pattern.
-        PrefabUtility.RevertPropertyOverride(new SerializedObject(simon).FindProperty("fixedPattern"), InteractionMode.AutomatedAction);
         var room = RequireRoot(scene, "CaesarCipherRoom");
         var note = room.transform.Find("Note").GetComponent<NoteInteractable>();
         var puzzle = room.GetComponentInChildren<ColorKeyChoicePuzzle>(true);
@@ -452,9 +482,18 @@ public static class LevelPolishUtility
         boundary.transform.localPosition = Vector3.zero;
         foreach (Transform child in boundary.transform.Cast<Transform>().ToArray()) UnityEngine.Object.DestroyImmediate(child.gameObject);
 
-        CreateWorldBlocker(boundary.transform, "LeftWallBlocker", new Vector3(-5.06f, 7.2f, 10f), new Vector3(4.32f, 10f, 0.22f));
-        CreateWorldBlocker(boundary.transform, "RightWallBlocker", new Vector3(0.55f, 7.2f, 10f), new Vector3(4.46f, 10f, 0.22f));
-        CreateWorldBlocker(boundary.transform, "DoorHeaderBlocker", new Vector3(-2.29f, 8.43f, 10f), new Vector3(1.22f, 7.55f, 0.22f));
+        // Fit to the closed leaf, with a small overlap so there is no sightline
+        // between the door and masonry from either side or at an oblique angle.
+        Bounds leaf = simonRoom.transform.Find("HingeDoor/Rotatable/Door_1m_Right").GetComponent<Renderer>().bounds;
+        const float overlap = 0.015f;
+        float left = leaf.min.x + overlap, right = leaf.max.x - overlap;
+        float top = leaf.max.y - overlap;
+        CreateWorldBlocker(boundary.transform, "LeftWallBlocker",
+            new Vector3((-7.22f + left) / 2f, 7.2f, 10f), new Vector3(left + 7.22f, 10f, 0.22f));
+        CreateWorldBlocker(boundary.transform, "RightWallBlocker",
+            new Vector3((right + 2.78f) / 2f, 7.2f, 10f), new Vector3(2.78f - right, 10f, 0.22f));
+        CreateWorldBlocker(boundary.transform, "DoorHeaderBlocker",
+            new Vector3(leaf.center.x, (top + 12.2f) / 2f, 10f), new Vector3(right - left, 12.2f - top, 0.22f));
 
         // The old ProBuilder boundary has a solid reverse face and a full-width collider.
         // Replace it with three solid wall sections around the actual opening.

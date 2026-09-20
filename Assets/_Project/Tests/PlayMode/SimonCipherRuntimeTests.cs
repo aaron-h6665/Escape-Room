@@ -85,14 +85,63 @@ public sealed class SimonCipherRuntimeTests
     }
 
     [UnityTest]
+    public IEnumerator OneGreenUnlocksDoorAndChangingPatternRegeneratesEveryClue()
+    {
+        yield return SceneManager.LoadSceneAsync("Level"); yield return null;
+        var simon=Find("SimonSaysController");
+        var door=GameObject.Find("SimonSaysRoom/HingeDoor").GetComponent(T("HingeDoor"));
+        Assert.That(((Array)Get(simon,"fixedPattern")).Length,Is.EqualTo(1));
+        var green=Enum.Parse(T("SimonButtonColor"),"Green");
+        Call(simon,"StartPuzzle"); Call(simon,"AdvanceTimeline",2f);
+        Assert.That(Prop(simon,"CurrentPhase").ToString(),Is.EqualTo("AwaitingInput"));
+        Call(simon,"HandleButtonInteraction",Call(simon,"FindButton",green));
+        Call(simon,"AdvanceTimeline",10f);
+        Assert.That(Prop(simon,"IsSolved"),Is.True);
+        Assert.That(Prop(door,"IsLocked"),Is.False);
+        var note=GameObject.Find("CaesarCipherRoom/Note").GetComponent(T("NoteInteractable"));
+        foreach(var pair in new[]{(1,"TJMFOU PSCJU"),(2,"UKNGPV QTDKV"),(3,"VLOHQW RUELW")})
+        {
+            var pattern=Array.CreateInstance(T("SimonButtonColor"),pair.Item1);
+            for(int i=0;i<pattern.Length;i++)pattern.SetValue(green,i);
+            Set(simon,"fixedPattern",pattern);
+            yield return null;
+            Assert.That((string)Prop(note,"ClueText"),Does.Contain(pair.Item2));
+            Type textType=Type.GetType("TMPro.TMP_Text, Unity.TextMeshPro",true);
+            foreach(var text in note.GetComponentsInChildren(textType,true))
+                Assert.That(textType.GetProperty("text").GetValue(text),Is.EqualTo(Prop(note,"ClueText")));
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator InspectionAlwaysShowsFrontFaceAndResetRestoresAA()
+    {
+        yield return SceneManager.LoadSceneAsync("Level"); yield return null;
+        var cipher=Find("CaesarCipherInteractable"); Call(cipher,"OpenInspection",false);
+        var camera=(Camera)Get(cipher,"inspectionCamera");
+        var main=(Camera)Get(cipher,"mainCamera");
+        Quaternion rotation=camera.transform.rotation;
+        Vector3 normal=cipher.transform.TransformDirection((Vector3)Get(cipher,"inspectionLocalViewNormal"));
+        main.transform.position=cipher.transform.position-normal*3f;
+        Call(cipher,"ConfigureInspectionCamera");
+        Assert.That(Quaternion.Angle(rotation,camera.transform.rotation),Is.LessThan(0.01f));
+        var ring=Enum.Parse(T("CaesarCipherInteractable+RingSelection"),"Inner");
+        Call(cipher,"SetRingIndex",ring,7,false,false);
+        Call(cipher,"ResetAlignment");
+        Assert.That(Prop(cipher,"InnerIndex"),Is.EqualTo(0));
+        Assert.That(Prop(cipher,"InnerTopSymbol"),Is.EqualTo('A'));
+        Assert.That(Prop(cipher,"OuterTopSymbol"),Is.EqualTo('A'));
+        Call(cipher,"CloseInspection",false);
+    }
+
+    [UnityTest]
     public IEnumerator Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue()
     {
         yield return SceneManager.LoadSceneAsync("Level"); yield return null;
         Component simon = Find("SimonSaysController");
-        Assert.That(Prop(simon,"FinalGreenCount"), Is.EqualTo(2));
+        Assert.That(Prop(simon,"FinalGreenCount"), Is.EqualTo(1));
         Call(simon,"StartPuzzle"); Call(simon,"AdvanceTimeline",1.5f);
         Call(simon,"ResetPuzzle");
-        Assert.That(Prop(simon,"FinalGreenCount"), Is.EqualTo(2), "Retries must not change the clue.");
+        Assert.That(Prop(simon,"FinalGreenCount"), Is.EqualTo(1), "Retries must not change the clue.");
         Call(simon,"RestoreSolvedState");
         int completions = 0;
         ((UnityEngine.Events.UnityEvent)Prop(simon,"OnPuzzleCompleted")).AddListener(()=>completions++);
@@ -131,6 +180,17 @@ public sealed class SimonCipherRuntimeTests
         var simon = Find("SimonSaysController");
         var door = GameObject.Find("SimonSaysRoom/HingeDoor").GetComponent(T("HingeDoor"));
         Assert.That(Prop(door,"IsLocked"), Is.True);
+        Call(door,"SetOpen",false,false); Physics.SyncTransforms();
+        // Sample straight and oblique sightlines through the previously visible side gaps.
+        foreach(float y in new[]{2.4f,3.4f,4.6f})
+        foreach(float side in new[]{-1f,1f})
+        for(int sample=0;sample<=30;sample++)
+        {
+            Vector3 atWall=new Vector3(Mathf.Lerp(-3f,-1.5f,sample/30f),y,10f);
+            Vector3 start=atWall+new Vector3(0.3f*side,0,1.3f*side);
+            Assert.That(Physics.Raycast(start,(atWall-start).normalized,1.6f,~0,QueryTriggerInteraction.Ignore),
+                Is.True,"Closed door must hide the next room at "+atWall);
+        }
         Call(door,"Open");
         Assert.That(Prop(door,"IsOpen"), Is.False, "Public open must respect the Simon lock.");
         Call(simon,"RestoreSolvedState"); Call(door,"Open"); Call(door,"AdvanceReplayPresentation",2f);
@@ -171,7 +231,7 @@ public sealed class SimonCipherRuntimeTests
         yield return SceneManager.LoadSceneAsync("Level"); yield return null;
         var note=GameObject.Find("CaesarCipherRoom/Note").GetComponent(T("NoteInteractable"));
         string clue=(string)Prop(note,"ClueText");
-        Assert.That(clue,Does.Contain("UKNGPV QTDKV"));
+        Assert.That(clue,Does.Contain("TJMFOU PSCJU"));
         Assert.That(clue,Does.Contain("outer ring and read the aligned inner letter"));
         Assert.That(clue,Does.Contain("clockwise one notch"));
         Assert.That(clue,Does.Not.Contain("CCW"));

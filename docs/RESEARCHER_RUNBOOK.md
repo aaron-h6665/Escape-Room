@@ -27,6 +27,12 @@ For manual selection set `playbackSelection` to `manual` and `recordingFile` to 
 
 Participant codes are optional researcher-supplied pseudonyms. Do not enter names or unnecessary identifiers. No server assigns or verifies codes.
 
+## Simon testing configuration
+
+The Level scene currently requires one green press. Its note is generated from the final-pattern green count: one green gives `TJMFOU PSCJU`; starting at A/A, one clockwise inner-ring notch decodes it outer-to-inner to `SILENT ORBIT`. Count the question-mark position as a notch. R (controller Y / triangle) resets A/A.
+
+Use **Tools > Escape Room > Restore Full Simon Pattern** to restore the prefab sequence, or **Use One Green Simon Test Pattern** to return to the short test. Both save Level and regenerate the paper text. Changing the controller's final pattern during PlayMode also refreshes the clue. Keep the pattern fixed during recordings; when changing a study pattern, assign a new configuration identifier and record fresh source runs.
+
 ## Session procedure
 
 - Set the participant code before launch. Keep the build, puzzle configuration, and selection procedure fixed for a study batch.

@@ -3,13 +3,14 @@ using UnityEngine;
 
 public sealed class CaesarCipherMathTests
 {
-    [Test]
-    public void SimonShift_DecodesEveryOuterLetterToTheInnerAnswer()
+    [TestCase(1, "TJMFOU PSCJU")]
+    [TestCase(2, "UKNGPV QTDKV")]
+    [TestCase(3, "VLOHQW RUELW")]
+    public void SimonShift_DecodesEveryOuterLetterToTheInnerAnswer(int shift, string encoded)
     {
-        const string encoded = "UKNGPV QTDKV";
-        Assert.That(CaesarCipherMath.ShiftSymbols("SILENT ORBIT", 2), Is.EqualTo(encoded));
+        Assert.That(CaesarCipherMath.ShiftSymbols("SILENT ORBIT", shift), Is.EqualTo(encoded));
         string decoded = string.Concat(System.Linq.Enumerable.Select(encoded,
-            letter => CaesarCipherMath.ReadOuterToInner(letter, 2)));
+            letter => CaesarCipherMath.ReadOuterToInner(letter, shift)));
         Assert.That(decoded, Is.EqualTo("SILENT ORBIT"));
         Assert.That(CaesarCipherMath.ReadOuterToInner('U', 2), Is.EqualTo('S'));
     }

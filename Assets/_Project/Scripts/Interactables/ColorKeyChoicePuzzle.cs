@@ -8,6 +8,7 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
     public const string SolutionPhrase = CaesarPuzzleClue.Solution;
     [SerializeField] SimonSaysController clueSimon;
     [SerializeField] NoteInteractable clueNote;
+    int displayedGreenCount = -1;
 
     [SerializeField] string id;
     [SerializeField] PrototypeSlidingDoor exitDoor;
@@ -69,7 +70,15 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
         if (oldAward != null) Destroy(oldAward.gameObject);
     }
 
-    void Start()
+    void Start() => RefreshClue();
+
+    void Update()
+    {
+        if (clueSimon != null && clueSimon.FinalGreenCount != displayedGreenCount) RefreshClue();
+    }
+
+    [ContextMenu("Refresh Caesar Clue")]
+    public void RefreshClue()
     {
         if (clueSimon == null)
             clueSimon = FindObjectsByType<SimonSaysController>(FindObjectsInactive.Include)
@@ -83,6 +92,7 @@ public sealed class ColorKeyChoicePuzzle : MonoBehaviour, IDataPersistence, IRep
             return;
         }
         clueNote.SetClueText(CaesarPuzzleClue.ForSimon(clueSimon));
+        displayedGreenCount = clueSimon.FinalGreenCount;
     }
 
     // Legacy scene components call this until the editor migration permanently deletes them.

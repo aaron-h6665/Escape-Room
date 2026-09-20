@@ -40,7 +40,7 @@ Handoff uses the already-displayed state, does not advance the source first, and
 
 Session events include pause/resume, focus loss/restoration, settings changes, input-device changes, and takeover. Object events include reads, pickups/drops, button presses, answer drafts/submissions, failures, and puzzle completion. Movement and camera pose are behavioral/view traces, not measurements of eye gaze.
 
-Solved Simon rewatch emits `simon_rewatch_started` and keeps the puzzle solved. Its delay/on/gap stages use the existing `timelineStage`, `cueIndex`, `stageRemaining`, and `sequence` fields; no format-version change is needed. Completion events are not emitted again. The Simon-linked cipher uses level `three-rooms-polish-v3` and configuration `simon-caesar-phrase-v3`, so older puzzle recordings are excluded from compatible selection.
+Solved Simon rewatch emits `simon_rewatch_started` and keeps the puzzle solved. Its delay/on/gap stages use the existing `timelineStage`, `cueIndex`, `stageRemaining`, and `sequence` fields; no format-version change is needed. Completion events are not emitted again. The Simon-linked cipher uses level `three-rooms-polish-v4` and configuration `simon-caesar-dynamic-v4`, so older puzzle recordings are excluded from compatible selection.
 
 ## Compatibility
 

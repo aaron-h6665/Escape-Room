@@ -1,7 +1,7 @@
 public static class CaesarPuzzleClue
 {
     public const string Solution = "SILENT ORBIT";
-    public const string Instructions = "Start with A aligned with A. Turn the inner ring clockwise one notch for each time you pressed green in Simon’s final round. Find each coded letter on the outer ring and read the aligned inner letter. Return to Simon to watch the final sequence again.";
+    public const string Instructions = "Start with A aligned with A (R resets the wheel). Turn the inner ring clockwise one notch for each time you pressed green in Simon’s final round. Count every printed symbol, including ?. Find each coded letter on the outer ring and read the aligned inner letter. Return to Simon to watch the final sequence again.";
 
     public static string ForSimon(SimonSaysController simon)
     {

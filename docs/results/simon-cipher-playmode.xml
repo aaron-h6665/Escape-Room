@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="28" result="Passed" total="28" passed="28" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:07Z" duration="3.3313399">
-  <test-suite type="TestSuite" id="1039" name="My project" fullname="My project" runstate="Runnable" testcasecount="28" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:07Z" duration="3.331340" total="28" passed="28" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="30" result="Passed" total="30" passed="30" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:37Z" duration="4.139505">
+  <test-suite type="TestSuite" id="1041" name="My project" fullname="My project" runstate="Runnable" testcasecount="30" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:37Z" duration="4.139505" total="30" passed="30" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="PlayMode" />
     </properties>
-    <test-suite type="Assembly" id="1035" name="CaesarCipher.Tests.PlayMode.dll" fullname="/Users/aaronhuang/Documents/Escape Room/Library/ScriptAssemblies/CaesarCipher.Tests.PlayMode.dll" runstate="Runnable" testcasecount="28" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:07Z" duration="3.327005" total="28" passed="28" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1037" name="CaesarCipher.Tests.PlayMode.dll" fullname="/Users/aaronhuang/Documents/Escape Room/Library/ScriptAssemblies/CaesarCipher.Tests.PlayMode.dll" runstate="Runnable" testcasecount="30" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:37Z" duration="4.135430" total="30" passed="30" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="86766" />
+        <property name="_PID" value="5982" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="PlayMode" />
         <property name="EditorOnly" value="False" />
       </properties>
-      <test-suite type="TestFixture" id="1001" name="CaesarCipherRuntimeSmokeTests" fullname="CaesarCipherRuntimeSmokeTests" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.069206" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1001" name="CaesarCipherRuntimeSmokeTests" fullname="CaesarCipherRuntimeSmokeTests" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.059957" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1005" name="NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" fullname="CaesarCipherRuntimeSmokeTests.NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" methodname="NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="211816902" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.014129" asserts="0">
+        <test-case id="1005" name="NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" fullname="CaesarCipherRuntimeSmokeTests.NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" methodname="NormalPersistence_RestoresWheelButNeverModalAndLeavesDoorsUntouched" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="502695766" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.012762" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1006" name="NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" fullname="CaesarCipherRuntimeSmokeTests.NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" methodname="NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1019757636" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.003684" asserts="0">
+        <test-case id="1006" name="NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" fullname="CaesarCipherRuntimeSmokeTests.NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" methodname="NoteDiscovery_SurvivesNormalSaveWithoutReopeningTheModal" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1300161040" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.002925" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1003" name="OpeningInspection_KeepsInitialAAAlignment" fullname="CaesarCipherRuntimeSmokeTests.OpeningInspection_KeepsInitialAAAlignment" methodname="OpeningInspection_KeepsInitialAAAlignment" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="372607653" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.039289" asserts="0">
+        <test-case id="1003" name="OpeningInspection_KeepsInitialAAAlignment" fullname="CaesarCipherRuntimeSmokeTests.OpeningInspection_KeepsInitialAAAlignment" methodname="OpeningInspection_KeepsInitialAAAlignment" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1573749561" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.030086" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1002" name="ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" fullname="CaesarCipherRuntimeSmokeTests.ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" methodname="ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="47918009" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.004444" asserts="0">
+        <test-case id="1002" name="ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" fullname="CaesarCipherRuntimeSmokeTests.ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" methodname="ReplayOpenAndClose_AreIdempotentAndRestoreLayersAndColliders" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1996202653" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.007066" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1004" name="ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" fullname="CaesarCipherRuntimeSmokeTests.ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" methodname="ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="1481896087" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.001247" asserts="0">
+        <test-case id="1004" name="ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" fullname="CaesarCipherRuntimeSmokeTests.ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" methodname="ReplayRotation_OnlyTurnsInnerRingAndBothRingsBeginAtA" classname="CaesarCipherRuntimeSmokeTests" runstate="Runnable" seed="166061045" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.001170" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -49,9 +49,9 @@
           </properties>
         </test-case>
       </test-suite>
-      <test-suite type="TestFixture" id="1007" name="EscapeRoomPrototypeRuntimeTests" fullname="EscapeRoomPrototypeRuntimeTests" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.011794" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1007" name="EscapeRoomPrototypeRuntimeTests" fullname="EscapeRoomPrototypeRuntimeTests" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.011985" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1008" name="CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly" fullname="EscapeRoomPrototypeRuntimeTests.CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly" methodname="CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="267552167" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.007060" asserts="0">
+        <test-case id="1008" name="CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly" fullname="EscapeRoomPrototypeRuntimeTests.CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly" methodname="CaesarPhrase_RejectsWrongAnswerAndUnlocksDoorDirectly" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="955528529" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.007172" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -60,37 +60,37 @@
           <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
 ]]></output>
         </test-case>
-        <test-case id="1010" name="Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" fullname="EscapeRoomPrototypeRuntimeTests.Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" methodname="Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="826645840" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.001817" asserts="0">
+        <test-case id="1010" name="Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" fullname="EscapeRoomPrototypeRuntimeTests.Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" methodname="Keypad_AutoSubmitsFourDigitsAndClearsAnIncorrectCode" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="1732894483" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.001800" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1009" name="Keypad_RequiresExactCodeAndPersistsSolvedState" fullname="EscapeRoomPrototypeRuntimeTests.Keypad_RequiresExactCodeAndPersistsSolvedState" methodname="Keypad_RequiresExactCodeAndPersistsSolvedState" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="539941298" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.001252" asserts="0">
+        <test-case id="1009" name="Keypad_RequiresExactCodeAndPersistsSolvedState" fullname="EscapeRoomPrototypeRuntimeTests.Keypad_RequiresExactCodeAndPersistsSolvedState" methodname="Keypad_RequiresExactCodeAndPersistsSolvedState" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="635087358" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.001236" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1011" name="PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" fullname="EscapeRoomPrototypeRuntimeTests.PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" methodname="PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="2070696666" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.000891" asserts="0">
+        <test-case id="1011" name="PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" fullname="EscapeRoomPrototypeRuntimeTests.PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" methodname="PrototypeStatefulObjects_ImplementPersistenceAndReplayContracts" classname="EscapeRoomPrototypeRuntimeTests" runstate="Runnable" seed="917168080" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.000968" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
       </test-suite>
-      <test-suite type="TestFixture" id="1012" name="ReplayFlowRuntimeTests" fullname="ReplayFlowRuntimeTests" classname="ReplayFlowRuntimeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.061585" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1012" name="ReplayFlowRuntimeTests" fullname="ReplayFlowRuntimeTests" classname="ReplayFlowRuntimeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.052974" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1017" name="DecodedPhraseTerminal_ReplaysItsModalAndTypedText" fullname="ReplayFlowRuntimeTests.DecodedPhraseTerminal_ReplaysItsModalAndTypedText" methodname="DecodedPhraseTerminal_ReplaysItsModalAndTypedText" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="408898976" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.019878" asserts="0">
+        <test-case id="1017" name="DecodedPhraseTerminal_ReplaysItsModalAndTypedText" fullname="ReplayFlowRuntimeTests.DecodedPhraseTerminal_ReplaysItsModalAndTypedText" methodname="DecodedPhraseTerminal_ReplaysItsModalAndTypedText" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1557711082" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.018328" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1013" name="MissingManualRecording_DoesNotSubstituteAnotherRecording" fullname="ReplayFlowRuntimeTests.MissingManualRecording_DoesNotSubstituteAnotherRecording" methodname="MissingManualRecording_DoesNotSubstituteAnotherRecording" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1111093510" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.020374" asserts="0">
+        <test-case id="1013" name="MissingManualRecording_DoesNotSubstituteAnotherRecording" fullname="ReplayFlowRuntimeTests.MissingManualRecording_DoesNotSubstituteAnotherRecording" methodname="MissingManualRecording_DoesNotSubstituteAnotherRecording" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1868969997" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.017095" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -99,33 +99,43 @@
           <output><![CDATA[Selected recording is missing, incomplete, or incompatible. No random substitution was made.
 ]]></output>
         </test-case>
-        <test-case id="1015" name="PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" fullname="ReplayFlowRuntimeTests.PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" methodname="PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1808694221" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.011046" asserts="0">
+        <test-case id="1015" name="PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" fullname="ReplayFlowRuntimeTests.PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" methodname="PlaybackInteractionPrompt_FollowsTheRecordedCameraWithoutInteracting" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1526028249" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.008814" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1016" name="PlaybackPromptSnapshot_IsNotBlanked" fullname="ReplayFlowRuntimeTests.PlaybackPromptSnapshot_IsNotBlanked" methodname="PlaybackPromptSnapshot_IsNotBlanked" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="865941590" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.001810" asserts="0">
+        <test-case id="1016" name="PlaybackPromptSnapshot_IsNotBlanked" fullname="ReplayFlowRuntimeTests.PlaybackPromptSnapshot_IsNotBlanked" methodname="PlaybackPromptSnapshot_IsNotBlanked" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1972832767" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.001409" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1014" name="Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" fullname="ReplayFlowRuntimeTests.Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" methodname="Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="1582208342" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:03Z" duration="0.007452" asserts="0">
+        <test-case id="1014" name="Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" fullname="ReplayFlowRuntimeTests.Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" methodname="Takeover_ChangesPlaybackIntoALinkedTakeoverRecording" classname="ReplayFlowRuntimeTests" runstate="Runnable" seed="2078879291" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:33Z" duration="0.006562" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
-          <output><![CDATA[Takeover began at replay 12.5s (game time 12.5s). Takeover ID=cae43829dff84e92aeaff31f772e83dc, source ID=source-recording.
+          <output><![CDATA[Takeover began at replay 12.5s (game time 12.5s). Takeover ID=6b22cdc5b484498aa3b0fc637f83d60e, source ID=source-recording.
 ]]></output>
         </test-case>
       </test-suite>
-      <test-suite type="TestFixture" id="1018" name="SimonCipherRuntimeTests" fullname="SimonCipherRuntimeTests" classname="SimonCipherRuntimeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:05Z" duration="1.375865" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1018" name="SimonCipherRuntimeTests" fullname="SimonCipherRuntimeTests" classname="SimonCipherRuntimeTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:35Z" duration="2.068719" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1022" name="AllCaesarNoteSurfacesUseTheSameSimonClue" fullname="SimonCipherRuntimeTests.AllCaesarNoteSurfacesUseTheSameSimonClue" methodname="AllCaesarNoteSurfacesUseTheSameSimonClue" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="259103318" result="Passed" start-time="2026-09-20 13:13:03Z" end-time="2026-09-20 13:13:04Z" duration="0.451448" asserts="0">
+        <test-case id="1024" name="AllCaesarNoteSurfacesUseTheSameSimonClue" fullname="SimonCipherRuntimeTests.AllCaesarNoteSurfacesUseTheSameSimonClue" methodname="AllCaesarNoteSurfacesUseTheSameSimonClue" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="27253628" result="Passed" start-time="2026-09-20 13:32:33Z" end-time="2026-09-20 13:32:34Z" duration="0.470223" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[No save data was found. Starting a new game.
+The character with Unicode value \u25B3 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Controls].
+]]></output>
+        </test-case>
+        <test-case id="1019" name="ClockwiseKeyboardControllerAndMouseAgreeOnTwoNotches" fullname="SimonCipherRuntimeTests.ClockwiseKeyboardControllerAndMouseAgreeOnTwoNotches" methodname="ClockwiseKeyboardControllerAndMouseAgreeOnTwoNotches" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="1467748070" result="Passed" start-time="2026-09-20 13:32:34Z" end-time="2026-09-20 13:32:34Z" duration="0.328937" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -134,7 +144,7 @@
           <output><![CDATA[No save data was found. Starting a new game.
 ]]></output>
         </test-case>
-        <test-case id="1019" name="ClockwiseKeyboardControllerAndMouseAgreeOnTwoNotches" fullname="SimonCipherRuntimeTests.ClockwiseKeyboardControllerAndMouseAgreeOnTwoNotches" methodname="ClockwiseKeyboardControllerAndMouseAgreeOnTwoNotches" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="1176722620" result="Passed" start-time="2026-09-20 13:13:04Z" end-time="2026-09-20 13:13:04Z" duration="0.311999" asserts="0">
+        <test-case id="1021" name="InspectionAlwaysShowsFrontFaceAndResetRestoresAA" fullname="SimonCipherRuntimeTests.InspectionAlwaysShowsFrontFaceAndResetRestoresAA" methodname="InspectionAlwaysShowsFrontFaceAndResetRestoresAA" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="924702864" result="Passed" start-time="2026-09-20 13:32:34Z" end-time="2026-09-20 13:32:34Z" duration="0.319227" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -143,7 +153,7 @@
           <output><![CDATA[No save data was found. Starting a new game.
 ]]></output>
         </test-case>
-        <test-case id="1020" name="Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue" fullname="SimonCipherRuntimeTests.Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue" methodname="Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="951680835" result="Passed" start-time="2026-09-20 13:13:04Z" end-time="2026-09-20 13:13:04Z" duration="0.306454" asserts="0">
+        <test-case id="1020" name="OneGreenUnlocksDoorAndChangingPatternRegeneratesEveryClue" fullname="SimonCipherRuntimeTests.OneGreenUnlocksDoorAndChangingPatternRegeneratesEveryClue" methodname="OneGreenUnlocksDoorAndChangingPatternRegeneratesEveryClue" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="1609478489" result="Passed" start-time="2026-09-20 13:32:34Z" end-time="2026-09-20 13:32:35Z" duration="0.317879" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -152,7 +162,16 @@
           <output><![CDATA[No save data was found. Starting a new game.
 ]]></output>
         </test-case>
-        <test-case id="1021" name="SimonDoor_RemainsOpenAndPlayerCanCrossBothWays" fullname="SimonCipherRuntimeTests.SimonDoor_RemainsOpenAndPlayerCanCrossBothWays" methodname="SimonDoor_RemainsOpenAndPlayerCanCrossBothWays" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="441078791" result="Passed" start-time="2026-09-20 13:13:04Z" end-time="2026-09-20 13:13:05Z" duration="0.305120" asserts="0">
+        <test-case id="1022" name="Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue" fullname="SimonCipherRuntimeTests.Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue" methodname="Rewatch_StaysSolvedIgnoresInputAndRestoresMidCue" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="433860872" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.310296" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[No save data was found. Starting a new game.
+]]></output>
+        </test-case>
+        <test-case id="1023" name="SimonDoor_RemainsOpenAndPlayerCanCrossBothWays" fullname="SimonCipherRuntimeTests.SimonDoor_RemainsOpenAndPlayerCanCrossBothWays" methodname="SimonDoor_RemainsOpenAndPlayerCanCrossBothWays" classname="SimonCipherRuntimeTests" runstate="Runnable" seed="1167517554" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.321225" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
@@ -162,107 +181,109 @@
 ]]></output>
         </test-case>
       </test-suite>
-      <test-suite type="TestFixture" id="1023" name="StudyReliabilityTests" fullname="StudyReliabilityTests" classname="StudyReliabilityTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.020645" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1025" name="StudyReliabilityTests" fullname="StudyReliabilityTests" classname="StudyReliabilityTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.022650" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1032" name="Compatibility_RejectsIncompleteAndDifferentLevel" fullname="StudyReliabilityTests.Compatibility_RejectsIncompleteAndDifferentLevel" methodname="Compatibility_RejectsIncompleteAndDifferentLevel" classname="StudyReliabilityTests" runstate="Runnable" seed="173807340" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.000986" asserts="0">
+        <test-case id="1034" name="Compatibility_RejectsIncompleteAndDifferentLevel" fullname="StudyReliabilityTests.Compatibility_RejectsIncompleteAndDifferentLevel" methodname="Compatibility_RejectsIncompleteAndDifferentLevel" classname="StudyReliabilityTests" runstate="Runnable" seed="1629051875" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.001077" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1029" name="Csv_ProtectsFormulasQuotesAndNewlines" fullname="StudyReliabilityTests.Csv_ProtectsFormulasQuotesAndNewlines" methodname="Csv_ProtectsFormulasQuotesAndNewlines" classname="StudyReliabilityTests" runstate="Runnable" seed="1420295339" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.000660" asserts="0">
+        <test-case id="1031" name="Csv_ProtectsFormulasQuotesAndNewlines" fullname="StudyReliabilityTests.Csv_ProtectsFormulasQuotesAndNewlines" methodname="Csv_ProtectsFormulasQuotesAndNewlines" classname="StudyReliabilityTests" runstate="Runnable" seed="1259068757" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.000635" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1030" name="Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" fullname="StudyReliabilityTests.Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" methodname="Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" classname="StudyReliabilityTests" runstate="Runnable" seed="417144843" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.005846" asserts="0">
+        <test-case id="1032" name="Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" fullname="StudyReliabilityTests.Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" methodname="Exports_MatchMilestonesAfterSequenceBoundaryAndUseSeconds" classname="StudyReliabilityTests" runstate="Runnable" seed="1249179585" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.006293" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1027" name="Keypad_RestoresDraftFailuresAndFeedbackTimer" fullname="StudyReliabilityTests.Keypad_RestoresDraftFailuresAndFeedbackTimer" methodname="Keypad_RestoresDraftFailuresAndFeedbackTimer" classname="StudyReliabilityTests" runstate="Runnable" seed="762603394" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.001053" asserts="0">
+        <test-case id="1029" name="Keypad_RestoresDraftFailuresAndFeedbackTimer" fullname="StudyReliabilityTests.Keypad_RestoresDraftFailuresAndFeedbackTimer" methodname="Keypad_RestoresDraftFailuresAndFeedbackTimer" classname="StudyReliabilityTests" runstate="Runnable" seed="1726706345" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.001012" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1028" name="ModalControlOwners_ReleaseIndependently" fullname="StudyReliabilityTests.ModalControlOwners_ReleaseIndependently" methodname="ModalControlOwners_ReleaseIndependently" classname="StudyReliabilityTests" runstate="Runnable" seed="1680192005" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.000856" asserts="0">
+        <test-case id="1030" name="ModalControlOwners_ReleaseIndependently" fullname="StudyReliabilityTests.ModalControlOwners_ReleaseIndependently" methodname="ModalControlOwners_ReleaseIndependently" classname="StudyReliabilityTests" runstate="Runnable" seed="1117391124" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.000874" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1026" name="Player_RestoresVelocityCrouchAndCameraHeight" fullname="StudyReliabilityTests.Player_RestoresVelocityCrouchAndCameraHeight" methodname="Player_RestoresVelocityCrouchAndCameraHeight" classname="StudyReliabilityTests" runstate="Runnable" seed="463285757" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.001077" asserts="0">
+        <test-case id="1028" name="Player_RestoresVelocityCrouchAndCameraHeight" fullname="StudyReliabilityTests.Player_RestoresVelocityCrouchAndCameraHeight" methodname="Player_RestoresVelocityCrouchAndCameraHeight" classname="StudyReliabilityTests" runstate="Runnable" seed="173694340" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.000838" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1031" name="RecoveryFailure_RetriesWithoutDiscardingTheSession" fullname="StudyReliabilityTests.RecoveryFailure_RetriesWithoutDiscardingTheSession" methodname="RecoveryFailure_RetriesWithoutDiscardingTheSession" classname="StudyReliabilityTests" runstate="Runnable" seed="286973333" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.006144" asserts="0">
+        <test-case id="1033" name="RecoveryFailure_RetriesWithoutDiscardingTheSession" fullname="StudyReliabilityTests.RecoveryFailure_RetriesWithoutDiscardingTheSession" methodname="RecoveryFailure_RetriesWithoutDiscardingTheSession" classname="StudyReliabilityTests" runstate="Runnable" seed="1904803831" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.007366" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
-          <output><![CDATA[System.IO.IOException: The file '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/study-retry-7b2d8ea3b48643c6aa8a9ab56f60accc/blocked' already exists.
+          <output><![CDATA[System.IO.IOException: The file '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/study-retry-f1681c1aa9aa4a7c927d65a57c3c962b/blocked' already exists.
   at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00191] in <299d5c9ae27b4d27af003e5f456f4b13>:0 
   at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <299d5c9ae27b4d27af003e5f456f4b13>:0 
   at StudyExports.AtomicWrite (System.String path, System.String text) [0x00000] in /Users/aaronhuang/Documents/Escape Room/Assets/_Project/Scripts/Study/StudyExports.cs:23 
   at ReplayManager.WriteRecovery () [0x00012] in /Users/aaronhuang/Documents/Escape Room/Assets/_Project/Scripts/Playback/ReplayManager.cs:628 
-Normal recording started. ID=5b24a5f7169c4a98897452670b93f5a7, sample interval=0.03333334 seconds.
+Normal recording started. ID=aa38362ffe334f8eaeaedb2bb9116cd7, sample interval=0.03333334 seconds.
 ]]></output>
         </test-case>
-        <test-case id="1024" name="Simon_HandoffPreservesCueIndexAndRemainingTime" fullname="StudyReliabilityTests.Simon_HandoffPreservesCueIndexAndRemainingTime" methodname="Simon_HandoffPreservesCueIndexAndRemainingTime" classname="StudyReliabilityTests" runstate="Runnable" seed="545409840" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.001578" asserts="0">
+        <test-case id="1026" name="Simon_HandoffPreservesCueIndexAndRemainingTime" fullname="StudyReliabilityTests.Simon_HandoffPreservesCueIndexAndRemainingTime" methodname="Simon_HandoffPreservesCueIndexAndRemainingTime" classname="StudyReliabilityTests" runstate="Runnable" seed="694687332" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.001823" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1025" name="SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" fullname="StudyReliabilityTests.SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" methodname="SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" classname="StudyReliabilityTests" runstate="Runnable" seed="918482139" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:05Z" duration="0.000525" asserts="0">
+        <test-case id="1027" name="SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" fullname="StudyReliabilityTests.SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" methodname="SlidingDoor_RestoresMidAnimationAndDoesNotSnapOnRepeatedOpen" classname="StudyReliabilityTests" runstate="Runnable" seed="1699469924" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:35Z" duration="0.000689" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
       </test-suite>
-      <test-suite type="TestFixture" id="1033" name="ZZStudyLevelFlowTests" fullname="ZZStudyLevelFlowTests" classname="ZZStudyLevelFlowTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:07Z" duration="1.786514" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1035" name="ZZStudyLevelFlowTests" fullname="ZZStudyLevelFlowTests" classname="ZZStudyLevelFlowTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:37Z" duration="1.918089" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1034" name="ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" fullname="ZZStudyLevelFlowTests.ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" methodname="ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" classname="ZZStudyLevelFlowTests" runstate="Runnable" seed="107505722" result="Passed" start-time="2026-09-20 13:13:05Z" end-time="2026-09-20 13:13:07Z" duration="1.786142" asserts="0">
+        <test-case id="1036" name="ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" fullname="ZZStudyLevelFlowTests.ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" methodname="ActualLevel_CompleteRecordReplayAndTakeoverHaveMatchingWorldState" classname="ZZStudyLevelFlowTests" runstate="Runnable" seed="164569504" result="Passed" start-time="2026-09-20 13:32:35Z" end-time="2026-09-20 13:32:37Z" duration="1.917684" asserts="0">
           <properties>
             <property name="_JOINTYPE" value="UnityCombinatorial" />
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
           <output><![CDATA[Replay recording launch detected. Starting from new GameData.
-Normal recording started. ID=c95ee440a92741de95a34b7a5d70fcd7, sample interval=0.03333334 seconds.
+Normal recording started. ID=4d2fac85780745da9717b1925c82df08, sample interval=0.03333334 seconds.
+The character with Unicode value \u25B3 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Controls].
 Game save skipped during replay test mode.
 Replay recording launch detected. Starting from new GameData.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.02s (game time 0.02s). Takeover ID=1a94fd3680b94f3491f9ff29c80e69b1, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.02s (game time 0.02s). Takeover ID=4913ce1b0bb543c59ef6f7c850de3c78, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.022s (game time 0.022s). Takeover ID=2a8a38e739e748adb86eb1ccef3e2535, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.021s (game time 0.021s). Takeover ID=0f1fd0fc16334050b4836f4ccad6e62e, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.023s (game time 0.023s). Takeover ID=f473ad80a0844fb4849698f9e738af35, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.022s (game time 0.022s). Takeover ID=60cabba14b1c44319bf01e5ce3bba7fd, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.023s (game time 0.023s). Takeover ID=bcd5ee3f9c194631add38269fa2f5545, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.022s (game time 0.022s). Takeover ID=ecadc213a66e4a09b9c1edf74b5b372e, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.033s (game time 0.033s). Takeover ID=b3d4a5179576480fb7c3755f74ad0cf4, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.032s (game time 0.032s). Takeover ID=5ee641d2e96c40b7b613eb011d468acf, source ID=4d2fac85780745da9717b1925c82df08.
+The character with Unicode value \u25B3 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Controls].
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.035s (game time 0.035s). Takeover ID=108b60b0ea0a4f93826ed4651f3dc19c, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.034s (game time 0.034s). Takeover ID=125a8a56b7e54ee98fc51b10e8118f98, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.04s (game time 0.04s). Takeover ID=977a3401ed224e098a9ce272316a3eeb, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.039s (game time 0.039s). Takeover ID=8e1579230dca4ceaa68861149f98d095, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
-Takeover began at replay 0.042s (game time 0.042s). Takeover ID=7efd51043e6e4117ae69942c65af06c5, source ID=c95ee440a92741de95a34b7a5d70fcd7.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
+Takeover began at replay 0.041s (game time 0.041s). Takeover ID=4288b29f0bba407c95502e81f588689a, source ID=4d2fac85780745da9717b1925c82df08.
 Replay playback launch detected. Skipping data.game load.
-Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-fa69b9fefcd6428ea22c9c20e9d6050b/recordings/normal/c95ee440a92741de95a34b7a5d70fcd7.json'. Poses=9, world checkpoints=9, events=42.
+Playback started from '/var/folders/p5/0pc0l39d6gndlhrccg3y7ydw0000gn/T/escape-level-test-812ad2ae195e4111a7b745e1815b057d/recordings/normal/4d2fac85780745da9717b1925c82df08.json'. Poses=9, world checkpoints=9, events=20.
 Playback reached the end of the selected recording.
 Saving results to: /Users/aaronhuang/Library/Application Support/DefaultCompany/My project/TestResults.xml
 ]]></output>

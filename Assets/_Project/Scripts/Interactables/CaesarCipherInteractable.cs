@@ -358,8 +358,21 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         }
     }
 
+    public void ResetAlignment()
+    {
+        if (ReplayManager.IsPlaybackActive()) return;
+        pointerDragging = false;
+        SetRingIndex(RingSelection.Inner, InitialInnerIndex, false, true);
+    }
+
     void ProcessStepInput()
     {
+        if ((Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame) ||
+            (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame))
+        {
+            ResetAlignment();
+            return;
+        }
         int direction = 0;
         if (Keyboard.current != null)
         {
@@ -741,10 +754,8 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         Vector3 center = bounds.center;
         Vector3 viewNormal = transform.TransformDirection(
             inspectionLocalViewNormal.sqrMagnitude > 0.0001f ? inspectionLocalViewNormal.normalized : Vector3.up);
-        if (mainCamera != null && Vector3.Dot(viewNormal, mainCamera.transform.position - center) < 0f)
-        {
-            viewNormal = -viewNormal;
-        }
+        // Always inspect the authored front face. Flipping sides mirrors the alphabet
+        // and reverses the apparent clockwise direction while keeping the same clue.
         Vector3 viewDirection = -viewNormal.normalized;
 
         float radius = Mathf.Max(0.1f, bounds.extents.magnitude);
@@ -1048,7 +1059,10 @@ public sealed class CaesarCipherInteractable : Interactable, IDataPersistence, I
         }
         if (controlsText != null)
         {
-            controlsText.text = "Drag inner ring • D/→ clockwise • A/← counterclockwise • E/Esc/B exits";
+            int turns = CaesarCipherMath.NormalizeIndex(innerIndex - InitialInnerIndex);
+            controlsText.text = "Drag inner ring • D/→ clockwise • A/← counterclockwise\n"
+                + "R / Y / △ resets A/A • E/Esc/B exits\n"
+                + "Outer A ↔ Inner " + InnerTopSymbol + " • " + turns + " clockwise notches from A/A";
         }
     }
 
