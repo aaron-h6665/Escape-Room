@@ -11,6 +11,7 @@ public class MenuController : MonoBehaviour
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button loadGameButton;
     [SerializeField] private Button exitButton;
+    [SerializeField] private Button optionsButton;
 
     // Keep the old field name so existing prefab/scene data still has a place to deserialize.
     [HideInInspector] public string _newGameLevel;
@@ -47,7 +48,6 @@ public class MenuController : MonoBehaviour
         newGameButton = MenuButtonBinder.BindByName(this, newGameButton, "NewGameButton", NewGameDialogYes);
         loadGameButton = MenuButtonBinder.BindByName(this, loadGameButton, "LoadGameButton (1)", LoadGameDialogYes);
         exitButton = MenuButtonBinder.BindByName(this, exitButton, "ExitButton", ExitButton);
-        foreach (var button in GetComponentsInChildren<Button>(true))
-            if (button.name == "OptionsButton") MenuButtonBinder.Bind(button, StudyMenuPanel.ShowOptions);
+        optionsButton = MenuButtonBinder.BindByName(transform.parent != null ? transform.parent : transform, optionsButton, "OptionsButton", StudyMenuPanel.ShowOptions);
     }
 }

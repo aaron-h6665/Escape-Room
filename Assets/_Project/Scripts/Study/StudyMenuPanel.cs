@@ -67,7 +67,7 @@ public sealed class StudyMenuPanel : MonoBehaviour
         shortcuts.SetActive(panel == null && !completion && (main || paused));
         shortcuts.transform.Find("Options").gameObject.SetActive(!main);
         if (page == "Controls") UpdateControls();
-        if (panel != null && !completion && (Keyboard.current?.escapeKey.wasPressedThisFrame == true || Gamepad.current?.buttonEast.wasPressedThisFrame == true)) Close();
+        if (panel != null && !completion && (Keyboard.current?.escapeKey.wasPressedThisFrame == true || Gamepad.current?.buttonEast.wasPressedThisFrame == true)) Back();
         if (page != "" && !main && !paused && !completion) Close();
         var manager = ReplayManager.instance;
         errorText.text = manager != null ? manager.LastError : "";
@@ -101,25 +101,12 @@ public sealed class StudyMenuPanel : MonoBehaviour
     public void OpenOptions()
     {
         BuildPanel("Options");
-        OptionRow("Volume", 165, () => StudyOptions.Current.volume.ToString("P0"), v => StudyOptions.Current.volume += v * 0.1f);
-        OptionRow("Mouse sensitivity", 80, () => StudyOptions.Current.mouseSensitivity.ToString("0.00"), v => StudyOptions.Current.mouseSensitivity += v * 0.25f);
-        OptionRow("Controller sensitivity", -5, () => StudyOptions.Current.controllerSensitivity.ToString("0.00"), v => StudyOptions.Current.controllerSensitivity += v * 0.25f);
-        ButtonAt(panel.transform, "Invert look: " + (StudyOptions.Current.invertLook ? "On" : "Off"), new Vector2(-205, -110), new Vector2(345, 45), () => { StudyOptions.Current.invertLook = !StudyOptions.Current.invertLook; StudyOptions.Current.Apply(); OpenOptions(); });
-        ButtonAt(panel.transform, "Display: " + (StudyOptions.Current.fullscreen ? "Fullscreen" : "Windowed"), new Vector2(205, -110), new Vector2(345, 45), () => { StudyOptions.Current.fullscreen = !StudyOptions.Current.fullscreen; StudyOptions.Current.Apply(true); OpenOptions(); });
-        ButtonAt(panel.transform, "Resolution: " + StudyOptions.Current.width + " × " + StudyOptions.Current.height, new Vector2(0, -205), new Vector2(400, 45), () =>
-        {
-            int[] widths = { 1024, 1280, 1920 }; int[] heights = { 768, 720, 1080 };
-            int index = (Array.IndexOf(widths, StudyOptions.Current.width) + 1) % widths.Length;
-            StudyOptions.Current.width = widths[index]; StudyOptions.Current.height = heights[index];
-            StudyOptions.Current.Apply(true); OpenOptions();
-        });
-        ButtonAt(panel.transform, "Controls", new Vector2(0, -270), new Vector2(245, 45), OpenControls);
+        ButtonAt(panel.transform, "Controls", Vector2.zero, new Vector2(300, 52), OpenControls);
     }
-    void OptionRow(string name, float y, Func<string> value, Action<int> change)
+    void Back()
     {
-        var label = Label(panel.transform, name + "   " + value(), new Vector2(-95, y), new Vector2(570, 48), 25);
-        ButtonAt(panel.transform, "−", new Vector2(255, y), new Vector2(60, 45), () => { change(-1); StudyOptions.Current.Apply(); label.text = name + "   " + value(); });
-        ButtonAt(panel.transform, "+", new Vector2(335, y), new Vector2(60, 45), () => { change(1); StudyOptions.Current.Apply(); label.text = name + "   " + value(); });
+        if (page == "Controls") OpenOptions();
+        else Close();
     }
     void OpenError()
     {
@@ -158,7 +145,8 @@ public sealed class StudyMenuPanel : MonoBehaviour
         var rect = (RectTransform)panel.transform; rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = rect.offsetMax = Vector2.zero;
         panel.GetComponent<Image>().color = new Color(0.055f, 0.065f, 0.08f, 1f);
         Label(panel.transform, title, new Vector2(0, 285), new Vector2(800, 65), 40);
-        var close = ButtonAt(panel.transform, "Close", new Vector2(470, 285), new Vector2(130, 42), Close);
+        var close = ButtonAt(panel.transform, "Close", new Vector2(470, 285), new Vector2(130, 42), Back);
+        close.GetComponentInChildren<TMP_Text>().text = "Back";
         close.Select();
     }
     void Release()
