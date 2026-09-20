@@ -31,7 +31,7 @@ public static class LevelPolishUtility
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
-        Debug.Log("Current keypad upgraded with a recessed viewport, fitted status text, textured controls, and delete input.");
+        Debug.Log("Current keypad upgraded with a recessed viewport, readable status text, clean controls, and delete input.");
     }
 
     [MenuItem("Tools/Escape Room/Validate Current Keypad Only")]
@@ -52,10 +52,84 @@ public static class LevelPolishUtility
         TMP_Text display = keypad != null ? new SerializedObject(keypad).FindProperty("displayText").objectReferenceValue as TMP_Text : null;
         if (display == null || !display.enableAutoSizing || display.rectTransform.sizeDelta.x > 7.2f)
             throw new InvalidOperationException("The keypad display is not bounded and auto-sizing.");
-        if (buttons.Any(button => button.GetComponent<Renderer>()?.sharedMaterial?.mainTexture == null))
-            throw new InvalidOperationException("One or more keypad buttons are missing their texture.");
+        foreach (NumericKeypadButton button in buttons)
+        {
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+            if (label == null || button.GetComponent<Renderer>().sharedMaterial.mainTexture != null)
+                throw new InvalidOperationException("Keypad controls require labels and a material without an incompatible texture atlas.");
+            label.ForceMeshUpdate();
+            if (label.textInfo.characterCount != label.text.Length || label.isTextTruncated)
+                throw new InvalidOperationException("A keypad label is missing or clipped.");
+        }
+        string originalText = display.text;
+        try
+        {
+            foreach (string value in new[] { "----", "4271", "INCORRECT", "OPEN" })
+            {
+                display.text = value;
+                display.ForceMeshUpdate();
+                if (display.isTextTruncated || display.textBounds.size.x > 6.8f || display.textBounds.size.y > 1.21f)
+                    throw new InvalidOperationException("Keypad status exceeds the display margins: " + value);
+            }
+        }
+        finally
+        {
+            display.text = originalText;
+            display.ForceMeshUpdate();
+        }
 
-        Debug.Log("Keypad validation passed: bounded viewport, fitted status text, textured digits, and delete input are configured.");
+        Debug.Log("Keypad validation passed: bounded viewport, fitted status text, readable digits, and delete input are configured.");
+    }
+
+    [MenuItem("Tools/Escape Room/Upgrade Simon Cipher And Backtracking")]
+    public static void UpgradeSimonCipherAndBacktracking()
+    {
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        RepairSimonBoundary(RequireRoot(scene, "SimonSaysRoom"));
+        ConfigureSimonCipherClue(scene);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log("Simon-linked cipher clue and two-way passage saved.");
+    }
+
+    static void ConfigureSimonCipherClue(Scene scene)
+    {
+        var simon = RequireRoot(scene, "SimonSaysRoom").GetComponentInChildren<SimonSaysController>(true);
+        // Remove the one-round scene override and use the authored five-color prefab pattern.
+        PrefabUtility.RevertPropertyOverride(new SerializedObject(simon).FindProperty("fixedPattern"), InteractionMode.AutomatedAction);
+        var room = RequireRoot(scene, "CaesarCipherRoom");
+        var note = room.transform.Find("Note").GetComponent<NoteInteractable>();
+        var puzzle = room.GetComponentInChildren<ColorKeyChoicePuzzle>(true);
+        Set(puzzle, "clueSimon", simon);
+        Set(puzzle, "clueNote", note);
+        var cipher = room.GetComponentInChildren<CaesarCipherInteractable>(true);
+        Set(cipher, "innerTopSymbolAtZero", 0);
+        Set(cipher, "outerTopSymbolAtZero", 26);
+        Set(cipher, "sourceNote", note);
+        AddWorldClueText(note);
+        note.SetClueText(CaesarPuzzleClue.ForSimon(simon));
+        foreach (TMP_Text text in note.GetComponentsInChildren<TMP_Text>(true))
+            EditorUtility.SetDirty(text);
+    }
+
+    static void AddWorldClueText(NoteInteractable note)
+    {
+        Transform existing = note.transform.Find("WorldClueText");
+        TextMeshPro text = existing != null ? existing.GetComponent<TextMeshPro>()
+            : new GameObject("WorldClueText", typeof(TextMeshPro)).GetComponent<TextMeshPro>();
+        var paper = note.GetComponent<Renderer>();
+        text.transform.SetParent(note.transform, false);
+        text.transform.position = paper.bounds.center + Vector3.up * (paper.bounds.extents.y + 0.002f);
+        text.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+        text.transform.localScale = Vector3.one * 0.01f;
+        text.rectTransform.sizeDelta = new Vector2(21f, 38f);
+        text.fontSize = 23f;
+        text.enableAutoSizing = true; text.fontSizeMin = 15f; text.fontSizeMax = 23f;
+        text.alignment = TextAlignmentOptions.TopLeft;
+        text.color = new Color(0.08f, 0.08f, 0.08f);
+        text.enableWordWrapping = true;
+        text.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
     }
 
     [MenuItem("Tools/Escape Room/Repair Current Level In Place")]
@@ -72,6 +146,7 @@ public static class LevelPolishUtility
         RepairNotes(scene);
         RepairSimonBoundary(simonRoom);
         RepairCaesarPhrase(scene);
+        ConfigureSimonCipherClue(scene);
         RepairCrosshair(scene);
         RepairKeypadAndExit(scene, safeRoom);
         EnsureEventSystem();
@@ -236,7 +311,7 @@ public static class LevelPolishUtility
         GameObject caesar = RequireRoot(scene, "CaesarCipherRoom");
         GameObject safe = RequireRoot(scene, "SafeKeypadRoom");
         ConfigureReadableNote(caesar.transform.Find("Note")?.GetComponent<NoteInteractable>(),
-            "CAESAR'S NOTE\n\nDECODE THIS MESSAGE:\nVLOHQW RUELW\n\nHOW TO USE THE WHEEL\n1. Keep the outer A at the marker.\n2. Turn the inner ring 3 spaces CCW, until inner X sits under outer A.\n3. For each coded outer letter, read the matching inner letter.\n\nEnter the decoded words at the terminal.", "caesar_phrase_note");
+            CaesarPuzzleClue.ForSimon(UnityEngine.Object.FindFirstObjectByType<SimonSaysController>()), "caesar_phrase_note");
         ConfigureReadableNote(safe.transform.Find("SafeNote")?.GetComponent<NoteInteractable>(),
             "TORN CODE — LEFT HALF\n\nThe code begins with:\n\n42", "keypad_first_digits_note");
         ConfigureReadableNote(safe.transform.Find("SafeNote (1)")?.GetComponent<NoteInteractable>(),
@@ -380,6 +455,27 @@ public static class LevelPolishUtility
         CreateWorldBlocker(boundary.transform, "LeftWallBlocker", new Vector3(-5.06f, 7.2f, 10f), new Vector3(4.32f, 10f, 0.22f));
         CreateWorldBlocker(boundary.transform, "RightWallBlocker", new Vector3(0.55f, 7.2f, 10f), new Vector3(4.46f, 10f, 0.22f));
         CreateWorldBlocker(boundary.transform, "DoorHeaderBlocker", new Vector3(-2.29f, 8.43f, 10f), new Vector3(1.22f, 7.55f, 0.22f));
+
+        // The old ProBuilder boundary has a solid reverse face and a full-width collider.
+        // Replace it with three solid wall sections around the actual opening.
+        Transform oldWall = simonRoom.transform.Find("Room/New Game Object");
+        Material wall = oldWall != null ? oldWall.GetComponent<Renderer>()?.sharedMaterial : null;
+        if (oldWall != null) oldWall.gameObject.SetActive(false);
+        foreach (BoxCollider blocker in boundary.GetComponentsInChildren<BoxCollider>())
+        {
+            GameObject surface = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            surface.name = "VisibleWall";
+            UnityEngine.Object.DestroyImmediate(surface.GetComponent<Collider>());
+            surface.transform.SetParent(blocker.transform, false);
+            surface.transform.localScale = blocker.size;
+            surface.GetComponent<Renderer>().sharedMaterial = wall;
+        }
+        Transform doorRoot = simonRoom.transform.Find("HingeDoor");
+        HingeDoor door = doorRoot.GetComponent<HingeDoor>();
+        Set(door, "myDoor", doorRoot.GetComponentInChildren<Animator>(true));
+        Set(door, "requiredPuzzle", simonRoom.GetComponentInChildren<SimonSaysController>(true));
+        Transform pivot = doorRoot.Find("Rotatable");
+        foreach (Collider stray in pivot.GetComponents<Collider>()) stray.enabled = false;
     }
 
     static void RepairCaesarPhrase(Scene scene)
@@ -610,9 +706,14 @@ public static class LevelPolishUtility
         label.transform.localPosition = new Vector3(0f, 0f, 0.62f);
         label.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         label.transform.localScale = Vector3.one * 0.3f;
-        label.rectTransform.sizeDelta = new Vector2(4f, 4f);
+        label.rectTransform.sizeDelta = new Vector2(2.6f, 2.6f);
         label.text = value;
-        label.fontSize = 4f;
+        label.fontSize = 18f;
+        label.enableAutoSizing = true;
+        label.fontSizeMin = 8f;
+        label.fontSizeMax = 18f;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.overflowMode = TextOverflowModes.Truncate;
         label.fontStyle = FontStyles.Bold;
         label.alignment = TextAlignmentOptions.Center;
         label.color = Color.white;
@@ -622,14 +723,15 @@ public static class LevelPolishUtility
 
     static void ApplyKeypadPanelMaterial(Transform keypadRoot)
     {
-        Material panelMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_panelmaterial_standard.mat");
-        Renderer renderer = keypadRoot.GetComponent<Renderer>();
+        Material panelMaterial = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/DarkMetal.mat");
+        // The legacy panel mesh is a child of the keypad container.
+        Renderer renderer = keypadRoot.Find("KeyPad")?.GetComponent<Renderer>();
         if (renderer != null && panelMaterial != null) renderer.sharedMaterial = panelMaterial;
     }
 
     static void ApplyKeypadButtonMaterial(Transform button)
     {
-        Material buttonMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_buttonMaterial_standard.mat");
+        Material buttonMaterial = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/KeypadButton.mat");
         Renderer renderer = button.GetComponent<Renderer>();
         if (renderer != null && buttonMaterial != null) renderer.sharedMaterial = buttonMaterial;
     }
@@ -651,8 +753,8 @@ public static class LevelPolishUtility
         Set(component, "value", "delete");
         CreateDigitLabel(button.transform, "DEL");
         TextMeshPro label = button.transform.Find("DigitLabel").GetComponent<TextMeshPro>();
-        label.fontSize = 2.35f;
-        label.transform.localScale = Vector3.one * 0.22f;
+        label.fontSize = 11f;
+        label.fontSizeMax = 11f;
     }
 
     static TMP_Text CreateKeypadDisplay(Transform keypadRoot)
@@ -666,11 +768,12 @@ public static class LevelPolishUtility
         display.transform.localScale = Vector3.one * 0.075f;
         display.rectTransform.sizeDelta = new Vector2(7.1f, 1.45f);
         display.text = "----";
-        display.fontSize = 2.75f;
+        display.fontSize = 14f;
         display.enableAutoSizing = true;
-        display.fontSizeMin = 1.55f;
-        display.fontSizeMax = 2.75f;
-        display.enableWordWrapping = false;
+        display.fontSizeMin = 5f;
+        display.fontSizeMax = 14f;
+        display.margin = new Vector4(0.25f, 0.12f, 0.25f, 0.12f);
+        display.textWrappingMode = TextWrappingModes.NoWrap;
         display.overflowMode = TextOverflowModes.Truncate;
         display.fontStyle = FontStyles.Bold;
         display.alignment = TextAlignmentOptions.Center;
@@ -689,13 +792,13 @@ public static class LevelPolishUtility
         viewport.transform.rotation = Quaternion.identity;
         viewport.transform.localScale = Vector3.one;
 
-        Material panelMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Keypad/Materials/Standard/keypad_panelmaterial_standard.mat");
+        Material panelMaterial = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/DarkMetal.mat");
         Material displayMaterial = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/Display.mat");
         CreateViewportPart(viewport.transform, "TopBezel", new Vector3(0f, 0.095f, 0f), new Vector3(0.72f, 0.06f, 0.09f), panelMaterial);
         CreateViewportPart(viewport.transform, "BottomBezel", new Vector3(0f, -0.095f, 0f), new Vector3(0.72f, 0.06f, 0.09f), panelMaterial);
         CreateViewportPart(viewport.transform, "LeftBezel", new Vector3(-0.33f, 0f, 0f), new Vector3(0.06f, 0.13f, 0.09f), panelMaterial);
         CreateViewportPart(viewport.transform, "RightBezel", new Vector3(0.33f, 0f, 0f), new Vector3(0.06f, 0.13f, 0.09f), panelMaterial);
-        CreateViewportPart(viewport.transform, "Glass", new Vector3(0f, 0f, 0.01f), new Vector3(0.60f, 0.13f, 0.018f), displayMaterial);
+        CreateViewportPart(viewport.transform, "Glass", new Vector3(0f, 0f, 0.025f), new Vector3(0.60f, 0.13f, 0.018f), displayMaterial);
     }
 
     static void CreateViewportPart(Transform parent, string name, Vector3 localPosition, Vector3 localScale, Material material)
